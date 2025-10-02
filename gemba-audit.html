@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEMBA Walk - CEVA</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4ecdc4, #26d0ce);
+            min-height: 100vh;
+        }
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .header h1 {
+            color: white;
+            font-size: 1.5em;
+            font-weight: 300;
+        }
+        .content {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4ecdc4;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 0.95em;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #4ecdc4;
+        }
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .type-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .type-btn {
+            padding: 18px;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            font-size: 1.05em;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .type-btn.selected {
+            border-width: 3px;
+        }
+        .type-positive {
+            color: #28a745;
+            border-color: #28a745;
+        }
+        .type-positive.selected {
+            background: #28a745;
+            color: white;
+        }
+        .type-negative {
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+        .type-negative.selected {
+            background: #dc3545;
+            color: white;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+        .photo-upload {
+            border: 2px dashed #e0e0e0;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .photo-upload:hover {
+            border-color: #4ecdc4;
+            background: #f8f9fa;
+        }
+        .photo-preview {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #0d47a1;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='mobile-index.html'">← Powrót</button>
+        <h1>GEMBA Walk</h1>
+        <div style="width: 60px;"></div>
+    </div>
+
+    <div class="content">
+        <div class="info-box">
+            📊 GEMBA = miejsce gdzie tworzy się wartość. Obserwuj procesy i identyfikuj możliwości usprawnień.
+        </div>
+
+        <div class="form-card">
+            <form id="gembaForm">
+                <div class="section-title">Podstawowe informacje</div>
+
+                <div class="form-group">
+                    <label>Data i czas:</label>
+                    <input type="datetime-local" class="form-control" id="datetime" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Strefa obserwacji:*</label>
+                    <select class="form-control" id="zone" required>
+                        <option value="">-- Wybierz strefę --</option>
+                        <option value="Inbound">Inbound</option>
+                        <option value="Odnowa">Odnowa</option>
+                        <option value="Zwroty">Zwroty</option>
+                        <option value="B2B">B2B</option>
+                        <option value="B2C">B2C</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Obserwujący:</label>
+                    <input type="text" class="form-control" id="observer" placeholder="Imię i nazwisko">
+                </div>
+
+                <div class="section-title">Kategoria obserwacji</div>
+
+                <div class="form-group">
+                    <label>Wybierz kategorię:*</label>
+                    <select class="form-control" id="category" required onchange="updateSubcategories()">
+                        <option value="">-- Wybierz kategorię --</option>
+                        <option value="BHP">BHP - Bezpieczeństwo</option>
+                        <option value="Jakość">Jakość</option>
+                        <option value="5S">5S - Porządek i czystość</option>
+                        <option value="Standard Pracy">Standard Pracy</option>
+                        <option value="7 Strat LEAN">7 Strat LEAN</option>
+                        <option value="Inne">Inne</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="subcategoryGroup" style="display: none;">
+                    <label>Typ straty LEAN:*</label>
+                    <select class="form-control" id="subcategory">
+                        <option value="">-- Wybierz typ straty --</option>
+                        <option value="Nadprodukcja">Nadprodukcja</option>
+                        <option value="Oczekiwanie">Oczekiwanie</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Nadmierne przetwarzanie">Nadmierne przetwarzanie</option>
+                        <option value="Zapasy">Zapasy</option>
+                        <option value="Ruchy">Ruchy (zbędne przemieszczenia)</option>
+                        <option value="Wady">Wady / Braki</option>
+                    </select>
+                </div>
+
+                <div class="section-title">Typ obserwacji</div>
+
+                <div class="form-group">
+                    <div class="type-buttons">
+                        <button type="button" class="type-btn type-positive" onclick="selectType('Pozytywna', this)">
+                            ✅ Pozytywna<br>
+                            <small style="font-weight: normal;">Dobre praktyki</small>
+                        </button>
+                        <button type="button" class="type-btn type-negative" onclick="selectType('Do poprawy', this)">
+                            ⚠️ Do poprawy<br>
+                            <small style="font-weight: normal;">Wymaga działań</small>
+                        </button>
+                    </div>
+                    <input type="hidden" id="type" required>
+                </div>
+
+                <div class="section-title">Szczegóły obserwacji</div>
+
+                <div class="form-group">
+                    <label>Opis obserwacji:*</label>
+                    <textarea class="form-control" id="description" placeholder="Co dokładnie zaobserwowałeś? Opisz szczegółowo..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Sugerowane działanie:</label>
+                    <textarea class="form-control" id="action" placeholder="Jakie działanie zalecasz?"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Zdjęcie (opcjonalne):</label>
+                    <div class="photo-upload" onclick="document.getElementById('photoInput').click()">
+                        <div id="uploadText">📷 Kliknij aby dodać zdjęcie</div>
+                        <input type="file" id="photoInput" accept="image/*" capture="environment" style="display: none;" onchange="previewPhoto(this)">
+                        <img id="photoPreview" class="photo-preview" style="display: none;">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Zapisz obserwację</button>
+            </form>
+
+            <div class="success-message" id="successMessage">
+                ✅ Obserwacja GEMBA zapisana!<br>
+                <small>Dane gotowe do synchronizacji z desktop</small>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedType = null;
+        let photoData = null;
+
+        // Set current datetime
+        document.getElementById('datetime').value = new Date().toISOString().slice(0, 16);
+
+        function updateSubcategories() {
+            const category = document.getElementById('category').value;
+            const subcategoryGroup = document.getElementById('subcategoryGroup');
+            const subcategory = document.getElementById('subcategory');
+
+            if (category === '7 Strat LEAN') {
+                subcategoryGroup.style.display = 'block';
+                subcategory.required = true;
+            } else {
+                subcategoryGroup.style.display = 'none';
+                subcategory.required = false;
+                subcategory.value = '';
+            }
+        }
+
+        function selectType(type, btn) {
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedType = type;
+            document.getElementById('type').value = type;
+        }
+
+        function previewPhoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    photoData = e.target.result;
+                    document.getElementById('photoPreview').src = e.target.result;
+                    document.getElementById('photoPreview').style.display = 'block';
+                    document.getElementById('uploadText').style.display = 'none';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        document.getElementById('gembaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!selectedType) {
+                alert('Proszę wybrać typ obserwacji (Pozytywna / Do poprawy)');
+                return;
+            }
+
+            const category = document.getElementById('category').value;
+            const subcategory = document.getElementById('subcategory').value;
+
+            const observation = {
+                id: Date.now(),
+                datetime: document.getElementById('datetime').value,
+                zone: document.getElementById('zone').value,
+                observer: document.getElementById('observer').value.trim() || 'Anonimowy',
+                category: category,
+                subcategory: category === '7 Strat LEAN' ? subcategory : null,
+                type: selectedType,
+                description: document.getElementById('description').value.trim(),
+                action: document.getElementById('action').value.trim(),
+                photo: photoData,
+                status: selectedType === 'Do poprawy' ? 'Otwarte' : 'Zamknięte',
+                createdDate: new Date().toISOString(),
+                branch: 'ORA-PL-01',
+                source: 'gemba'
+            };
+
+            // Save to localStorage
+            let observations = JSON.parse(localStorage.getItem('gemba_observations') || '[]');
+            observations.push(observation);
+            localStorage.setItem('gemba_observations', JSON.stringify(observations));
+
+            // If "Do poprawy", also add to action plan
+            if (selectedType === 'Do poprawy') {
+                let actionPlan = JSON.parse(localStorage.getItem('action_plan') || '[]');
+                actionPlan.push({
+                    id: Date.now() + 1,
+                    source: 'GEMBA Walk',
+                    description: `${category}${subcategory ? ' - ' + subcategory : ''}: ${observation.description}`,
+                    actions: observation.action || 'Do określenia',
+                    status: 'Otwarte',
+                    responsible: null,
+                    priority: 'medium',
+                    createdDate: new Date().toISOString().split('T')[0],
+                    dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    zone: observation.zone
+                });
+                localStorage.setItem('action_plan', JSON.stringify(actionPlan));
+            }
+
+            // Show success
+            document.getElementById('gembaForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+
+            setTimeout(() => {
+                window.location.href = 'mobile-index.html';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
