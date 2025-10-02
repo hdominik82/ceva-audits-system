@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEVA Logistics - System Zarządzania</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5986 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .ceva-logo {
+            font-size: 2em;
+            font-weight: 900;
+            color: #1e3a5f;
+            letter-spacing: -2px;
+        }
+
+        .system-title {
+            font-size: 1.4em;
+            font-weight: 500;
+            color: #2c3e50;
+            border-left: 4px solid #e30613;
+            padding-left: 20px;
+        }
+
+        .branch-info {
+            background: #e30613;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .sync-bar {
+            background: #e30613;
+            padding: 12px 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .sync-bar span {
+            color: white;
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+
+        .sync-btn {
+            background: white;
+            color: #e30613;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .sync-btn:hover {
+            background: #f5f5f5;
+            transform: translateY(-1px);
+        }
+
+        .sync-btn.import {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .sync-btn.import:hover {
+            background: #34495e;
+        }
+
+        .main-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .module-card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-top: 4px solid #e30613;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .module-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .module-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .module-description {
+            font-size: 0.9em;
+            color: #666;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .section-header {
+            grid-column: 1 / -1;
+            color: white;
+            text-align: center;
+            margin-bottom: -10px;
+            font-weight: 600;
+            font-size: 1.5em;
+        }
+
+        .mobile-section {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 10px;
+            border-left: 5px solid #4ecdc4;
+        }
+
+        .mobile-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.5em;
+        }
+
+        .mobile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .footer {
+            background: white;
+            padding: 15px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 0.85em;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 15px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .logo-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .system-title {
+                font-size: 1.1em;
+                border-left: none;
+                border-top: 3px solid #e30613;
+                padding-left: 0;
+                padding-top: 10px;
+                text-align: center;
+            }
+            
+            .mobile-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sync-bar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-container">
+            <div class="ceva-logo">CEVA</div>
+            <div class="system-title">System Zarządzania i Audytów</div>
+        </div>
+        <div class="branch-info">ORA-PL-01 | Orange</div>
+    </div>
+
+    <div class="main-container">
+        <div class="mobile-section">
+            <h2>Moduły Audytowe (Mobile)</h2>
+            <div class="mobile-grid">
+                <a href="mobile-index.html" class="module-card">
+                    <div class="module-icon">📱</div>
+                    <div class="module-title">Menu Mobile</div>
+                    <div class="module-description">Główne menu audytów mobilnych</div>
+                </a>
+
+                <a href="5s-audit.html" class="module-card">
+                    <div class="module-icon">🔧</div>
+                    <div class="module-title">Audyt 5S</div>
+                    <div class="module-description">Audyty miesięczne 5S ze strefami</div>
+                </a>
+
+                <a href="gemba-audit.html" class="module-card">
+                    <div class="module-icon">👁️</div>
+                    <div class="module-title">GEMBA Walk</div>
+                    <div class="module-description">Obserwacje miejsca pracy</div>
+                </a>
+
+                <a href="process-audit.html" class="module-card">
+                    <div class="module-icon">⚙️</div>
+                    <div class="module-title">Audyt Procesów</div>
+                    <div class="module-description">Audyty procesów i instrukcji</div>
+                </a>
+
+                <a href="problem-report.html" class="module-card">
+                    <div class="module-icon">📋</div>
+                    <div class="module-title">Zgłoś Problem</div>
+                    <div class="module-description">Szybkie zgłaszanie problemów</div>
+                </a>
+            </div>
+        </div>
+
+        <div class="section-header">Moduły Zarządzania (Desktop)</div>
+
+        <a href="action-plan.html" class="module-card">
+            <div class="module-icon">📊</div>
+            <div class="module-title">Plan Działań</div>
+            <div class="module-description">Zarządzanie niezgodnościami i akcjami</div>
+        </a>
+
+        <a href="competency-matrix.html" class="module-card">
+            <div class="module-icon">🎯</div>
+            <div class="module-title">Macierz Kompetencji</div>
+            <div class="module-description">Zarządzanie kompetencjami pracowników</div>
+        </a>
+
+        <a href="training.html" class="module-card">
+            <div class="module-icon">📚</div>
+            <div class="module-title">Szkolenia</div>
+            <div class="module-description">Wdrożenie nowych pracowników</div>
+        </a>
+
+        <a href="knowledge-tests.html" class="module-card">
+            <div class="module-icon">📝</div>
+            <div class="module-title">Testy Wiedzy</div>
+            <div class="module-description">BHP, Kaizen, Środowisko, Compliance</div>
+        </a>
+    </div>
+
+    <div class="sync-bar">
+        <span>💾 Synchronizacja danych między Mobile i Desktop:</span>
+        <button class="sync-btn" onclick="exportSyncData()">Eksport danych</button>
+        <button class="sync-btn import" onclick="importSyncData()">Import danych</button>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2025 CEVA Logistics | System Audytów i Zarządzania Procesami | ORA-PL-01 Orange</p>
+    </div>
+
+    <input type="file" id="jsonFileInput" style="display: none;" accept=".json">
+
+    <script src="config.js"></script>
+    <script>
+        function exportSyncData() {
+            const syncData = {
+                syncDate: new Date().toISOString(),
+                version: '1.0',
+                branch: 'ORA-PL-01',
+                system: 'CEVA Logistics - Mobile + Desktop Sync',
+                data: {
+                    // Mobile data
+                    fiveS: {
+                        zones: JSON.parse(localStorage.getItem('5s_zones') || '[]'),
+                        auditors: JSON.parse(localStorage.getItem('5s_auditors') || '[]'),
+                        questions: JSON.parse(localStorage.getItem('5s_questions') || '[]'),
+                        history: JSON.parse(localStorage.getItem('5s_history') || '[]')
+                    },
+                    gemba: {
+                        observations: JSON.parse(localStorage.getItem('gemba_observations') || '[]')
+                    },
+                    problems: JSON.parse(localStorage.getItem('problem_reports') || '[]'),
+                    
+                    // Desktop data
+                    actionPlan: JSON.parse(localStorage.getItem('action_plan') || '[]'),
+                    employees: JSON.parse(localStorage.getItem('employees') || '[]'),
+                    instructions: JSON.parse(localStorage.getItem('instructions') || '[]'),
+                    trainings: JSON.parse(localStorage.getItem('trainings') || '[]'),
+                    departments: JSON.parse(localStorage.getItem('departments') || '[]'),
+                    deptStructure: JSON.parse(localStorage.getItem('dept_structure') || '[]'),
+                    competencyMatrix: {
+                        processMatrix: JSON.parse(localStorage.getItem('process_matrix') || '{}'),
+                        additionalSkills: JSON.parse(localStorage.getItem('additional_skills') || '[]'),
+                        skillsMatrix: JSON.parse(localStorage.getItem('skills_matrix') || '{}')
+                    },
+                    knowledgeTests: JSON.parse(localStorage.getItem('test_results') || '[]')
+                }
+            };
+            
+            const dataStr = JSON.stringify(syncData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `ceva_sync_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            localStorage.setItem('lastSync', new Date().toISOString());
+            alert('Dane wyeksportowane!\n\nPlik zawiera wszystkie dane z Mobile i Desktop.\nMożesz go udostępnić przez OneDrive/SharePoint.');
+        }
+
+        function importSyncData() {
+            const input = document.getElementById('jsonFileInput');
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const syncData = JSON.parse(e.target.result);
+                            
+                            if (!syncData.data) {
+                                alert('Nieprawidłowy format pliku!');
+                                return;
+                            }
+                            
+                            const syncDate = new Date(syncData.syncDate);
+                            const confirmMsg = `Dane z synchronizacji:\nData: ${syncDate.toLocaleString('pl-PL')}\nOddział: ${syncData.branch}\n\nCZY NA PEWNO ZAIMPORTOWAĆ?\nObecne dane zostaną nadpisane!`;
+                            
+                            if (confirm(confirmMsg)) {
+                                const data = syncData.data;
+                                
+                                // Import Mobile data
+                                if (data.fiveS) {
+                                    if (data.fiveS.zones) localStorage.setItem('5s_zones', JSON.stringify(data.fiveS.zones));
+                                    if (data.fiveS.auditors) localStorage.setItem('5s_auditors', JSON.stringify(data.fiveS.auditors));
+                                    if (data.fiveS.questions) localStorage.setItem('5s_questions', JSON.stringify(data.fiveS.questions));
+                                    if (data.fiveS.history) localStorage.setItem('5s_history', JSON.stringify(data.fiveS.history));
+                                }
+                                if (data.gemba) {
+                                    if (data.gemba.observations) localStorage.setItem('gemba_observations', JSON.stringify(data.gemba.observations));
+                                }
+                                if (data.problems) localStorage.setItem('problem_reports', JSON.stringify(data.problems));
+                                
+                                // Import Desktop data
+                                if (data.actionPlan) localStorage.setItem('action_plan', JSON.stringify(data.actionPlan));
+                                if (data.employees) localStorage.setItem('employees', JSON.stringify(data.employees));
+                                if (data.instructions) localStorage.setItem('instructions', JSON.stringify(data.instructions));
+                                if (data.trainings) localStorage.setItem('trainings', JSON.stringify(data.trainings));
+                                if (data.departments) localStorage.setItem('departments', JSON.stringify(data.departments));
+                                if (data.deptStructure) localStorage.setItem('dept_structure', JSON.stringify(data.deptStructure));
+                                if (data.competencyMatrix) {
+                                    if (data.competencyMatrix.processMatrix) localStorage.setItem('process_matrix', JSON.stringify(data.competencyMatrix.processMatrix));
+                                    if (data.competencyMatrix.additionalSkills) localStorage.setItem('additional_skills', JSON.stringify(data.competencyMatrix.additionalSkills));
+                                    if (data.competencyMatrix.skillsMatrix) localStorage.setItem('skills_matrix', JSON.stringify(data.competencyMatrix.skillsMatrix));
+                                }
+                                if (data.knowledgeTests) localStorage.setItem('test_results', JSON.stringify(data.knowledgeTests));
+                                
+                                localStorage.setItem('lastSync', new Date().toISOString());
+                                alert('Import zakończony pomyślnie!\nDane zostały zsynchronizowane.');
+                                location.reload();
+                            }
+                        } catch (error) {
+                            alert('Błąd podczas importu: ' + error.message);
+                            console.error('Import error:', error);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        // Show last sync info
+        const lastSync = localStorage.getItem('lastSync');
+        if (lastSync) {
+            const syncDate = new Date(lastSync);
+            console.log('Ostatnia synchronizacja:', syncDate.toLocaleString('pl-PL'));
+        }
+    </script>
+</body>
+</html>
