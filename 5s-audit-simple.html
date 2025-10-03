@@ -3,42 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audyt 5S Mobile - CEVA</title>
+    <title>Audyt 5S - CEVA Mobile</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1e3a5f 0%, #2d5986 100%);
             min-height: 100vh;
+            padding-bottom: 40px;
         }
         .header {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             padding: 15px 20px;
-            color: white;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .header h1 {
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+        .header-title {
+            color: white;
             font-size: 1.3em;
             font-weight: 300;
-            margin-bottom: 5px;
-        }
-        .branch {
-            font-size: 0.9em;
-            opacity: 0.9;
         }
         .content {
             padding: 20px;
             max-width: 600px;
             margin: 0 auto;
         }
+        .progress {
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #1e3a5f;
+            margin-bottom: 20px;
+        }
         .form-card {
             background: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 20px;
             margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         .form-group {
             margin-bottom: 20px;
@@ -48,27 +63,34 @@
             font-weight: 600;
             margin-bottom: 8px;
             color: #333;
-            font-size: 1em;
         }
         .form-control {
             width: 100%;
             padding: 12px;
             border: 2px solid #e0e0e0;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 1em;
+        }
+        .category-header {
+            background: #4ecdc4;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            margin: 20px 0 15px;
+            text-align: center;
+            font-weight: 600;
         }
         .question-item {
             background: #f8f9fa;
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 10px;
+            padding: 15px;
             margin-bottom: 15px;
-            border-left: 5px solid #4ecdc4;
+            border-left: 4px solid #4ecdc4;
         }
         .question-text {
             font-weight: 600;
             margin-bottom: 15px;
             color: #333;
-            font-size: 1em;
         }
         .answer-buttons {
             display: grid;
@@ -78,15 +100,16 @@
         .answer-btn {
             padding: 15px 10px;
             border: 3px solid #e0e0e0;
-            border-radius: 10px;
+            border-radius: 8px;
             background: white;
             cursor: pointer;
-            font-size: 0.95em;
             font-weight: 600;
             transition: all 0.3s;
             text-align: center;
         }
-        .answer-btn.selected { border-width: 4px; }
+        .answer-btn.selected {
+            border-width: 4px;
+        }
         .answer-btn-yes { color: #28a745; border-color: #28a745; }
         .answer-btn-yes.selected { background: #28a745; color: white; }
         .answer-btn-no { color: #dc3545; border-color: #dc3545; }
@@ -99,62 +122,32 @@
             background: #4ecdc4;
             color: white;
             border: none;
-            border-radius: 15px;
+            border-radius: 12px;
             font-size: 1.2em;
             font-weight: 600;
             cursor: pointer;
             margin-top: 20px;
         }
-        .progress {
-            text-align: center;
-            color: white;
-            font-size: 1.1em;
-            font-weight: 600;
-            padding: 15px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        .category-header {
-            background: #4ecdc4;
-            color: white;
-            padding: 12px;
-            border-radius: 10px;
-            margin: 25px 0 15px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 1.1em;
-        }
-        .comment-area {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            margin-top: 10px;
-            font-family: inherit;
-            resize: vertical;
-            min-height: 70px;
-        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Audyt 5S</h1>
-        <div class="branch">ORA-PL-01 | Orange</div>
+        <button class="back-btn" onclick="window.location.href='mobile-index.html'">← Powrót</button>
+        <div class="header-title">Audyt 5S</div>
+        <div style="width:80px"></div>
     </div>
 
     <div class="content">
-        <div class="progress" id="progress">Wypełnij formularz poniżej</div>
+        <div class="progress" id="progress">Postęp: 0 / 10</div>
 
         <div class="form-card">
             <div class="form-group">
                 <label>Data audytu:</label>
-                <input type="date" id="auditDate" class="form-control" required>
+                <input type="date" id="auditDate" class="form-control">
             </div>
-
             <div class="form-group">
                 <label>Strefa:</label>
-                <select id="zone" class="form-control" required>
+                <select id="zone" class="form-control">
                     <option value="">-- Wybierz strefę --</option>
                     <option value="Inbound">Inbound</option>
                     <option value="Odnowa">Odnowa</option>
@@ -163,11 +156,10 @@
                     <option value="B2C">B2C</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label>Audytor:</label>
-                <select id="auditor" class="form-control" required>
-                    <option value="">-- Wybierz audytora --</option>
+                <select id="auditor" class="form-control">
+                    <option value="">-- Wybierz --</option>
                     <option value="Jan Surwilo">Jan Surwilo</option>
                     <option value="Konrad Kasinski">Konrad Kasinski</option>
                     <option value="Mariusz Maciah">Mariusz Maciah</option>
@@ -179,104 +171,96 @@
 
         <div id="questionsContainer"></div>
 
-        <button class="submit-btn" onclick="saveAudit()">Zapisz audyt i pobierz JSON</button>
+        <button class="submit-btn" onclick="saveAudit()">Zapisz i pobierz JSON</button>
     </div>
 
     <script>
-        <script>
-const questions = [
-    {cat: 1, text: "Czy wszystkie niepotrzebne przedmioty zostały usunięte?"},
-    {cat: 1, text: "Czy pozostały tylko niezbędne narzędzia?"},
-    {cat: 2, text: "Czy każdy przedmiot ma wyznaczone miejsce?"},
-    {cat: 2, text: "Czy wszystkie przedmioty są na swoich miejscach?"},
-    {cat: 3, text: "Czy obszar jest czysty i uporządkowany?"},
-    {cat: 3, text: "Czy regularnie przeprowadzane jest sprzątanie?"},
-    {cat: 4, text: "Czy istnieją standardy organizacji?"},
-    {cat: 4, text: "Czy standardy są widoczne i zrozumiałe?"},
-    {cat: 5, text: "Czy pracownicy stosują się do standardów?"},
-    {cat: 5, text: "Czy przeprowadzane są audyty?"}
-];
+        const questions = [
+            {cat:1, text:"Czy wszystkie niepotrzebne przedmioty zostały usunięte?"},
+            {cat:1, text:"Czy pozostały tylko niezbędne narzędzia?"},
+            {cat:2, text:"Czy każdy przedmiot ma wyznaczone miejsce?"},
+            {cat:2, text:"Czy wszystkie przedmioty są na swoich miejscach?"},
+            {cat:3, text:"Czy obszar jest czysty i uporządkowany?"},
+            {cat:3, text:"Czy regularnie przeprowadzane jest sprzątanie?"},
+            {cat:4, text:"Czy istnieją standardy organizacji?"},
+            {cat:4, text:"Czy standardy są widoczne i zrozumiałe?"},
+            {cat:5, text:"Czy pracownicy stosują się do standardów?"},
+            {cat:5, text:"Czy przeprowadzane są audyty?"}
+        ];
+        
+        const cats = ['Sortowanie','Systematyczność','Sprzątanie','Standaryzacja','Samodyscyplina'];
+        let answers = {};
 
-const categories = ['Sortowanie', 'Systematyczność', 'Sprzątanie', 'Standaryzacja', 'Samodyscyplina'];
-let answers = {};
+        document.getElementById('auditDate').value = new Date().toISOString().split('T')[0];
 
-document.getElementById('auditDate').value = new Date().toISOString().split('T')[0];
-
-function renderQuestions() {
-    const container = document.getElementById('questionsContainer');
-    for (let cat = 1; cat <= 5; cat++) {
-        const catDiv = document.createElement('div');
-        catDiv.innerHTML = '<div class="category-header">' + cat + 'S - ' + categories[cat-1] + '</div>';
-        container.appendChild(catDiv);
-
-        questions.filter(q => q.cat === cat).forEach((q, idx) => {
-            const qDiv = document.createElement('div');
-            qDiv.className = 'question-item';
-            qDiv.innerHTML = '<div class="question-text">' + q.text + '</div>' +
-                '<div class="answer-buttons">' +
-                '<button class="answer-btn answer-btn-yes" onclick="selectAnswer(' + cat + ',' + idx + ',\'yes\',this)">✓ Tak</button>' +
-                '<button class="answer-btn answer-btn-no" onclick="selectAnswer(' + cat + ',' + idx + ',\'no\',this)">✗ Nie</button>' +
-                '<button class="answer-btn answer-btn-na" onclick="selectAnswer(' + cat + ',' + idx + ',\'na\',this)">− N/A</button>' +
-                '</div>';
-            container.appendChild(qDiv);
-        });
-    }
-}
-
-function selectAnswer(cat, idx, value, btn) {
-    btn.parentElement.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    answers[cat + '_' + idx] = value;
-    document.getElementById('progress').textContent = 'Postęp: ' + Object.keys(answers).length + ' / ' + questions.length;
-}
-
-function saveAudit() {
-    const date = document.getElementById('auditDate').value;
-    const zone = document.getElementById('zone').value;
-    const auditor = document.getElementById('auditor').value;
-
-    if (!date || !zone || !auditor) {
-        alert('Wypełnij: Data, Strefa, Audytor');
-        return;
-    }
-
-    let total = 0, correct = 0;
-    questions.forEach((q, idx) => {
-        const ans = answers[q.cat + '_' + idx];
-        if (ans) {
-            total++;
-            if (ans === 'yes' || ans === 'na') correct++;
+        function render() {
+            const c = document.getElementById('questionsContainer');
+            c.innerHTML = '';
+            for(let i=1; i<=5; i++) {
+                c.innerHTML += '<div class="category-header">'+i+'S - '+cats[i-1]+'</div>';
+                questions.filter(q=>q.cat===i).forEach((q,idx)=> {
+                    const key = i+'_'+idx;
+                    c.innerHTML += '<div class="question-item">'+
+                        '<div class="question-text">'+q.text+'</div>'+
+                        '<div class="answer-buttons">'+
+                        '<button class="answer-btn answer-btn-yes" onclick="select(\''+key+'\',\'yes\',this)">✓ Tak</button>'+
+                        '<button class="answer-btn answer-btn-no" onclick="select(\''+key+'\',\'no\',this)">✗ Nie</button>'+
+                        '<button class="answer-btn answer-btn-na" onclick="select(\''+key+'\',\'na\',this)">− N/A</button>'+
+                        '</div></div>';
+                });
+            }
         }
-    });
 
-    if (total === 0) {
-        alert('Odpowiedz na pytania');
-        return;
-    }
+        function select(key, val, btn) {
+            btn.parentElement.querySelectorAll('.answer-btn').forEach(b=>b.classList.remove('selected'));
+            btn.classList.add('selected');
+            answers[key] = val;
+            document.getElementById('progress').textContent = 'Postęp: '+Object.keys(answers).length+' / 10';
+        }
 
-    const score = Math.round((correct / total) * 100);
-    const data = {
-        branch: 'ORA-PL-01',
-        date: date,
-        zone: zone,
-        auditor: auditor,
-        score: score,
-        answers: answers
-    };
+        function saveAudit() {
+            const date = document.getElementById('auditDate').value;
+            const zone = document.getElementById('zone').value;
+            const auditor = document.getElementById('auditor').value;
 
-    const json = JSON.stringify(data, null, 2);
-    const blob = new Blob([json], {type: 'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = '5s_' + zone + '_' + date + '.json';
-    a.click();
-    
-    alert('Wynik: ' + score + '%\nPlik pobrany!');
-}
+            if(!date||!zone||!auditor) {
+                alert('Wypełnij wszystkie pola!');
+                return;
+            }
+            if(Object.keys(answers).length < 10) {
+                alert('Odpowiedz na wszystkie pytania!');
+                return;
+            }
 
-renderQuestions();
-</script>
-       
+            let total=0, correct=0;
+            for(let k in answers) {
+                total++;
+                if(answers[k]==='yes'||answers[k]==='na') correct++;
+            }
+
+            const score = Math.round((correct/total)*100);
+            const data = {
+                branch:'ORA-PL-01',
+                date:date,
+                zone:zone,
+                auditor:auditor,
+                score:score,
+                answers:answers,
+                timestamp:new Date().toISOString()
+            };
+
+            const json = JSON.stringify(data,null,2);
+            const blob = new Blob([json],{type:'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '5s_'+zone+'_'+date+'.json';
+            a.click();
+
+            alert('Wynik: '+score+'%\nPlik JSON pobrany!');
+        }
+
+        render();
+    </script>
 </body>
 </html>
