@@ -41,15 +41,6 @@
             max-width: 600px;
             margin: 0 auto;
         }
-        .level-indicator {
-            background: rgba(255,255,255,0.9);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            font-weight: 600;
-            color: #667eea;
-            margin-bottom: 20px;
-        }
         .form-card {
             background: white;
             border-radius: 15px;
@@ -166,10 +157,6 @@
             align-items: center;
             margin-bottom: 10px;
         }
-        .waste-type {
-            font-weight: 600;
-            color: #333;
-        }
         .btn-remove {
             background: #dc3545;
             color: white;
@@ -200,34 +187,6 @@
             min-height: 80px;
             margin-top: 10px;
         }
-        .nav-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .btn-primary {
-            width: 100%;
-            padding: 15px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .btn-secondary {
-            width: 100%;
-            padding: 15px;
-            background: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-        }
         .btn-success {
             width: 100%;
             padding: 18px;
@@ -257,6 +216,12 @@
             text-align: left;
         }
         .hidden { display: none; }
+        .level-content {
+            display: none;
+        }
+        .level-content.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -267,30 +232,40 @@
     </div>
 
     <div class="content">
-        <div class="level-indicator" id="levelIndicator">Poziom 1 z 3</div>
+        <div class="form-card">
+            <div class="form-group">
+                <label>Data GEMBA Walk:</label>
+                <input type="date" id="gembaDate" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Obszar/Strefa:</label>
+                <select id="gembaZone" class="form-control">
+                    <option value="">-- Wybierz obszar --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Osoba przeprowadzająca:</label>
+                <select id="gembaLead" class="form-control">
+                    <option value="">-- Wybierz --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Poziom GEMBA:</label>
+                <select id="gembaLevel" class="form-control" onchange="switchLevel()">
+                    <option value="">-- Wybierz poziom --</option>
+                    <option value="1">Poziom 1 - Obserwacje podstawowe</option>
+                    <option value="2">Poziom 2 - Analiza procesu</option>
+                    <option value="3">Poziom 3 - Głęboka analiza (Root Cause)</option>
+                </select>
+            </div>
+        </div>
 
         <!-- POZIOM 1 -->
-        <div id="level1">
+        <div id="level1Content" class="level-content">
             <div class="form-card">
                 <div class="form-group">
-                    <label>Data GEMBA Walk:</label>
-                    <input type="date" id="gembaDate" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label>Obszar/Strefa:</label>
-                    <select id="gembaZone" class="form-control">
-                        <option value="">-- Wybierz obszar --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Osoba przeprowadzająca:</label>
-                    <select id="gembaLead" class="form-control">
-                        <option value="">-- Wybierz --</option>
-                    </select>
-                </div>
-                <div class="form-group">
                     <label>Kategoria obserwacji:</label>
-                    <select id="category" class="form-control">
+                    <select id="category" class="form-control" onchange="renderQuestions()">
                         <option value="">-- Wybierz kategorię --</option>
                         <option value="process">Proces</option>
                         <option value="5s">5S</option>
@@ -303,8 +278,8 @@
 
             <div class="waste-section">
                 <div class="waste-title">📊 Zaobserwowane straty (7 strat Lean)</div>
-                <div id="wastesContainer"></div>
-                <button class="btn-add-waste" onclick="addWaste()">+ Dodaj stratę</button>
+                <div id="wastesContainer1"></div>
+                <button class="btn-add-waste" onclick="addWaste(1)">+ Dodaj stratę</button>
             </div>
 
             <div class="form-card">
@@ -313,12 +288,10 @@
                     <textarea id="notesLevel1" class="textarea-field" placeholder="Dodatkowe obserwacje..."></textarea>
                 </div>
             </div>
-
-            <button class="btn-primary" onclick="goToLevel(2)">Przejdź do poziomu 2 →</button>
         </div>
 
         <!-- POZIOM 2 -->
-        <div id="level2" class="hidden">
+        <div id="level2Content" class="level-content">
             <div class="form-card">
                 <div class="section-header">Analiza Procesu - Poziom 2</div>
                 <div class="form-group">
@@ -332,9 +305,9 @@
             </div>
 
             <div class="waste-section">
-                <div class="waste-title">📊 Dodatkowe straty - Poziom 2</div>
+                <div class="waste-title">📊 Zaobserwowane straty (7 strat Lean)</div>
                 <div id="wastesContainer2"></div>
-                <button class="btn-add-waste" onclick="addWasteLevel2()">+ Dodaj stratę</button>
+                <button class="btn-add-waste" onclick="addWaste(2)">+ Dodaj stratę</button>
             </div>
 
             <div class="form-card">
@@ -343,35 +316,26 @@
                     <textarea id="notesLevel2" class="textarea-field" placeholder="Dodatkowe obserwacje..."></textarea>
                 </div>
             </div>
-
-            <div class="nav-buttons">
-                <button class="btn-secondary" onclick="goToLevel(1)">← Poziom 1</button>
-                <button class="btn-primary" onclick="goToLevel(3)">Poziom 3 →</button>
-            </div>
         </div>
 
         <!-- POZIOM 3 -->
-        <div id="level3" class="hidden">
+        <div id="level3Content" class="level-content">
             <div class="form-card">
-                <div class="section-header">Głęboka Analiza - Poziom 3</div>
+                <div class="section-header">Analiza Procesu - Poziom 3</div>
                 <div class="form-group">
-                    <label>Główne przyczyny problemów (root cause):</label>
-                    <textarea id="rootCause3" class="textarea-field" placeholder="Dlaczego występują te problemy? (5x Dlaczego)"></textarea>
+                    <label>Opis procesu i jego przebieg:</label>
+                    <textarea id="processAnalysis3" class="textarea-field" placeholder="Opisz szczegółowo przebieg procesu..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Proponowane działania naprawcze:</label>
-                    <textarea id="actions3" class="textarea-field" placeholder="Jakie działania należy podjąć?"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Oczekiwane rezultaty:</label>
-                    <textarea id="expectedResults3" class="textarea-field" placeholder="Jakie będą rezultaty po wdrożeniu?"></textarea>
+                    <label>Zidentyfikowane problemy:</label>
+                    <textarea id="processProblems3" class="textarea-field" placeholder="Jakie problemy zauważyłeś w procesie?"></textarea>
                 </div>
             </div>
 
             <div class="waste-section">
-                <div class="waste-title">📊 Dodatkowe straty - Poziom 3</div>
+                <div class="waste-title">📊 Zaobserwowane straty (7 strat Lean)</div>
                 <div id="wastesContainer3"></div>
-                <button class="btn-add-waste" onclick="addWasteLevel3()">+ Dodaj stratę</button>
+                <button class="btn-add-waste" onclick="addWaste(3)">+ Dodaj stratę</button>
             </div>
 
             <div class="form-card">
@@ -380,12 +344,9 @@
                     <textarea id="notesLevel3" class="textarea-field" placeholder="Dodatkowe obserwacje..."></textarea>
                 </div>
             </div>
-
-            <div class="nav-buttons">
-                <button class="btn-secondary" onclick="goToLevel(2)">← Poziom 2</button>
-                <button class="btn-success" onclick="saveGemba()">Zapisz GEMBA Walk</button>
-            </div>
         </div>
+
+        <button class="btn-success" onclick="saveGemba()" id="saveBtn" style="display:none;">Zapisz GEMBA Walk</button>
 
         <!-- WYNIK -->
         <div id="resultSection" class="result-card">
@@ -401,11 +362,11 @@
                 <div style="background: white; padding: 10px; border-radius: 5px; margin: 10px 0; font-family: monospace; font-size: 0.85em;" id="fileName">gemba.json</div>
             </div>
 
-            <button class="btn-primary" id="openSharePoint" style="margin-top: 15px;">
+            <button class="btn-success" id="openSharePoint" style="margin-top: 15px;">
                 📁 Otwórz SharePoint - folder Gemba
             </button>
             
-            <button class="btn-secondary" onclick="location.reload()" style="margin-top: 10px;">
+            <button class="btn-success" onclick="location.reload()" style="margin-top: 10px; background: #6c757d;">
                 🔄 Nowy GEMBA Walk
             </button>
         </div>
@@ -451,10 +412,9 @@
             "Wady/Defekty"
         ];
 
-        let currentLevel = 1;
         let answers = {};
         let comments = {};
-        let wastes = { level1: [], level2: [], level3: [] };
+        let wastes = { 1: [], 2: [], 3: [] };
 
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('gembaDate').value = new Date().toISOString().split('T')[0];
@@ -474,9 +434,22 @@
                 option.textContent = auditor;
                 leadSelect.appendChild(option);
             });
-
-            document.getElementById('category').addEventListener('change', renderQuestions);
         });
+
+        function switchLevel() {
+            const level = document.getElementById('gembaLevel').value;
+            
+            document.getElementById('level1Content').classList.remove('active');
+            document.getElementById('level2Content').classList.remove('active');
+            document.getElementById('level3Content').classList.remove('active');
+            
+            if (level) {
+                document.getElementById(`level${level}Content`).classList.add('active');
+                document.getElementById('saveBtn').style.display = 'block';
+            } else {
+                document.getElementById('saveBtn').style.display = 'none';
+            }
+        }
 
         function renderQuestions() {
             const category = document.getElementById('category').value;
@@ -536,21 +509,9 @@
             }
         }
 
-        function addWaste() {
-            addWasteToLevel('level1', 'wastesContainer');
-        }
-
-        function addWasteLevel2() {
-            addWasteToLevel('level2', 'wastesContainer2');
-        }
-
-        function addWasteLevel3() {
-            addWasteToLevel('level3', 'wastesContainer3');
-        }
-
-        function addWasteToLevel(level, containerId) {
+        function addWaste(level) {
             const wasteId = Date.now() + Math.random();
-            const container = document.getElementById(containerId);
+            const container = document.getElementById(`wastesContainer${level}`);
             
             const wasteDiv = document.createElement('div');
             wasteDiv.className = 'waste-item';
@@ -561,7 +522,7 @@
                         <option value="">-- Wybierz typ straty --</option>
                         ${wasteTypes.map(w => `<option value="${w}">${w}</option>`).join('')}
                     </select>
-                    <button class="btn-remove" onclick="removeWaste('${wasteId}', '${level}')">Usuń</button>
+                    <button class="btn-remove" onclick="removeWaste('${wasteId}', ${level})">Usuń</button>
                 </div>
                 <textarea class="textarea-field" id="desc_${wasteId}" placeholder="Opisz zaobserwowaną stratę..." style="min-height: 60px;"></textarea>
             `;
@@ -575,19 +536,19 @@
             wastes[level] = wastes[level].filter(w => w.id !== wasteId);
         }
 
-        function goToLevel(level) {
-            if (level === 2 && currentLevel === 1) {
-                const date = document.getElementById('gembaDate').value;
-                const zone = document.getElementById('gembaZone').value;
-                const lead = document.getElementById('gembaLead').value;
-                const category = document.getElementById('category').value;
-                
-                if (!date || !zone || !lead || !category) {
-                    alert('Wypełnij wszystkie pola podstawowe!');
-                    return;
-                }
-                
-                // Sprawdź czy wszystkie "Nie" mają komentarze
+        function saveGemba() {
+            const date = document.getElementById('gembaDate').value;
+            const zone = document.getElementById('gembaZone').value;
+            const lead = document.getElementById('gembaLead').value;
+            const level = document.getElementById('gembaLevel').value;
+
+            if (!date || !zone || !lead || !level) {
+                alert('Wypełnij wszystkie pola podstawowe!');
+                return;
+            }
+
+            // Walidacja komentarzy dla poziomu 1
+            if (level === '1') {
                 for (let key in answers) {
                     if (answers[key] === 'no') {
                         const commentValue = document.getElementById(`comment_${key}`).value.trim();
@@ -599,30 +560,15 @@
                     }
                 }
             }
-            
-            document.getElementById('level1').classList.add('hidden');
-            document.getElementById('level2').classList.add('hidden');
-            document.getElementById('level3').classList.add('hidden');
-            
-            document.getElementById(`level${level}`).classList.remove('hidden');
-            document.getElementById('levelIndicator').textContent = `Poziom ${level} z 3`;
-            currentLevel = level;
-        }
-
-        function saveGemba() {
-            const date = document.getElementById('gembaDate').value;
-            const zone = document.getElementById('gembaZone').value;
-            const lead = document.getElementById('gembaLead').value;
-            const category = document.getElementById('category').value;
 
             const allWastes = [];
-            ['level1', 'level2', 'level3'].forEach(level => {
-                wastes[level].forEach(w => {
+            [1, 2, 3].forEach(lvl => {
+                wastes[lvl].forEach(w => {
                     const type = document.getElementById(`type_${w.id}`)?.value;
                     const desc = document.getElementById(`desc_${w.id}`)?.value.trim();
                     if (type && desc) {
                         allWastes.push({
-                            level: level,
+                            level: lvl,
                             type: type,
                             description: desc,
                             id: w.id
@@ -639,30 +585,36 @@
                 timestamp: new Date().toISOString(),
                 zone: zone,
                 lead: lead,
-                category: category,
+                gembaLevel: parseInt(level),
                 
-                level1: {
+                data: {}
+            };
+
+            // Dodaj dane w zależności od poziomu
+            if (level === '1') {
+                const category = document.getElementById('category').value;
+                gembaData.category = category;
+                gembaData.data.level1 = {
                     answers: answers,
                     comments: comments,
                     notes: document.getElementById('notesLevel1').value.trim()
-                },
-                
-                level2: {
+                };
+            } else if (level === '2') {
+                gembaData.data.level2 = {
                     processAnalysis: document.getElementById('processAnalysis2').value.trim(),
                     processProblems: document.getElementById('processProblems2').value.trim(),
                     notes: document.getElementById('notesLevel2').value.trim()
-                },
-                
-                level3: {
-                    rootCause: document.getElementById('rootCause3').value.trim(),
-                    actions: document.getElementById('actions3').value.trim(),
-                    expectedResults: document.getElementById('expectedResults3').value.trim(),
+                };
+            } else if (level === '3') {
+                gembaData.data.level3 = {
+                    processAnalysis: document.getElementById('processAnalysis3').value.trim(),
+                    processProblems: document.getElementById('processProblems3').value.trim(),
                     notes: document.getElementById('notesLevel3').value.trim()
-                },
-                
-                wastes: allWastes,
-                wastesCount: allWastes.length
-            };
+                };
+            }
+
+            gembaData.wastes = allWastes;
+            gembaData.wastesCount = allWastes.length;
 
             try {
                 let localGemba = JSON.parse(localStorage.getItem('gemba_mobile_audits') || '[]');
@@ -687,8 +639,7 @@
         }
 
         function showResult(fileName) {
-            document.getElementById('level3').classList.add('hidden');
-            document.getElementById('levelIndicator').style.display = 'none';
+            document.querySelector('.content > *:not(#resultSection)').style.display = 'none';
             
             const resultSection = document.getElementById('resultSection');
             resultSection.classList.add('visible');
