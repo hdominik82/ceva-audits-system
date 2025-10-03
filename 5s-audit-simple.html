@@ -183,162 +183,100 @@
     </div>
 
     <script>
-        const questions = [
-            {cat: 1, text: "Czy wszystkie niepotrzebne przedmioty zostały usunięte?"},
-            {cat: 1, text: "Czy pozostały tylko niezbędne narzędzia?"},
-            {cat: 2, text: "Czy każdy przedmiot ma wyznaczone miejsce?"},
-            {cat: 2, text: "Czy wszystkie przedmioty są na swoich miejscach?"},
-            {cat: 3, text: "Czy obszar jest czysty i uporządkowany?"},
-            {cat: 3, text: "Czy regularnie przeprowadzane jest sprzątanie?"},
-            {cat: 4, text: "Czy istnieją standardy organizacji?"},
-            {cat: 4, text: "Czy standardy są widoczne i zrozumiałe?"},
-            {cat: 5, text: "Czy pracownicy stosują się do standardów?"},
-            {cat: 5, text: "Czy przeprowadzane są audyty?"}
-        ];
+        <script>
+const questions = [
+    {cat: 1, text: "Czy wszystkie niepotrzebne przedmioty zostały usunięte?"},
+    {cat: 1, text: "Czy pozostały tylko niezbędne narzędzia?"},
+    {cat: 2, text: "Czy każdy przedmiot ma wyznaczone miejsce?"},
+    {cat: 2, text: "Czy wszystkie przedmioty są na swoich miejscach?"},
+    {cat: 3, text: "Czy obszar jest czysty i uporządkowany?"},
+    {cat: 3, text: "Czy regularnie przeprowadzane jest sprzątanie?"},
+    {cat: 4, text: "Czy istnieją standardy organizacji?"},
+    {cat: 4, text: "Czy standardy są widoczne i zrozumiałe?"},
+    {cat: 5, text: "Czy pracownicy stosują się do standardów?"},
+    {cat: 5, text: "Czy przeprowadzane są audyty?"}
+];
 
-        const categories = ['Sortowanie', 'Systematyczność', 'Sprzątanie', 'Standaryzacja', 'Samodyscyplina'];
-        let answers = {};
+const categories = ['Sortowanie', 'Systematyczność', 'Sprzątanie', 'Standaryzacja', 'Samodyscyplina'];
+let answers = {};
 
-        document.getElementById('auditDate').value = new Date().toISOString().split('T')[0];
+document.getElementById('auditDate').value = new Date().toISOString().split('T')[0];
 
-        function renderQuestions() {
-            const container = document.getElementById('questionsContainer');
-            container.innerHTML = '';
+function renderQuestions() {
+    const container = document.getElementById('questionsContainer');
+    for (let cat = 1; cat <= 5; cat++) {
+        const catDiv = document.createElement('div');
+        catDiv.innerHTML = '<div class="category-header">' + cat + 'S - ' + categories[cat-1] + '</div>';
+        container.appendChild(catDiv);
 
-            for (let cat = 1; cat <= 5; cat++) {
-                const catDiv = document.createElement('div');
-                catDiv.innerHTML = `<div class="category-header">${cat}S - ${categories[cat-1]}</div>`;
-                container.appendChild(catDiv);
+        questions.filter(q => q.cat === cat).forEach((q, idx) => {
+            const qDiv = document.createElement('div');
+            qDiv.className = 'question-item';
+            qDiv.innerHTML = '<div class="question-text">' + q.text + '</div>' +
+                '<div class="answer-buttons">' +
+                '<button class="answer-btn answer-btn-yes" onclick="selectAnswer(' + cat + ',' + idx + ',\'yes\',this)">✓ Tak</button>' +
+                '<button class="answer-btn answer-btn-no" onclick="selectAnswer(' + cat + ',' + idx + ',\'no\',this)">✗ Nie</button>' +
+                '<button class="answer-btn answer-btn-na" onclick="selectAnswer(' + cat + ',' + idx + ',\'na\',this)">− N/A</button>' +
+                '</div>';
+            container.appendChild(qDiv);
+        });
+    }
+}
 
-                questions.filter(q => q.cat === cat).forEach((q, idx) => {
-                    const qDiv = document.createElement('div');
-                    qDiv.className = 'question-item';
-                    qDiv.innerHTML = `
-                        <div class="question-text">${q.text}</div>
-                        <div class="answer-buttons">
-                            <button class="answer-btn answer-btn-yes" onclick="selectAnswer(${cat}, ${idx}, 'yes', this)">✓ Tak</button>
-                            <button class="answer-btn answer-btn-no" onclick="selectAnswer(${cat}, ${idx}, 'no', this)">✗ Nie</button>
-                            <button class="answer-btn answer-btn-na" onclick="selectAnswer(${cat}, ${idx}, 'na', this)">− N/A</button>
-                        </div>
-                        <textarea class="comment-area" id="comment_${cat}_${idx}" placeholder="Komentarz (wymagany dla 'Nie')" style="display: none;"></textarea>
-                    `;
-                    container.appendChild(qDiv);
-                });
-            }
+function selectAnswer(cat, idx, value, btn) {
+    btn.parentElement.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    answers[cat + '_' + idx] = value;
+    document.getElementById('progress').textContent = 'Postęp: ' + Object.keys(answers).length + ' / ' + questions.length;
+}
+
+function saveAudit() {
+    const date = document.getElementById('auditDate').value;
+    const zone = document.getElementById('zone').value;
+    const auditor = document.getElementById('auditor').value;
+
+    if (!date || !zone || !auditor) {
+        alert('Wypełnij: Data, Strefa, Audytor');
+        return;
+    }
+
+    let total = 0, correct = 0;
+    questions.forEach((q, idx) => {
+        const ans = answers[q.cat + '_' + idx];
+        if (ans) {
+            total++;
+            if (ans === 'yes' || ans === 'na') correct++;
         }
+    });
 
-        function selectAnswer(cat, idx, value, btn) {
-            const parent = btn.parentElement;
-            parent.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
+    if (total === 0) {
+        alert('Odpowiedz na pytania');
+        return;
+    }
 
-            const key = `${cat}_${idx}`;
-            answers[key] = value;
+    const score = Math.round((correct / total) * 100);
+    const data = {
+        branch: 'ORA-PL-01',
+        date: date,
+        zone: zone,
+        auditor: auditor,
+        score: score,
+        answers: answers
+    };
 
-            const comment = document.getElementById(`comment_${cat}_${idx}`);
-            if (value === 'no') {
-                comment.style.display = 'block';
-            } else {
-                comment.style.display = 'none';
-                comment.value = '';
-            }
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '5s_' + zone + '_' + date + '.json';
+    a.click();
+    
+    alert('Wynik: ' + score + '%\nPlik pobrany!');
+}
 
-            updateProgress();
-        }
-
-        function updateProgress() {
-            const total = questions.length;
-            const answered = Object.keys(answers).length;
-            document.getElementById('progress').textContent = `Postęp: ${answered} / ${total} pytań`;
-        }
-
-        function saveAudit() {
-            const date = document.getElementById('auditDate').value;
-            const zone = document.getElementById('zone').value;
-            const auditor = document.getElementById('auditor').value;
-
-            if (!date || !zone || !auditor) {
-                alert('Wypełnij wszystkie pola: Data, Strefa, Audytor');
-                return;
-            }
-
-            if (Object.keys(answers).length < questions.length) {
-                alert('Odpowiedz na wszystkie pytania');
-                return;
-            }
-
-            // Sprawdź komentarze dla "Nie"
-            for (let key in answers) {
-                if (answers[key] === 'no') {
-                    const comment = document.getElementById(`comment_${key}`).value.trim();
-                    if (!comment) {
-                        alert('Dodaj komentarz do pytań z odpowiedzią "Nie"');
-                        return;
-                    }
-                }
-            }
-
-            // Oblicz wynik
-            let total = 0, correct = 0;
-            let catScores = [0,0,0,0,0], catTotals = [0,0,0,0,0];
-
-            questions.forEach((q, idx) => {
-                const key = `${q.cat}_${idx}`;
-                const ans = answers[key];
-                if (ans) {
-                    total++;
-                    catTotals[q.cat-1]++;
-                    if (ans === 'yes' || ans === 'na') {
-                        correct++;
-                        catScores[q.cat-1]++;
-                    }
-                }
-            });
-
-            const score = Math.round((correct / total) * 100);
-            const catPercent = catScores.map((s, i) => catTotals[i] > 0 ? Math.round((s / catTotals[i]) * 100) : 0);
-
-            // Przygotuj dane do JSON
-            const auditData = {
-                id: Date.now(),
-                branch: 'ORA-PL-01',
-                date: date,
-                zone: zone,
-                auditor: auditor,
-                score: score,
-                categoryScores: catPercent,
-                answers: answers,
-                comments: {},
-                timestamp: new Date().toISOString()
-            };
-
-            // Zbierz komentarze
-            questions.forEach((q, idx) => {
-                const key = `${q.cat}_${idx}`;
-                const comment = document.getElementById(`comment_${key}`).value.trim();
-                if (comment) {
-                    auditData.comments[key] = comment;
-                }
-            });
-
-            // Pobierz JSON
-            downloadJSON(auditData, `5s_audit_${zone}_${date}.json`);
-
-            alert(`Audyt zapisany!\nWynik: ${score}%\nPlik JSON został pobrany.\n\nSkopiuj go do folderu OneDrive.`);
-        }
-
-        function downloadJSON(data, filename) {
-            const json = JSON.stringify(data, null, 2);
-            const blob = new Blob([json], {type: 'application/json;charset=utf-8'});
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = filename;
-            link.click();
-            URL.revokeObjectURL(url);
-        }
-
-        renderQuestions();
-    </script>
+renderQuestions();
+</script>
+       
 </body>
 </html>
