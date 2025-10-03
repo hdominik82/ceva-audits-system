@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CEVA Logistics - System Zarządzania</title>
+    <title>CEVA Logistics - System Audytów i Zarządzania</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -36,10 +36,7 @@
         }
 
         .ceva-logo {
-            font-size: 2em;
-            font-weight: 900;
-            color: #1e3a5f;
-            letter-spacing: -2px;
+            height: 50px;
         }
 
         .system-title {
@@ -48,14 +45,6 @@
             color: #2c3e50;
             border-left: 4px solid #e30613;
             padding-left: 20px;
-        }
-
-        .branch-info {
-            background: #e30613;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: 600;
         }
 
         .sync-bar {
@@ -153,25 +142,16 @@
             line-height: 1.4;
         }
 
-        .section-header {
-            grid-column: 1 / -1;
-            color: white;
-            text-align: center;
-            margin-bottom: -10px;
-            font-weight: 600;
-            font-size: 1.5em;
-        }
-
-        .mobile-section {
+        .audit-modules {
             grid-column: 1 / -1;
             background: white;
             border-radius: 8px;
             padding: 25px;
             margin-bottom: 10px;
-            border-left: 5px solid #4ecdc4;
+            border-left: 5px solid #e30613;
         }
 
-        .mobile-section h2 {
+        .audit-modules h2 {
             color: #2c3e50;
             margin-bottom: 20px;
             text-align: center;
@@ -179,10 +159,19 @@
             font-size: 1.5em;
         }
 
-        .mobile-grid {
+        .audit-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px;
+        }
+
+        .management-modules h2 {
+            grid-column: 1 / -1;
+            color: white;
+            text-align: center;
+            margin-bottom: -10px;
+            font-weight: 600;
+            font-size: 1.5em;
         }
 
         .footer {
@@ -220,7 +209,7 @@
                 text-align: center;
             }
             
-            .mobile-grid {
+            .audit-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -235,31 +224,25 @@
 <body>
     <div class="header">
         <div class="logo-container">
-            <div class="ceva-logo">CEVA</div>
-            <div class="system-title">System Zarządzania i Audytów</div>
+            <!-- Zamień 'ceva-logo.png' na ścieżkę do Twojego pliku logo -->
+            <img src="ceva-logo.png" alt="CEVA Logistics" class="ceva-logo">
+            <div class="system-title">System Audytów i Zarządzania</div>
         </div>
-        <div class="branch-info">ORA-PL-01 | Orange</div>
     </div>
 
     <div class="main-container">
-        <div class="mobile-section">
-            <h2>Moduły Audytowe (Mobile)</h2>
-            <div class="mobile-grid">
-                <a href="mobile-index.html" class="module-card">
-                    <div class="module-icon">📱</div>
-                    <div class="module-title">Menu Mobile</div>
-                    <div class="module-description">Główne menu audytów mobilnych</div>
-                </a>
-
+        <div class="audit-modules">
+            <h2>Moduły Auditów</h2>
+            <div class="audit-grid">
                 <a href="5s-audit.html" class="module-card">
                     <div class="module-icon">🔧</div>
                     <div class="module-title">Audyt 5S</div>
-                    <div class="module-description">Audyty miesięczne 5S ze strefami</div>
+                    <div class="module-description">Miesięczne audyty 5S ze strefami i wynikami</div>
                 </a>
 
                 <a href="gemba-audit.html" class="module-card">
                     <div class="module-icon">👁️</div>
-                    <div class="module-title">GEMBA Walk</div>
+                    <div class="module-title">Audyt GEMBA</div>
                     <div class="module-description">Obserwacje miejsca pracy</div>
                 </a>
 
@@ -269,21 +252,17 @@
                     <div class="module-description">Audyty procesów i instrukcji</div>
                 </a>
 
-                <a href="problem-report.html" class="module-card">
-                    <div class="module-icon">📋</div>
-                    <div class="module-title">Zgłoś Problem</div>
-                    <div class="module-description">Szybkie zgłaszanie problemów</div>
+                <a href="mobile-preview.html" class="module-card">
+                    <div class="module-icon">📱</div>
+                    <div class="module-title">Podgląd Mobile</div>
+                    <div class="module-description">Zobacz jak wyglądają audyty na telefonie</div>
                 </a>
             </div>
         </div>
 
-        <div class="section-header">Moduły Zarządzania (Desktop)</div>
-
-        <a href="action-plan.html" class="module-card">
-            <div class="module-icon">📊</div>
-            <div class="module-title">Plan Działań</div>
-            <div class="module-description">Zarządzanie niezgodnościami i akcjami</div>
-        </a>
+        <div class="management-modules">
+            <h2>Moduły Zarządzania</h2>
+        </div>
 
         <a href="competency-matrix.html" class="module-card">
             <div class="module-icon">🎯</div>
@@ -297,59 +276,65 @@
             <div class="module-description">Wdrożenie nowych pracowników</div>
         </a>
 
-        <a href="knowledge-tests.html" class="module-card">
-            <div class="module-icon">📝</div>
-            <div class="module-title">Testy Wiedzy</div>
-            <div class="module-description">BHP, Kaizen, Środowisko, Compliance</div>
+        <a href="results-management.html" class="module-card">
+            <div class="module-icon">📈</div>
+            <div class="module-title">Zarządzanie Wynikami</div>
+            <div class="module-description">KPI i wskaźniki wydajności</div>
         </a>
+
+        <a href="action-plan.html" class="module-card">
+            <div class="module-icon">📋</div>
+            <div class="module-title">Plan Działań</div>
+            <div class="module-description">Zarządzanie niezgodnościami i akcjami</div>
+        </a>
+		<a href="knowledge-tests.html" class="module-card">
+			<div class="module-icon">📝</div>
+			<div class="module-title">Testy Wiedzy</div>
+			<div class="module-description">BHP, Kaizen, Środowisko, Compliance</div>
+		</a>
     </div>
 
     <div class="sync-bar">
-        <span>💾 Synchronizacja danych między Mobile i Desktop:</span>
+        <span>Synchronizacja danych (OneDrive/SharePoint):</span>
         <button class="sync-btn" onclick="exportSyncData()">Eksport danych</button>
         <button class="sync-btn import" onclick="importSyncData()">Import danych</button>
     </div>
 
     <div class="footer">
-        <p>&copy; 2025 CEVA Logistics | System Audytów i Zarządzania Procesami | ORA-PL-01 Orange</p>
+        <p>&copy; 2025 CEVA Logistics | System Audytów i Zarządzania Procesami</p>
     </div>
 
     <input type="file" id="jsonFileInput" style="display: none;" accept=".json">
 
-    <script src="config.js"></script>
     <script>
         function exportSyncData() {
             const syncData = {
                 syncDate: new Date().toISOString(),
                 version: '1.0',
-                branch: 'ORA-PL-01',
-                system: 'CEVA Logistics - Mobile + Desktop Sync',
+                system: 'CEVA Logistics - Training & Competency Management System',
                 data: {
-                    // Mobile data
-                    fiveS: {
-                        zones: JSON.parse(localStorage.getItem('5s_zones') || '[]'),
-                        auditors: JSON.parse(localStorage.getItem('5s_auditors') || '[]'),
-                        questions: JSON.parse(localStorage.getItem('5s_questions') || '[]'),
-                        history: JSON.parse(localStorage.getItem('5s_history') || '[]')
-                    },
-                    gemba: {
-                        observations: JSON.parse(localStorage.getItem('gemba_observations') || '[]')
-                    },
-                    problems: JSON.parse(localStorage.getItem('problem_reports') || '[]'),
-                    
-                    // Desktop data
-                    actionPlan: JSON.parse(localStorage.getItem('action_plan') || '[]'),
                     employees: JSON.parse(localStorage.getItem('employees') || '[]'),
                     instructions: JSON.parse(localStorage.getItem('instructions') || '[]'),
                     trainings: JSON.parse(localStorage.getItem('trainings') || '[]'),
                     departments: JSON.parse(localStorage.getItem('departments') || '[]'),
+                    processes: JSON.parse(localStorage.getItem('processes') || '[]'),
                     deptStructure: JSON.parse(localStorage.getItem('dept_structure') || '[]'),
+                    onboardingSteps: JSON.parse(localStorage.getItem('onboarding_steps') || '[]'),
                     competencyMatrix: {
                         processMatrix: JSON.parse(localStorage.getItem('process_matrix') || '{}'),
                         additionalSkills: JSON.parse(localStorage.getItem('additional_skills') || '[]'),
                         skillsMatrix: JSON.parse(localStorage.getItem('skills_matrix') || '{}')
                     },
-                    knowledgeTests: JSON.parse(localStorage.getItem('test_results') || '[]')
+                    audits: {
+                        fiveS: {
+                            zones: JSON.parse(localStorage.getItem('5s_zones') || '[]'),
+                            auditors: JSON.parse(localStorage.getItem('5s_auditors') || '[]'),
+                            questions: JSON.parse(localStorage.getItem('5s_questions') || '[]'),
+                            history: JSON.parse(localStorage.getItem('5s_history') || '[]')
+                        },
+                        processAudit: JSON.parse(localStorage.getItem('process_audit_history') || '[]'),
+                        actionPlan: JSON.parse(localStorage.getItem('action_plan') || '[]')
+                    }
                 }
             };
             
@@ -358,12 +343,11 @@
             const url = URL.createObjectURL(dataBlob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `ceva_sync_${new Date().toISOString().split('T')[0]}.json`;
+            link.download = 'ceva_system_data.json';
             link.click();
             URL.revokeObjectURL(url);
             
-            localStorage.setItem('lastSync', new Date().toISOString());
-            alert('Dane wyeksportowane!\n\nPlik zawiera wszystkie dane z Mobile i Desktop.\nMożesz go udostępnić przez OneDrive/SharePoint.');
+            alert('Plik ceva_system_data.json został pobrany!\n\nKolejne kroki:\n1. Skopiuj ten plik do folderu OneDrive/SharePoint\n2. Udostępnij folder współpracownikom\n3. Oni mogą pobrać i zaimportować plik');
         }
 
         function importSyncData() {
@@ -382,38 +366,36 @@
                             }
                             
                             const syncDate = new Date(syncData.syncDate);
-                            const confirmMsg = `Dane z synchronizacji:\nData: ${syncDate.toLocaleString('pl-PL')}\nOddział: ${syncData.branch}\n\nCZY NA PEWNO ZAIMPORTOWAĆ?\nObecne dane zostaną nadpisane!`;
+                            const confirmMsg = `Dane z synchronizacji:\nData: ${syncDate.toLocaleString('pl-PL')}\n\nCZY NA PEWNO ZAIMPORTOWAĆ?\nObecne dane zostaną nadpisane!`;
                             
                             if (confirm(confirmMsg)) {
                                 const data = syncData.data;
                                 
-                                // Import Mobile data
-                                if (data.fiveS) {
-                                    if (data.fiveS.zones) localStorage.setItem('5s_zones', JSON.stringify(data.fiveS.zones));
-                                    if (data.fiveS.auditors) localStorage.setItem('5s_auditors', JSON.stringify(data.fiveS.auditors));
-                                    if (data.fiveS.questions) localStorage.setItem('5s_questions', JSON.stringify(data.fiveS.questions));
-                                    if (data.fiveS.history) localStorage.setItem('5s_history', JSON.stringify(data.fiveS.history));
-                                }
-                                if (data.gemba) {
-                                    if (data.gemba.observations) localStorage.setItem('gemba_observations', JSON.stringify(data.gemba.observations));
-                                }
-                                if (data.problems) localStorage.setItem('problem_reports', JSON.stringify(data.problems));
-                                
-                                // Import Desktop data
-                                if (data.actionPlan) localStorage.setItem('action_plan', JSON.stringify(data.actionPlan));
                                 if (data.employees) localStorage.setItem('employees', JSON.stringify(data.employees));
                                 if (data.instructions) localStorage.setItem('instructions', JSON.stringify(data.instructions));
                                 if (data.trainings) localStorage.setItem('trainings', JSON.stringify(data.trainings));
                                 if (data.departments) localStorage.setItem('departments', JSON.stringify(data.departments));
+                                if (data.processes) localStorage.setItem('processes', JSON.stringify(data.processes));
                                 if (data.deptStructure) localStorage.setItem('dept_structure', JSON.stringify(data.deptStructure));
+                                if (data.onboardingSteps) localStorage.setItem('onboarding_steps', JSON.stringify(data.onboardingSteps));
+                                
                                 if (data.competencyMatrix) {
                                     if (data.competencyMatrix.processMatrix) localStorage.setItem('process_matrix', JSON.stringify(data.competencyMatrix.processMatrix));
                                     if (data.competencyMatrix.additionalSkills) localStorage.setItem('additional_skills', JSON.stringify(data.competencyMatrix.additionalSkills));
                                     if (data.competencyMatrix.skillsMatrix) localStorage.setItem('skills_matrix', JSON.stringify(data.competencyMatrix.skillsMatrix));
                                 }
-                                if (data.knowledgeTests) localStorage.setItem('test_results', JSON.stringify(data.knowledgeTests));
                                 
-                                localStorage.setItem('lastSync', new Date().toISOString());
+                                if (data.audits) {
+                                    if (data.audits.fiveS) {
+                                        if (data.audits.fiveS.zones) localStorage.setItem('5s_zones', JSON.stringify(data.audits.fiveS.zones));
+                                        if (data.audits.fiveS.auditors) localStorage.setItem('5s_auditors', JSON.stringify(data.audits.fiveS.auditors));
+                                        if (data.audits.fiveS.questions) localStorage.setItem('5s_questions', JSON.stringify(data.audits.fiveS.questions));
+                                        if (data.audits.fiveS.history) localStorage.setItem('5s_history', JSON.stringify(data.audits.fiveS.history));
+                                    }
+                                    if (data.audits.processAudit) localStorage.setItem('process_audit_history', JSON.stringify(data.audits.processAudit));
+                                    if (data.audits.actionPlan) localStorage.setItem('action_plan', JSON.stringify(data.audits.actionPlan));
+                                }
+                                
                                 alert('Import zakończony pomyślnie!\nDane zostały zsynchronizowane.');
                                 location.reload();
                             }
@@ -428,12 +410,15 @@
             input.click();
         }
 
-        // Show last sync info
-        const lastSync = localStorage.getItem('lastSync');
-        if (lastSync) {
-            const syncDate = new Date(lastSync);
-            console.log('Ostatnia synchronizacja:', syncDate.toLocaleString('pl-PL'));
-        }
+        document.querySelectorAll('.module-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
     </script>
 </body>
 </html>

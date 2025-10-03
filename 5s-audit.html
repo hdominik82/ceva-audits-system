@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audyt 5S - CEVA ORA-PL-01</title>
+    <title>Audyt 5S</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #1e3a5f 0%, #2d5986 100%);
-            min-height: 100vh;
-        }
+			font-family: 'Roboto', sans-serif;
+			background: linear-gradient(135deg, #1e3a5f 0%, #2d5986 100%);
+			min-height: 100vh;
+		}
         .header {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -67,6 +67,29 @@
         }
         .chart-container canvas { max-height: 250px !important; width: 100% !important; height: auto !important; }
         .chart-title { font-size: 1.1em; font-weight: 600; margin-bottom: 15px; color: #333; text-align: center; }
+        .examples-container { display: flex; gap: 10px; height: 220px; }
+        .example-box {
+            flex: 1;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            font-size: 0.8em;
+        }
+        .good-example { background: linear-gradient(135deg, #d4edda, #c3e6cb); color: #155724; }
+        .bad-example { background: linear-gradient(135deg, #f8d7da, #f1b0b7); color: #721c24; }
+        .example-header { font-size: 1.5em; margin-bottom: 5px; text-align: center; }
+        .example-title { font-weight: bold; text-align: center; margin-bottom: 10px; }
+        .example-content { font-size: 0.85em; line-height: 1.3; }
+        .trend-chart { grid-column: 1 / -1; min-height: 350px; max-height: 400px; }
+        .trend-chart canvas { max-height: 300px !important; }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
         .btn {
             background: #4ecdc4;
             color: white;
@@ -78,13 +101,32 @@
             transition: all 0.3s;
         }
         .btn:hover { background: #26d0ce; transform: translateY(-2px); }
-        .form-control {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1em;
+        .btn-danger { background: #ff6b6b; }
+        .btn-danger:hover { background: #ff5252; }
+        .btn-add {
+            background: #28a745;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
         }
+        .btn-add:hover { background: #218838; }
+        .config-section { background: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .config-title { font-size: 1.2em; font-weight: 600; margin-bottom: 15px; color: #333; border-bottom: 2px solid #4ecdc4; padding-bottom: 5px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; }
+        .form-row { display: grid; grid-template-columns: 2fr 2fr 1fr auto; gap: 15px; align-items: end; }
+        .form-group-inline { display: flex; flex-direction: column; }
+        .form-group-inline label { font-size: 0.85em; font-weight: 600; color: #555; margin-bottom: 5px; }
+        .form-control-small { padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 0.9em; }
+        .zone-form { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em; }
+        .table th, .table td { padding: 12px 8px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        .table th { background: #f8f9fa; font-weight: 600; color: #333; }
+        .table tbody tr:hover { background: #f8f9fa; }
         .audit-form { background: #f8f9fa; border-radius: 10px; padding: 20px; }
         .question-item { background: white; border-radius: 8px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #4ecdc4; }
         .question-text { font-weight: 600; margin-bottom: 10px; color: #333; }
@@ -110,31 +152,140 @@
         .answer-btn-na { color: #6c757d; border-color: #6c757d; }
         .answer-btn-na.selected { background: #6c757d; color: white; }
         .comment-area { width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 0.9em; resize: vertical; min-height: 60px; }
+        .observations-section { background: #f8f9fa; border-radius: 10px; padding: 20px; margin-top: 20px; }
+        .observations-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .observation-group { background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745; }
+        .observation-group.negative { border-left-color: #dc3545; }
+        .observation-input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em; }
+        .department-results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .department-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #4ecdc4; }
+        .department-name { font-size: 1.2em; font-weight: 600; margin-bottom: 15px; color: #333; }
+        .department-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .stat-item { text-align: center; padding: 10px; background: #f8f9fa; border-radius: 6px; }
+        .stat-value { font-size: 1.1em; font-weight: 600; color: #4ecdc4; }
+        .stat-label { font-size: 0.8em; color: #666; }
+        .overall-scores-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; margin-bottom: 30px; }
+        .score-card { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .score-number { font-size: 2.5em; font-weight: bold; margin-bottom: 10px; }
+        .score-label { font-size: 0.9em; opacity: 0.9; }
     </style>
 </head>
 <body>
     <div class="header">
-        <button class="back-btn" onclick="window.location.href='mobile-index.html'">← Powrót</button>
-        <h1>Audyt 5S - ORA-PL-01 Orange</h1>
-    </div>
+    <div class="header-left" style="display: flex; align-items: center; gap: 20px;">
+        <svg class="ceva-logo" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg" style="height: 40px;">
+            <text x="10" y="35" font-family="Arial Black, sans-serif" font-size="28" font-weight="900" fill="#1e3a5f">ceva</text>
+            <polygon points="85,15 95,15 90,25" fill="#e30613"/>
+            <text x="10" y="48" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="#1e3a5f" letter-spacing="2">LOGISTICS</text>
+        </svg>
+        <h1 style="font-size: 1.3em; font-weight: 500; color: #1e3a5f; border-left: 3px solid #e30613; padding-left: 15px;">Audyt 5S</h1>
+		</div>
+		<button class="back-btn" onclick="window.location.href='index.html'">â† PowrÃ³t</button>
+	</div>
 
     <div class="nav-tabs">
-        <button class="nav-tab active" onclick="showSection('audit')">Przeprowadź Audyt</button>
-        <button class="nav-tab" onclick="showSection('dashboard')">Dashboard</button>
+        <button class="nav-tab active" onclick="showSection('dashboard')">Dashboard</button>
+        <button class="nav-tab" onclick="showSection('results')">Wyniki per dziaÅ‚</button>
+        <button class="nav-tab" onclick="showSection('overall')">Åšrednia za caÅ‚oÅ›Ä‡</button>
+        <button class="nav-tab" onclick="showSection('audit')">PrzeprowadÅº Audyt</button>
+        <button class="nav-tab" onclick="showSection('config')">Konfiguracja</button>
         <button class="nav-tab" onclick="showSection('history')">Historia</button>
     </div>
 
     <div class="content">
-        <div id="audit" class="content-section active">
+        <div id="dashboard" class="content-section active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Dashboard</h2>
+                <div style="display: flex; gap: 10px;">
+                    <select id="zoneFilter" class="form-control" style="width: 200px;" onchange="updateCharts()">
+                        <option value="">-- CaÅ‚y magazyn --</option>
+                    </select>
+                    <select id="monthFilter" class="form-control" style="width: 150px;" onchange="updateCharts()">
+                        <option value="">-- Wszystkie miesiÄ…ce --</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="chart-container">
+                    <div class="chart-title">Wyniki per "S"</div>
+                    <canvas id="topChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">PrzykÅ‚ady</div>
+                    <div class="examples-container">
+                        <div class="example-box good-example">
+                            <div class="example-header">âœ…</div>
+                            <div class="example-title">Dobre praktyki</div>
+                            <div id="goodExamples" class="example-content">Brak danych</div>
+                        </div>
+                        <div class="example-box bad-example">
+                            <div class="example-header">âŒ</div>
+                            <div class="example-title">Do poprawy</div>
+                            <div id="badExamples" class="example-content">Brak danych</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-container trend-chart">
+                    <div class="chart-title" id="bottomChartTitle">Trend</div>
+                    <canvas id="bottomChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="results" class="content-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Wyniki per dziaÅ‚</h2>
+                <select id="departmentFilter" class="form-control" style="width: 200px;" onchange="filterByDepartment()">
+                    <option value="">-- Wszystkie dziaÅ‚y --</option>
+                </select>
+            </div>
+            <div class="department-results-grid" id="departmentResultsGrid"></div>
+        </div>
+
+        <div id="overall" class="content-section">
+            <h2>Åšrednia za caÅ‚oÅ›Ä‡</h2>
+            <div class="overall-scores-grid">
+                <div class="score-card">
+                    <div class="score-number" id="overall1S">0%</div>
+                    <div class="score-label">1S - Sortowanie</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-number" id="overall2S">0%</div>
+                    <div class="score-label">2S - SystematycznoÅ›Ä‡</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-number" id="overall3S">0%</div>
+                    <div class="score-label">3S - SprzÄ…tanie</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-number" id="overall4S">0%</div>
+                    <div class="score-label">4S - Standaryzacja</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-number" id="overall5S">0%</div>
+                    <div class="score-label">5S - Samodyscyplina</div>
+                </div>
+            </div>
+            
+            <div class="chart-container" style="margin-top: 30px;">
+                <div class="chart-title">Trend dla kaÅ¼dego S - ostatnie 3 miesiÄ…ce</div>
+                <canvas id="overallTrendChart" width="800" height="400"></canvas>
+            </div>
+        </div>
+
+        <div id="audit" class="content-section">
             <div class="form-group">
                 <label>Data audytu:</label>
                 <input type="date" id="auditDate" class="form-control" value="">
             </div>
             
             <div class="form-group">
-                <label>Wybierz strefę do audytu:</label>
+                <label>Wybierz strefÄ™ do audytu:</label>
                 <select id="auditZone" class="form-control" onchange="loadAuditQuestions()">
-                    <option value="">-- Wybierz strefę --</option>
+                    <option value="">-- Wybierz strefÄ™ --</option>
                 </select>
             </div>
             
@@ -149,69 +300,115 @@
                 <h3>Pytania audytu 5S</h3>
                 <div id="questionsContainer"></div>
                 
-                <button class="btn" onclick="submitAudit()" style="margin-top: 20px; width: 100%;">Zapisz Audyt</button>
+                <div class="observations-section">
+                    <h3>Obserwacje z audytu</h3>
+                    <p style="color: #666; margin-bottom: 15px;">WprowadÅº konkretne przykÅ‚ady dobrych praktyk i obszary wymagajÄ…ce poprawy:</p>
+                    
+                    <div class="observations-grid">
+                        <div class="observation-group">
+                            <h4>âœ… Dobre praktyki (2 przykÅ‚ady)</h4>
+                            <input type="text" class="observation-input" id="goodObs1" placeholder="PrzykÅ‚ad 1">
+                            <input type="text" class="observation-input" id="goodObs2" placeholder="PrzykÅ‚ad 2">
+                        </div>
+                        
+                        <div class="observation-group negative">
+                            <h4>âŒ Obszary do poprawy (2 przykÅ‚ady)</h4>
+                            <input type="text" class="observation-input" id="badObs1" placeholder="PrzykÅ‚ad 1">
+                            <input type="text" class="observation-input" id="badObs2" placeholder="PrzykÅ‚ad 2">
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="submitAudit()" style="margin-top: 20px;">Zapisz Audyt</button>
             </div>
         </div>
 
-        <div id="dashboard" class="content-section">
-            <h2>Dashboard</h2>
-            <div class="dashboard-grid">
-                <div class="chart-container">
-                    <div class="chart-title">Wyniki per "S"</div>
-                    <canvas id="topChart"></canvas>
+        <div id="config" class="content-section">
+            <div class="config-section">
+                <div class="config-title">Konfiguracja Stref</div>
+                <div class="zone-form">
+                    <div class="form-row">
+                        <div class="form-group-inline">
+                            <label>Nazwa strefy:</label>
+                            <input type="text" id="zoneName" class="form-control-small" placeholder="np. Linia A">
+                        </div>
+                        <div class="form-group-inline">
+                            <label>Osoba odpowiedzialna:</label>
+                            <input type="text" id="zoneResponsible" class="form-control-small" placeholder="Jan Kowalski">
+                        </div>
+                        <div class="form-group-inline">
+                            <label>Cel (%):</label>
+                            <input type="number" id="zoneTarget" class="form-control-small" placeholder="85" min="0" max="100">
+                        </div>
+                        <div class="form-group-inline">
+                            <button class="btn btn-add" onclick="addZone()">+ Dodaj</button>
+                        </div>
+                    </div>
                 </div>
+                
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Strefa</th>
+                            <th>Odpowiedzialny</th>
+                            <th>Cel (%)</th>
+                            <th>Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody id="zonesTable"></tbody>
+                </table>
+            </div>
+
+            <div class="config-section">
+                <div class="config-title">Konfiguracja AudytorÃ³w</div>
+                <div class="form-group">
+                    <label>ImiÄ™ i nazwisko audytora:</label>
+                    <input type="text" id="auditorName" class="form-control" placeholder="WprowadÅº imiÄ™ i nazwisko">
+                </div>
+                <button class="btn" onclick="addAuditor()">Dodaj Audytora</button>
+                
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Audytor</th>
+                            <th>Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditorsTable"></tbody>
+                </table>
             </div>
         </div>
 
         <div id="history" class="content-section">
-            <h2>Historia Audytów</h2>
-            <div id="historyTable"></div>
+            <div class="config-section">
+                <div class="config-title">Historia AudytÃ³w 5S</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Strefa</th>
+                            <th>Audytor</th>
+                            <th>Wynik (%)</th>
+                            <th>Status</th>
+                            <th>Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTable"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <script>
-        // PRE-KONFIGURACJA DLA ORA-PL-01 ORANGE
-        const DEFAULT_CONFIG = {
-            branch: 'ORA-PL-01',
-            branchName: 'Orange',
-            zones: [
-                {id:1, name:"Inbound", responsible:"Jan Surwilo", target:90},
-                {id:2, name:"Odnowa", responsible:"Konrad Kasinski", target:90},
-                {id:3, name:"Zwroty", responsible:"Mariusz Maciah", target:90},
-                {id:4, name:"B2B", responsible:"Dominik Harezlak", target:90},
-                {id:5, name:"B2C", responsible:"Patryk Krzeminski", target:90}
-            ],
-            auditors: [
-                "Jan Surwilo", "Konrad Kasinski", "Mariusz Maciah",
-                "Dominik Harezlak", "Patryk Krzeminski"
-            ],
-            questions: [
-                {category:1, question:"Czy wszystkie niepotrzebne przedmioty zostały usunięte?"},
-                {category:1, question:"Czy pozostały tylko niezbędne narzędzia?"},
-                {category:2, question:"Czy każdy przedmiot ma wyznaczone miejsce?"},
-                {category:2, question:"Czy wszystkie przedmioty są na swoich miejscach?"},
-                {category:3, question:"Czy obszar jest czysty i uporządkowany?"},
-                {category:3, question:"Czy regularnie przeprowadzane jest sprzątanie?"},
-                {category:4, question:"Czy istnieją standardy organizacji?"},
-                {category:4, question:"Czy standardy są widoczne i zrozumiałe?"},
-                {category:5, question:"Czy pracownicy stosują się do standardów?"},
-                {category:5, question:"Czy przeprowadzane są audyty?"}
-            ]
-        };
-
-        let zones = JSON.parse(localStorage.getItem('5s_zones') || 'null') || DEFAULT_CONFIG.zones;
-        let auditors = JSON.parse(localStorage.getItem('5s_auditors') || 'null') || DEFAULT_CONFIG.auditors;
-        let questions = JSON.parse(localStorage.getItem('5s_questions') || 'null') || DEFAULT_CONFIG.questions;
+        let zones = JSON.parse(localStorage.getItem('5s_zones') || '[]');
+        let auditors = JSON.parse(localStorage.getItem('5s_auditors') || '[]');
+        let questions = JSON.parse(localStorage.getItem('5s_questions') || '[]');
         let auditHistory = JSON.parse(localStorage.getItem('5s_history') || '[]');
+        let topChart, bottomChart, overallTrendChart;
 
-        // Save default config if not exists
-        if (!localStorage.getItem('5s_zones')) {
-            localStorage.setItem('5s_zones', JSON.stringify(zones));
-            localStorage.setItem('5s_auditors', JSON.stringify(auditors));
-            localStorage.setItem('5s_questions', JSON.stringify(questions));
-        }
-
-        document.getElementById('auditDate').value = new Date().toISOString().split('T')[0];
+        // Disable datalabels globally, enable per chart
+        Chart.register(ChartDataLabels);
+        Chart.defaults.set('plugins.datalabels', { display: false });
 
         function showSection(name) {
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
@@ -219,26 +416,397 @@
             document.getElementById(name).classList.add('active');
             event.target.classList.add('active');
             
-            if (name === 'dashboard') loadDashboard();
+            if (name === 'dashboard') updateCharts();
+            else if (name === 'results') loadDepartmentResults();
+            else if (name === 'overall') loadOverallResults();
             else if (name === 'history') loadHistory();
+            else if (name === 'audit') {
+                loadZones();
+                loadAuditors();
+            }
+            else if (name === 'config') {
+                loadZones();
+                loadAuditors();
+            }
+        }
+
+        function loadFilters() {
+            const zf = document.getElementById('zoneFilter');
+            const mf = document.getElementById('monthFilter');
+            const df = document.getElementById('departmentFilter');
+            
+            if (zf) {
+                zf.innerHTML = '<option value="">-- CaÅ‚y magazyn --</option>';
+                zones.forEach(z => {
+                    zf.innerHTML += `<option value="${z.id}">${z.name}</option>`;
+                });
+            }
+            
+            if (mf && auditHistory.length > 0) {
+                const months = [...new Set(auditHistory.map(a => a.date.substring(0, 7)))].sort().reverse();
+                mf.innerHTML = '<option value="">-- Wszystkie miesiÄ…ce --</option>';
+                months.forEach(m => {
+                    const d = new Date(m + '-01');
+                    mf.innerHTML += `<option value="${m}">${d.toLocaleDateString('pl-PL', {month: 'long', year: 'numeric'})}</option>`;
+                });
+            }
+            
+            if (df) {
+                df.innerHTML = '<option value="">-- Wszystkie dziaÅ‚y --</option>';
+                zones.forEach(z => {
+                    df.innerHTML += `<option value="${z.id}">${z.name}</option>`;
+                });
+            }
+        }
+
+        function getFiltered() {
+            const zf = document.getElementById('zoneFilter').value;
+            const mf = document.getElementById('monthFilter').value;
+            let filtered = [...auditHistory];
+            if (zf) filtered = filtered.filter(a => a.zoneId == zf);
+            if (mf) filtered = filtered.filter(a => a.date.startsWith(mf));
+            return filtered;
+        }
+
+        function updateCharts() {
+            const zf = document.getElementById('zoneFilter').value;
+            updateTopChart();
+            updateBottomChart(zf);
+            updateExamples();
+        }
+
+        function updateTopChart() {
+            const filtered = getFiltered();
+            const ctx = document.getElementById('topChart');
+            if (topChart) topChart.destroy();
+            
+            let data = [0, 0, 0, 0, 0];
+            if (filtered.length > 0) {
+                const totals = [0, 0, 0, 0, 0];
+                filtered.forEach(a => {
+                    if (a.categoryScores) {
+                        a.categoryScores.forEach((s, i) => totals[i] += s);
+                    }
+                });
+                data = totals.map(t => Math.round(t / filtered.length));
+            }
+            
+            topChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['1S', '2S', '3S', '4S', '5S'],
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        datalabels: {
+                            display: true,
+                            color: '#fff',
+                            font: { weight: 'bold', size: 14 },
+                            formatter: v => v + '%'
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } }
+                    }
+                }
+            });
+        }
+
+        function updateBottomChart(zoneId) {
+            const ctx = document.getElementById('bottomChart');
+            const title = document.getElementById('bottomChartTitle');
+            if (bottomChart) bottomChart.destroy();
+            
+            if (!zoneId || zoneId === '') {
+                const mf = document.getElementById('monthFilter');
+                const selectedMonth = mf ? mf.value : '';
+                
+                const availableMonths = [...new Set(auditHistory.map(a => a.date.substring(0, 7)))].sort();
+                
+                let months = [];
+                if (selectedMonth) {
+                    const selectedIndex = availableMonths.indexOf(selectedMonth);
+                    if (selectedIndex >= 0) {
+                        const startIndex = Math.max(0, selectedIndex - 2);
+                        months = availableMonths.slice(startIndex, selectedIndex + 1);
+                    } else {
+                        months = availableMonths.slice(-3);
+                    }
+                } else {
+                    months = availableMonths.slice(-3);
+                }
+                
+                if (months.length === 0) {
+                    bottomChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: { labels: ['Brak danych'], datasets: [{ data: [0] }] },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                    });
+                    return;
+                }
+                
+                const monthNames = months.map(m => {
+                    const d = new Date(m + '-01');
+                    return d.toLocaleDateString('pl-PL', { month: 'short', year: '2-digit' });
+                });
+                
+                title.textContent = `Trend: ${monthNames.join(', ')} - wszystkie strefy`;
+                
+                const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7'];
+                let labels = [];
+                let allData = [];
+                
+                ['1S', '2S', '3S', '4S', '5S'].forEach((s, sIdx) => {
+                    months.forEach((m, mIdx) => {
+                        const audits = auditHistory.filter(a => a.date.startsWith(m));
+                        let score = 0;
+                        if (audits.length > 0) {
+                            const scores = audits
+                                .map(a => a.categoryScores ? a.categoryScores[sIdx] : null)
+                                .filter(x => x !== null && x !== undefined);
+                            score = scores.length > 0 ? Math.round(scores.reduce((a,b) => a+b) / scores.length) : 0;
+                        }
+                        
+                        labels.push(`${s}\n${monthNames[mIdx]}`);
+                        allData.push({
+                            value: score,
+                            color: colors[sIdx] + Math.round(255 * (0.4 + mIdx * 0.3)).toString(16).padStart(2, '0'),
+                            border: colors[sIdx],
+                            monthLabel: monthNames[mIdx]
+                        });
+                    });
+                    if (sIdx < 4) {
+                        labels.push('');
+                        allData.push({ value: 0, sep: true, color: 'transparent', border: 'transparent' });
+                    }
+                });
+                
+                bottomChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: allData.map(d => d.value),
+                            backgroundColor: allData.map(d => d.color),
+                            borderColor: allData.map(d => d.border),
+                            borderWidth: 2,
+                            barThickness: 25
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { 
+                            legend: { display: false },
+                            datalabels: {
+                                display: ctx => !allData[ctx.dataIndex].sep && allData[ctx.dataIndex].value > 0,
+                                color: '#fff',
+                                font: { weight: 'bold', size: 11 },
+                                formatter: v => Math.round(v)
+                            }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } },
+                            x: { 
+                                ticks: { 
+                                    font: { size: 9 },
+                                    maxRotation: 0,
+                                    callback: function(value, index) {
+                                        if (allData[index] && allData[index].sep) return '';
+                                        return labels[index];
+                                    }
+                                } 
+                            }
+                        }
+                    }
+                });
+                
+            } else {
+                const zone = zones.find(z => z.id == zoneId);
+                title.textContent = `Ostatnie audyty - ${zone ? zone.name : 'Strefa'}`;
+                
+                const zoneAudits = auditHistory.filter(a => a.zoneId == zoneId).slice(-12);
+                
+                const data = new Array(13).fill(null);
+                const labels = new Array(13).fill('');
+                const colors = new Array(13).fill('#e0e0e0');
+                
+                zoneAudits.forEach((a, idx) => {
+                    data[idx] = a.score;
+                    labels[idx] = a.date;
+                    colors[idx] = '#4ecdc4';
+                });
+                
+                if (zoneAudits.length > 0) {
+                    const avg = Math.round(zoneAudits.reduce((sum, a) => sum + a.score, 0) / zoneAudits.length);
+                    data[12] = avg;
+                    labels[12] = 'Åšrednia';
+                    colors[12] = '#ff6b6b';
+                }
+                
+                for (let i = 0; i < 13; i++) {
+                    if (data[i] === null) {
+                        data[i] = 0;
+                        if (i < 12) labels[i] = `-`;
+                    }
+                }
+                
+                bottomChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: colors,
+                            borderColor: colors,
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { 
+                            legend: { display: false },
+                            datalabels: {
+                                display: ctx => data[ctx.dataIndex] > 0 && labels[ctx.dataIndex] !== '-',
+                                color: '#fff',
+                                font: { weight: 'bold', size: 12 },
+                                formatter: v => Math.round(v)
+                            }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } },
+                            x: { ticks: { maxRotation: 45, font: { size: 9 } } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function updateExamples() {
+            const filtered = getFiltered();
+            let good = [], bad = [];
+            filtered.forEach(a => {
+                if (a.goodObservations) good = good.concat(a.goodObservations);
+                if (a.badObservations) bad = bad.concat(a.badObservations);
+            });
+            
+            document.getElementById('goodExamples').innerHTML = good.length > 0 ? 
+                good.sort(() => 0.5 - Math.random()).slice(0, 3).map(o => `â€¢ ${o}`).join('<br>') : 
+                'â€¢ Brak danych';
+            
+            document.getElementById('badExamples').innerHTML = bad.length > 0 ? 
+                bad.sort(() => 0.5 - Math.random()).slice(0, 3).map(o => `â€¢ ${o}`).join('<br>') : 
+                'â€¢ Brak danych';
+        }
+
+        // Zone management
+        function addZone() {
+            const name = document.getElementById('zoneName').value.trim();
+            const responsible = document.getElementById('zoneResponsible').value.trim();
+            const target = parseInt(document.getElementById('zoneTarget').value) || 85;
+            
+            if (name && responsible) {
+                zones.push({ id: Date.now(), name, responsible, target });
+                localStorage.setItem('5s_zones', JSON.stringify(zones));
+                loadZones();
+                loadFilters();
+                document.getElementById('zoneName').value = '';
+                document.getElementById('zoneResponsible').value = '';
+                document.getElementById('zoneTarget').value = '';
+                alert('Strefa dodana pomyÅ›lnie!');
+            } else {
+                alert('ProszÄ™ wypeÅ‚niÄ‡ wszystkie pola');
+            }
+        }
+
+        function deleteZone(id) {
+            if (confirm('Czy na pewno chcesz usunÄ…Ä‡ tÄ™ strefÄ™?')) {
+                zones = zones.filter(z => z.id !== id);
+                localStorage.setItem('5s_zones', JSON.stringify(zones));
+                loadZones();
+                loadFilters();
+            }
         }
 
         function loadZones() {
+            const table = document.getElementById('zonesTable');
             const select = document.getElementById('auditZone');
-            select.innerHTML = '<option value="">-- Wybierz strefę --</option>';
-            zones.forEach(z => {
-                select.innerHTML += `<option value="${z.id}">${z.name}</option>`;
-            });
+            
+            if (table) {
+                table.innerHTML = '';
+                zones.forEach(z => {
+                    const row = table.insertRow();
+                    row.innerHTML = `
+                        <td>${z.name}</td>
+                        <td>${z.responsible}</td>
+                        <td>${z.target}%</td>
+                        <td><button class="btn btn-danger" onclick="deleteZone(${z.id})" style="padding:5px 10px;font-size:0.8em">UsuÅ„</button></td>
+                    `;
+                });
+            }
+            
+            if (select) {
+                select.innerHTML = '<option value="">-- Wybierz strefÄ™ --</option>';
+                zones.forEach(z => {
+                    select.innerHTML += `<option value="${z.id}">${z.name}</option>`;
+                });
+            }
+        }
+
+        // Auditor management
+        function addAuditor() {
+            const name = document.getElementById('auditorName').value.trim();
+            if (name) {
+                auditors.push({ id: Date.now(), name });
+                localStorage.setItem('5s_auditors', JSON.stringify(auditors));
+                loadAuditors();
+                document.getElementById('auditorName').value = '';
+                alert('Audytor dodany pomyÅ›lnie!');
+            } else {
+                alert('ProszÄ™ wprowadziÄ‡ imiÄ™ i nazwisko');
+            }
+        }
+
+        function deleteAuditor(id) {
+            if (confirm('Czy na pewno chcesz usunÄ…Ä‡ tego audytora?')) {
+                auditors = auditors.filter(a => a.id !== id);
+                localStorage.setItem('5s_auditors', JSON.stringify(auditors));
+                loadAuditors();
+            }
         }
 
         function loadAuditors() {
+            const table = document.getElementById('auditorsTable');
             const select = document.getElementById('auditor');
-            select.innerHTML = '<option value="">-- Wybierz audytora --</option>';
-            auditors.forEach(a => {
-                select.innerHTML += `<option value="${a}">${a}</option>`;
-            });
+            
+            if (table) {
+                table.innerHTML = '';
+                auditors.forEach(a => {
+                    const row = table.insertRow();
+                    row.innerHTML = `
+                        <td>${a.name}</td>
+                        <td><button class="btn btn-danger" onclick="deleteAuditor(${a.id})" style="padding:5px 10px;font-size:0.8em">UsuÅ„</button></td>
+                    `;
+                });
+            }
+            
+            if (select) {
+                select.innerHTML = '<option value="">-- Wybierz audytora --</option>';
+                auditors.forEach(a => {
+                    select.innerHTML += `<option value="${a.id}">${a.name}</option>`;
+                });
+            }
         }
 
+        // Audit functions
         function loadAuditQuestions() {
             const zoneId = document.getElementById('auditZone').value;
             const container = document.getElementById('questionsContainer');
@@ -248,7 +816,7 @@
                 section.style.display = 'block';
                 container.innerHTML = '';
                 
-                const cats = ['Sortowanie', 'Systematyczność', 'Sprzątanie', 'Standaryzacja', 'Samodyscyplina'];
+                const cats = ['Sortowanie', 'SystematycznoÅ›Ä‡', 'SprzÄ…tanie', 'Standaryzacja', 'Samodyscyplina'];
                 
                 for (let s = 1; s <= 5; s++) {
                     const catQs = questions.filter(q => q.category === s);
@@ -260,9 +828,9 @@
                                 <div class="question-item">
                                     <div class="question-text">${q.question}</div>
                                     <div class="answer-buttons">
-                                        <button class="answer-btn answer-btn-yes" onclick="selectAnswer(${s},${i},'yes',this)">✓ Tak</button>
-                                        <button class="answer-btn answer-btn-no" onclick="selectAnswer(${s},${i},'no',this)">✗ Nie</button>
-                                        <button class="answer-btn answer-btn-na" onclick="selectAnswer(${s},${i},'na',this)">− N/A</button>
+                                        <button class="answer-btn answer-btn-yes" onclick="selectAnswer(${s},${i},'yes',this)">âœ… Tak</button>
+                                        <button class="answer-btn answer-btn-no" onclick="selectAnswer(${s},${i},'no',this)">âŒ Nie</button>
+                                        <button class="answer-btn answer-btn-na" onclick="selectAnswer(${s},${i},'na',this)">âž– N/A</button>
                                     </div>
                                     <textarea class="comment-area" id="comment${s}_${i}" placeholder="Komentarz (wymagany dla 'Nie')" style="display:none"></textarea>
                                     <input type="hidden" id="answer${s}_${i}" value="">
@@ -295,18 +863,30 @@
 
         function submitAudit() {
             const zoneId = document.getElementById('auditZone').value;
-            const auditor = document.getElementById('auditor').value;
+            const auditorId = document.getElementById('auditor').value;
             const auditDate = document.getElementById('auditDate').value;
             
-            if (!zoneId || !auditor || !auditDate) {
-                alert('Proszę wypełnić wszystkie pola');
+            if (!zoneId || !auditorId) {
+                alert('ProszÄ™ wybraÄ‡ strefÄ™ i audytora');
+                return;
+            }
+            
+            if (!auditDate) {
+                alert('ProszÄ™ wybraÄ‡ datÄ™ audytu');
                 return;
             }
             
             const zone = zones.find(z => z.id == zoneId);
+            const auditor = auditors.find(a => a.id == auditorId);
+            
+            const goodObs1 = document.getElementById('goodObs1').value.trim();
+            const goodObs2 = document.getElementById('goodObs2').value.trim();
+            const badObs1 = document.getElementById('badObs1').value.trim();
+            const badObs2 = document.getElementById('badObs2').value.trim();
             
             let total = 0, correct = 0;
             let catScores = [0,0,0,0,0], catTotals = [0,0,0,0,0];
+            let observations = [];
             
             for (let s = 1; s <= 5; s++) {
                 questions.filter(q => q.category === s).forEach((q, i) => {
@@ -317,13 +897,32 @@
                         if (ans === 'yes' || ans === 'na') {
                             correct++;
                             catScores[s-1]++;
+                        } else if (ans === 'no') {
+                            const comment = document.getElementById(`comment${s}_${i}`).value.trim();
+                            if (!comment) {
+                                alert(`ProszÄ™ dodaÄ‡ komentarz do: ${q.question}`);
+                                return;
+                            }
+                            // Dodaj do obserwacji (Action Plan)
+                            observations.push({
+                                id: Date.now() + Math.random(),
+                                source: '5S',
+                                description: q.question,
+                                comment: comment,
+                                actions: comment,
+                                status: 'Otwarte',
+                                responsible: zone.responsible,
+                                priority: 'medium',
+                                createdDate: auditDate,
+                                dueDate: new Date(new Date(auditDate).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                            });
                         }
                     }
                 });
             }
             
             if (total === 0) {
-                alert('Proszę odpowiedzieć na pytania');
+                alert('ProszÄ™ odpowiedzieÄ‡ na pytania');
                 return;
             }
             
@@ -334,41 +933,267 @@
                 id: Date.now(),
                 date: auditDate,
                 zoneId, zoneName: zone.name,
-                auditor: auditor,
+                auditorId, auditorName: auditor.name,
                 score, categoryScores: catPercent,
                 status: score >= zone.target ? 'Pozytywny' : 'Wymaga uwagi',
-                branch: DEFAULT_CONFIG.branch
+                goodObservations: [goodObs1, goodObs2].filter(o => o),
+                badObservations: [badObs1, badObs2].filter(o => o),
+                observations: observations
             });
             
             localStorage.setItem('5s_history', JSON.stringify(auditHistory));
             
-            alert(`Audyt zapisany! Wynik: ${score}%`);
+            // Zapisz obserwacje do Action Plan
+            if (observations.length > 0) {
+                let actionPlan = JSON.parse(localStorage.getItem('action_plan') || '[]');
+                actionPlan = actionPlan.concat(observations);
+                localStorage.setItem('action_plan', JSON.stringify(actionPlan));
+            }
+            
+            alert(`Audyt zapisany! Wynik: ${score}%${observations.length > 0 ? `\nDodano ${observations.length} obserwacji do Action Plan.` : ''}`);
             
             document.getElementById('auditZone').value = '';
             document.getElementById('auditor').value = '';
+            document.getElementById('auditDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('auditQuestions').style.display = 'none';
-        }
-
-        function loadDashboard() {
-            // Implement dashboard charts
-            alert('Dashboard w przygotowaniu');
+            document.getElementById('goodObs1').value = '';
+            document.getElementById('goodObs2').value = '';
+            document.getElementById('badObs1').value = '';
+            document.getElementById('badObs2').value = '';
+            
+            document.querySelectorAll('.answer-btn.selected').forEach(btn => btn.classList.remove('selected'));
+            document.querySelectorAll('input[type="hidden"][id^="answer"]').forEach(input => input.value = '');
+            document.querySelectorAll('.comment-area').forEach(textarea => {
+                textarea.value = '';
+                textarea.style.display = 'none';
+            });
+            
+            loadFilters();
+            loadHistory();
         }
 
         function loadHistory() {
-            const container = document.getElementById('historyTable');
-            container.innerHTML = '<h3>Historia audytów:</h3>';
+            const table = document.getElementById('historyTable');
+            if (table) {
+                table.innerHTML = '';
+                [...auditHistory].sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(a => {
+                    const row = table.insertRow();
+                    row.innerHTML = `
+                        <td>${a.date}</td>
+                        <td>${a.zoneName}</td>
+                        <td>${a.auditorName}</td>
+                        <td>${a.score}%</td>
+                        <td style="color:${a.status==='Pozytywny'?'#28a745':'#dc3545'};font-weight:600">${a.status}</td>
+                        <td>
+                            <button class="btn" onclick="viewDetails(${a.id})" style="padding:5px 10px;font-size:0.8em;margin-right:5px">SzczegÃ³Å‚y</button>
+                            <button class="btn" onclick="editAudit(${a.id})" style="padding:5px 10px;font-size:0.8em;background:#ffc107;margin-right:5px">Edytuj</button>
+                            <button class="btn btn-danger" onclick="deleteAudit(${a.id})" style="padding:5px 10px;font-size:0.8em">UsuÅ„</button>
+                        </td>
+                    `;
+                });
+            }
+        }
+
+        function editAudit(id) {
+            const audit = auditHistory.find(a => a.id === id);
+            if (!audit) return;
+            
+            // PrzeÅ‚Ä…cz na zakÅ‚adkÄ™ audytu
+            showSection('audit');
+            
+            // WypeÅ‚nij formularz danymi z audytu
+            document.getElementById('auditDate').value = audit.date;
+            document.getElementById('auditZone').value = audit.zoneId;
+            document.getElementById('auditor').value = audit.auditorId;
+            
+            // ZaÅ‚aduj pytania
+            loadAuditQuestions();
+            
+            // WypeÅ‚nij obserwacje
+            if (audit.goodObservations && audit.goodObservations.length > 0) {
+                document.getElementById('goodObs1').value = audit.goodObservations[0] || '';
+                document.getElementById('goodObs2').value = audit.goodObservations[1] || '';
+            }
+            if (audit.badObservations && audit.badObservations.length > 0) {
+                document.getElementById('badObs1').value = audit.badObservations[0] || '';
+                document.getElementById('badObs2').value = audit.badObservations[1] || '';
+            }
+            
+            // UsuÅ„ stary audyt przed zapisaniem nowego
+            auditHistory = auditHistory.filter(a => a.id !== id);
+            localStorage.setItem('5s_history', JSON.stringify(auditHistory));
+            
+            alert('Audyt zaÅ‚adowany do edycji. WprowadÅº zmiany i kliknij "Zapisz Audyt".');
+        }
+
+        function deleteAudit(id) {
+            if (confirm('Czy na pewno chcesz usunÄ…Ä‡ ten audyt?')) {
+                auditHistory = auditHistory.filter(a => a.id !== id);
+                localStorage.setItem('5s_history', JSON.stringify(auditHistory));
+                loadHistory();
+                loadFilters();
+                alert('Audyt zostaÅ‚ usuniÄ™ty');
+            }
+        }
+
+        function viewDetails(id) {
+            const a = auditHistory.find(x => x.id === id);
+            if (a) {
+                alert(`Audyt: ${a.date}\nStrefa: ${a.zoneName}\nAudytor: ${a.auditorName}\nWynik: ${a.score}%\n\n1S: ${a.categoryScores[0]}%\n2S: ${a.categoryScores[1]}%\n3S: ${a.categoryScores[2]}%\n4S: ${a.categoryScores[3]}%\n5S: ${a.categoryScores[4]}%`);
+            }
+        }
+
+        function loadDepartmentResults() {
+            const grid = document.getElementById('departmentResultsGrid');
+            const filter = document.getElementById('departmentFilter').value;
+            
+            if (grid) {
+                grid.innerHTML = '';
+                const show = filter ? zones.filter(z => z.id == filter) : zones;
+                
+                show.forEach(z => {
+                    const audits = auditHistory.filter(a => a.zoneId == z.id);
+                    const last = audits[audits.length - 1];
+                    const avg = audits.length > 0 ? Math.round(audits.reduce((s,a) => s + a.score, 0) / audits.length) : 0;
+                    
+                    grid.innerHTML += `
+                        <div class="department-card">
+                            <div class="department-name">${z.name}</div>
+                            <div class="department-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">${last ? last.score : 0}%</div>
+                                    <div class="stat-label">Ostatni</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${avg}%</div>
+                                    <div class="stat-label">Åšrednia</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${z.target}%</div>
+                                    <div class="stat-label">Cel</div>
+                                </div>
+                            </div>
+                            <div><strong>Odpowiedzialny:</strong> ${z.responsible}<br>
+                            <strong>Audyty:</strong> ${audits.length}</div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function filterByDepartment() {
+            loadDepartmentResults();
+        }
+
+        function loadOverallResults() {
+            if (auditHistory.length === 0) return;
+            
+            const totals = [0,0,0,0,0];
             auditHistory.forEach(a => {
-                container.innerHTML += `
-                    <div style="padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 5px;">
-                        ${a.date} | ${a.zoneName} | ${a.auditor} | Wynik: ${a.score}% | ${a.status}
-                    </div>
-                `;
+                if (a.categoryScores) {
+                    a.categoryScores.forEach((s, i) => totals[i] += s);
+                }
+            });
+            
+            for (let i = 0; i < 5; i++) {
+                const avg = Math.round(totals[i] / auditHistory.length);
+                const el = document.getElementById(`overall${i+1}S`);
+                if (el) {
+                    el.textContent = avg + '%';
+                    const card = el.closest('.score-card');
+                    if (card) {
+                        card.style.background = avg >= 90 ? 'linear-gradient(135deg, #28a745, #20c997)' :
+                            avg >= 75 ? 'linear-gradient(135deg, #ffc107, #fd7e14)' :
+                            'linear-gradient(135deg, #dc3545, #e83e8c)';
+                    }
+                }
+            }
+            
+            initOverallTrendChart();
+        }
+
+        function initOverallTrendChart() {
+            const ctx = document.getElementById('overallTrendChart');
+            if (!ctx) return;
+            if (overallTrendChart) overallTrendChart.destroy();
+            
+            const months = [...new Set(auditHistory.map(a => a.date.substring(0,7)))].sort().slice(-3);
+            const datasets = [];
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7'];
+            
+            for (let s = 0; s < 5; s++) {
+                const data = months.map(m => {
+                    const audits = auditHistory.filter(a => a.date.startsWith(m));
+                    const scores = audits.map(a => a.categoryScores ? a.categoryScores[s] : 0).filter(x => x);
+                    return scores.length > 0 ? Math.round(scores.reduce((a,b) => a+b) / scores.length) : 0;
+                });
+                datasets.push({
+                    label: (s+1) + 'S',
+                    data, backgroundColor: colors[s], borderColor: colors[s], borderWidth: 2
+                });
+            }
+            
+            overallTrendChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months.map(m => new Date(m+'-01').toLocaleDateString('pl-PL', {month:'short', year:'2-digit'})),
+                    datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'top' },
+                        datalabels: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } }
+                    }
+                }
             });
         }
 
-        // Initialize
-        loadZones();
-        loadAuditors();
+        document.addEventListener('DOMContentLoaded', () => {
+            // Ustaw dzisiejszÄ… datÄ™ jako domyÅ›lnÄ…
+            document.getElementById('auditDate').value = new Date().toISOString().split('T')[0];
+            
+            if (zones.length === 0) {
+                zones = [
+                    {id:1, name:"Linia A", responsible:"Jan Kowalski", target:85},
+                    {id:2, name:"Magazyn", responsible:"Anna Nowak", target:90}
+                ];
+                localStorage.setItem('5s_zones', JSON.stringify(zones));
+            }
+            
+            if (auditors.length === 0) {
+                auditors = [
+                    {id:1, name:"Maria Kowalczyk"},
+                    {id:2, name:"Tomasz Nowak"}
+                ];
+                localStorage.setItem('5s_auditors', JSON.stringify(auditors));
+            }
+            
+            if (questions.length === 0) {
+                questions = [
+                    {category:1, question:"Czy wszystkie niepotrzebne przedmioty zostaÅ‚y usuniÄ™te?"},
+                    {category:1, question:"Czy pozostaÅ‚y tylko niezbÄ™dne narzÄ™dzia?"},
+                    {category:2, question:"Czy kaÅ¼dy przedmiot ma wyznaczone miejsce?"},
+                    {category:2, question:"Czy wszystkie przedmioty sÄ… na swoich miejscach?"},
+                    {category:3, question:"Czy obszar jest czysty i uporzÄ…dkowany?"},
+                    {category:3, question:"Czy regularnie przeprowadzane jest sprzÄ…tanie?"},
+                    {category:4, question:"Czy istniejÄ… standardy organizacji?"},
+                    {category:4, question:"Czy standardy sÄ… widoczne i zrozumiaÅ‚e?"},
+                    {category:5, question:"Czy pracownicy stosujÄ… siÄ™ do standardÃ³w?"},
+                    {category:5, question:"Czy przeprowadzane sÄ… audyty?"}
+                ];
+                localStorage.setItem('5s_questions', JSON.stringify(questions));
+            }
+            
+            loadFilters();
+            loadZones();
+            loadAuditors();
+            updateCharts();
+        });
     </script>
 </body>
 </html>

@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Szkoleń i Wdrożeń</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.3); }
+        .header h1 { color: white; font-size: 1.4em; font-weight: 300; }
+        .nav-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0 15px;
+            overflow-x: auto;
+        }
+        .nav-tab {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-tab.active { color: white; border-bottom-color: #eb4d4b; }
+        .nav-tab:hover { color: white; background: rgba(255, 255, 255, 0.1); }
+        .content { padding: 15px; height: calc(100vh - 120px); overflow-y: auto; }
+        .content-section { display: none; background: white; border-radius: 15px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); }
+        .content-section.active { display: block; }
+        .section-title { font-size: 1.3em; font-weight: 600; margin-bottom: 20px; color: #333; border-bottom: 3px solid #eb4d4b; padding-bottom: 10px; }
+        .action-buttons { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .btn {
+            background: #eb4d4b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+        .btn:hover { background: #c0392b; transform: translateY(-2px); }
+        .btn-success { background: #27ae60; }
+        .btn-success:hover { background: #229954; }
+        .btn-warning { background: #f39c12; }
+        .btn-warning:hover { background: #e67e22; }
+        .btn-secondary { background: #95a5a6; }
+        .btn-secondary:hover { background: #7f8c8d; }
+        .table-container {
+            height: calc(100vh - 350px);
+            overflow: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+        }
+        .table th {
+            background: linear-gradient(135deg, #eb4d4b, #e74c3c);
+            color: white;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: middle;
+        }
+        .table tbody tr:hover { background: #f8f9fa; }
+        .table input, .table select {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 3% auto;
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eb4d4b;
+        }
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .close:hover { color: #333; }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .badge-new { background: #3498db; color: white; }
+        .badge-training { background: #f39c12; color: white; }
+        .badge-active { background: #27ae60; color: white; }
+        .onboarding-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #eb4d4b;
+        }
+        .onboarding-progress {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .progress-step {
+            flex: 1;
+            min-width: 120px;
+            background: #e0e0e0;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+        .progress-step.completed {
+            background: #27ae60;
+            color: white;
+        }
+        .progress-step.current {
+            background: #f39c12;
+            color: white;
+        }
+        .checkbox-large {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='index.html'">← Powrót</button>
+        <h1>System Szkoleń i Wdrożeń</h1>
+        <div></div>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="nav-tab active" data-section="employees">Pracownicy</button>
+        <button class="nav-tab" data-section="onboarding">Karty Wdrożenia</button>
+        <button class="nav-tab" data-section="instructions">Instrukcje</button>
+        <button class="nav-tab" data-section="trainings">Szkolenia</button>
+        <button class="nav-tab" data-section="reports">Raporty</button>
+        <button class="nav-tab" data-section="config">Konfiguracja</button>
+    </div>
+
+    <div class="content">
+        <!-- Pracownicy -->
+        <div id="employees" class="content-section active">
+            <div class="section-title">Zarządzanie Pracownikami</div>
+            
+            <div class="action-buttons">
+                <button class="btn" id="btnAddEmployee">Dodaj pracownika</button>
+                <button class="btn btn-success" id="btnImportEmployees">Import z Excel</button>
+                <button class="btn btn-warning" id="btnExportEmployees">Eksport do Excel</button>
+                <button class="btn btn-secondary" id="btnDownloadTemplate">Pobierz szablon</button>
+            </div>
+
+            <div class="filters">
+                <div class="form-group">
+                    <label>Dział:</label>
+                    <select id="filterDepartment" class="form-control">
+                        <option value="">Wszystkie</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status:</label>
+                    <select id="filterStatus" class="form-control">
+                        <option value="">Wszystkie</option>
+                        <option value="new">Nowy</option>
+                        <option value="training">W trakcie wdrożenia</option>
+                        <option value="active">Aktywny</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Szukaj:</label>
+                    <input type="text" id="searchEmployee" class="form-control" placeholder="Imię, nazwisko lub nr">
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 8%">Nr ewidencyjny</th>
+                            <th style="width: 18%">Imię i nazwisko</th>
+                            <th style="width: 18%">Email</th>
+                            <th style="width: 12%">Dział</th>
+                            <th style="width: 10%">Status</th>
+                            <th style="width: 12%">Data zatrudnienia</th>
+                            <th style="width: 10%">Postęp wdrożenia</th>
+                            <th style="width: 12%">Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeesTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Karty Wdrożenia -->
+        <div id="onboarding" class="content-section">
+            <div class="section-title">Karty Wdrożenia</div>
+            
+            <div class="action-buttons">
+                <button class="btn" id="btnGenerateOnboarding">Generuj karty dla nowych</button>
+                <button class="btn btn-warning" id="btnOnboardingReport">Raport postępów</button>
+            </div>
+
+            <div id="onboardingCards"></div>
+        </div>
+
+        <!-- Instrukcje -->
+        <div id="instructions" class="content-section">
+            <div class="section-title">Instrukcje Stanowiskowe</div>
+            
+            <div class="action-buttons">
+                <button class="btn" id="btnAddInstruction">Dodaj instrukcję</button>
+                <button class="btn btn-success" id="btnImportInstructions">Import z Excel</button>
+                <button class="btn btn-warning" id="btnExportInstructions">Eksport do Excel</button>
+                <button class="btn btn-secondary" id="btnExportJSON">Eksport JSON</button>
+                <button class="btn btn-secondary" id="btnImportJSON">Import JSON</button>
+            </div>
+
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 8%">Nr instrukcji</th>
+                            <th style="width: 6%">Wersja</th>
+                            <th style="width: 20%">Nazwa</th>
+                            <th style="width: 10%">Rodzaj</th>
+                            <th style="width: 10%">Czas cyklu (s)</th>
+                            <th style="width: 8%">Jednostka</th>
+                            <th style="width: 12%">Dział</th>
+                            <th style="width: 14%">Przypisane procesy</th>
+                            <th style="width: 12%">Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody id="instructionsTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Szkolenia -->
+        <div id="trainings" class="content-section">
+            <div class="section-title">Zarządzanie Szkoleniami</div>
+            
+            <div class="action-buttons">
+                <button class="btn" id="btnAssignTraining">Przypisz szkolenie</button>
+                <button class="btn btn-warning" id="btnSendReminders">Wyślij przypomnienia</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="activeTrainings">0</div>
+                    <div class="stat-label">Aktywne szkolenia</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="completedTrainings">0</div>
+                    <div class="stat-label">Ukończone</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="overdueTrainings">0</div>
+                    <div class="stat-label">Przeterminowane</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%">Pracownik</th>
+                            <th style="width: 15%">Proces</th>
+                            <th style="width: 20%">Instrukcje</th>
+                            <th style="width: 10%">Data przypisania</th>
+                            <th style="width: 10%">Termin</th>
+                            <th style="width: 10%">Status</th>
+                            <th style="width: 10%">Przełożony</th>
+                            <th style="width: 10%">Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trainingsTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Raporty -->
+        <div id="reports" class="content-section">
+            <div class="section-title">Raporty i Statystyki</div>
+            <div id="reportContent" style="background: #f8f9fa; padding: 20px; border-radius: 10px; min-height: 400px;">
+                <p style="text-align: center; color: #666; margin-top: 100px;">
+                    Generowanie raportów w trakcie implementacji...
+                </p>
+            </div>
+        </div>
+
+        <!-- Konfiguracja -->
+        <div id="config" class="content-section">
+            <div class="section-title">Konfiguracja Systemu</div>
+            
+            <!-- Synchronizacja danych -->
+            <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #2196f3;">
+                <h3>Synchronizacja Danych (OneDrive/SharePoint)</h3>
+                <p style="color: #666; margin-bottom: 15px;">
+                    <strong>Jak to działa:</strong><br>
+                    1. Kliknij "Eksport danych do sync" - pobierze plik <code>system_data.json</code><br>
+                    2. Skopiuj ten plik do folderu OneDrive/SharePoint<br>
+                    3. Inni użytkownicy mogą pobrać ten plik i kliknąć "Import danych z sync"<br>
+                    4. Wszyscy pracujecie na tych samych danych
+                </p>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="btn btn-success" id="btnSyncExport">📤 Eksport danych do sync</button>
+                    <button class="btn btn-warning" id="btnSyncImport">📥 Import danych z sync</button>
+                </div>
+                <p style="color: #e65100; margin-top: 10px; font-size: 0.9em;">
+                    ⚠️ Import nadpisze wszystkie obecne dane. Zawsze rób kopię zapasową przed importem!
+                </p>
+            </div>
+            
+            <!-- Działy -->
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                <h3>Działy</h3>
+                <div style="display: flex; gap: 10px; margin: 15px 0;">
+                    <input type="text" id="newDepartment" class="form-control" placeholder="Nazwa działu" style="flex: 1;">
+                    <button class="btn" id="btnAddDepartment">Dodaj</button>
+                </div>
+                <div id="departmentsList"></div>
+            </div>
+
+            <!-- Etapy wdrożenia -->
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                <h3>Etapy Wdrożenia</h3>
+                <div style="display: flex; gap: 10px; margin: 15px 0;">
+                    <input type="text" id="newStep" class="form-control" placeholder="Nazwa etapu" style="flex: 1;">
+                    <input type="number" id="newStepDays" class="form-control" placeholder="Dni" style="width: 100px;">
+                    <button class="btn" id="btnAddStep">Dodaj</button>
+                </div>
+                <div id="stepsList"></div>
+            </div>
+
+            <!-- Procesy -->
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                <h3>Procesy</h3>
+                <div style="display: flex; gap: 10px; margin: 15px 0;">
+                    <input type="text" id="newProcess" class="form-control" placeholder="Nazwa procesu" style="flex: 1;">
+                    <button class="btn" id="btnAddProcess">Dodaj</button>
+                </div>
+                <div id="processesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal dodawania pracownika -->
+    <div id="employeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="employeeModalTitle">Dodaj pracownika</h3>
+                <span class="close" id="closeEmployeeModal">&times;</span>
+            </div>
+            <form id="employeeForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nr ewidencyjny:*</label>
+                        <input type="text" id="empNumber" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Dział:*</label>
+                        <select id="empDepartment" class="form-control" required></select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Imię:*</label>
+                        <input type="text" id="empFirstName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nazwisko:*</label>
+                        <input type="text" id="empLastName" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="empEmail" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Data zatrudnienia:*</label>
+                    <input type="date" id="empHireDate" class="form-control" required>
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" id="cancelEmployeeModal">Anuluj</button>
+                    <button type="submit" class="btn">Zapisz</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal instrukcji -->
+    <div id="instructionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Dodaj instrukcję</h3>
+                <span class="close" id="closeInstructionModal">&times;</span>
+            </div>
+            <form id="instructionForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nr instrukcji:*</label>
+                        <input type="text" id="instNumber" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Wersja:*</label>
+                        <input type="text" id="instVersion" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Nazwa:*</label>
+                    <input type="text" id="instName" class="form-control" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Rodzaj:*</label>
+                        <select id="instType" class="form-control" required>
+                            <option value="core">Core</option>
+                            <option value="linked">Linked</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Czas cyklu (s):*</label>
+                        <input type="number" id="instCycleTime" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Jednostka:*</label>
+                    <input type="text" id="instUnit" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Dział:*</label>
+                    <select id="instDepartment" class="form-control" required onchange="loadDepartmentProcesses()">
+                        <option value="">-- Wybierz dział --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Przypisz do procesów (max 5):</label>
+                    <div id="processCheckboxes" style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 6px;"></div>
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" id="cancelInstructionModal">Anuluj</button>
+                    <button type="submit" class="btn">Zapisz</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal przypisywania szkolenia -->
+<div id="trainingModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Przypisz szkolenie</h3>
+            <span class="close" id="closeTrainingModal">&times;</span>
+        </div>
+        <form id="trainingForm">
+            <div class="form-group">
+                <label>Dział:*</label>
+                <select id="trainingDepartment" class="form-control" required onchange="loadDepartmentProcessesForTraining()">
+                    <option value="">-- Wybierz dział --</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Proces:*</label>
+                <select id="trainingProcess" class="form-control" required onchange="loadProcessInstructions()">
+                    <option value="">-- Najpierw wybierz dział --</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Pracownicy z wybranego działu:*</label>
+                <select id="trainingEmployees" class="form-control" multiple size="5" required></select>
+                <small>Przytrzymaj Ctrl/Cmd aby wybrać wielu pracowników</small>
+            </div>
+            
+            <div class="form-group">
+                <label>Instrukcje do przeszkolenia:</label>
+                <div id="trainingInstructions" style="border: 1px solid #ddd; padding: 10px; border-radius: 6px; background: #f8f9fa; max-height: 150px; overflow-y: auto;"></div>
+            </div>
+            <div class="form-group">
+                <label>Termin realizacji:*</label>
+                <input type="date" id="trainingDeadline" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Przełożony (email):*</label>
+                <input type="email" id="trainingSupervisor" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Przypomnienie (dni przed terminem):</label>
+                <input type="number" id="trainingReminderDays" class="form-control" value="7" min="1">
+            </div>
+            <div style="text-align: right; margin-top: 20px;">
+                <button type="button" class="btn btn-secondary" id="cancelTrainingModal">Anuluj</button>
+                <button type="submit" class="btn">Przypisz</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+    <input type="file" id="fileInput" style="display: none;" accept=".xlsx,.xls">
+    <input type="file" id="jsonFileInput" style="display: none;" accept=".json">
+
+    <script>
+        // Globalne zmienne
+        let employees = JSON.parse(localStorage.getItem('employees') || '[]');
+        let instructions = JSON.parse(localStorage.getItem('instructions') || '[]');
+        let trainings = JSON.parse(localStorage.getItem('trainings') || '[]');
+        let departments = JSON.parse(localStorage.getItem('departments') || '["Produkcja", "Magazyn", "Kontrola Jakości"]');
+        let processes = JSON.parse(localStorage.getItem('processes') || '["Montaż", "Pakowanie", "Kontrola"]');
+        let deptStructure = JSON.parse(localStorage.getItem('dept_structure') || '[]');
+        let onboardingSteps = JSON.parse(localStorage.getItem('onboarding_steps') || '[{"name":"BHP i wprowadzenie","days":1},{"name":"Zapoznanie ze stanowiskiem","days":2},{"name":"Szkolenie podstawowe","days":5},{"name":"Praca pod nadzorem","days":10},{"name":"Samodzielna praca","days":14}]');
+        let currentEditId = null;
+
+        // Inicjalizacja po załadowaniu DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM załadowany - inicjalizacja...');
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // Nawigacja
+            setupNavigation();
+            
+            // Przyciski pracowników
+            document.getElementById('btnAddEmployee').addEventListener('click', openAddEmployeeModal);
+            document.getElementById('btnImportEmployees').addEventListener('click', importEmployees);
+            document.getElementById('btnExportEmployees').addEventListener('click', exportEmployees);
+            document.getElementById('btnDownloadTemplate').addEventListener('click', downloadTemplate);
+            
+            // Przyciski instrukcji
+            document.getElementById('btnAddInstruction').addEventListener('click', openAddInstructionModal);
+            document.getElementById('btnImportInstructions').addEventListener('click', importInstructions);
+            document.getElementById('btnExportInstructions').addEventListener('click', exportInstructions);
+            document.getElementById('btnExportJSON').addEventListener('click', exportAllDataToJSON);
+            document.getElementById('btnImportJSON').addEventListener('click', importDataFromJSON);
+            
+            // Przyciski szkoleń
+            document.getElementById('btnAssignTraining').addEventListener('click', openAssignTrainingModal);
+            document.getElementById('btnSendReminders').addEventListener('click', sendTrainingReminders);
+            
+            // Przyciski wdrożeń
+            document.getElementById('btnGenerateOnboarding').addEventListener('click', generateOnboardingCards);
+            document.getElementById('btnOnboardingReport').addEventListener('click', viewOnboardingReport);
+            
+            // Przyciski konfiguracji
+            document.getElementById('btnAddDepartment').addEventListener('click', addDepartment);
+            document.getElementById('btnAddStep').addEventListener('click', addOnboardingStep);
+            document.getElementById('btnAddProcess').addEventListener('click', addProcess);
+            
+            // Sync buttons
+            document.getElementById('btnSyncExport').addEventListener('click', exportSyncData);
+            document.getElementById('btnSyncImport').addEventListener('click', importSyncData);
+            
+            // Modalne okna
+            setupModals();
+            
+            // Filtry
+            document.getElementById('filterDepartment').addEventListener('change', filterEmployees);
+            document.getElementById('filterStatus').addEventListener('change', filterEmployees);
+            document.getElementById('searchEmployee').addEventListener('keyup', filterEmployees);
+            
+            document.getElementById('trainingProcess').addEventListener('change', loadProcessInstructions);
+            
+            // Załaduj początkowe dane
+            loadEmployees();
+            loadFilters();
+            
+            console.log('Inicjalizacja zakończona');
+        }
+
+        function setupNavigation() {
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const section = this.getAttribute('data-section');
+                    showSection(section);
+                });
+            });
+        }
+
+        function showSection(name) {
+            // Ukryj wszystkie sekcje
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            // Usuń aktywną klasę ze wszystkich zakładek
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            
+            // Pokaż wybraną sekcję
+            const section = document.getElementById(name);
+            if (section) section.classList.add('active');
+            
+            // Aktywuj odpowiednią zakładkę
+            document.querySelector(`.nav-tab[data-section="${name}"]`).classList.add('active');
+            
+            // Załaduj dane dla sekcji
+            if (name === 'employees') loadEmployees();
+            else if (name === 'onboarding') loadOnboardingCards();
+            else if (name === 'instructions') loadInstructions();
+            else if (name === 'trainings') loadTrainings();
+            else if (name === 'config') loadConfig();
+        }
+
+        function setupModals() {
+			// Employee modal
+			const employeeModal = document.getElementById('employeeModal');
+			const closeEmpBtn = document.getElementById('closeEmployeeModal');
+			const cancelEmpBtn = document.getElementById('cancelEmployeeModal');
+			
+			if (closeEmpBtn) {
+				closeEmpBtn.onclick = function() {
+					employeeModal.style.display = 'none';
+				};
+			}
+			
+			if (cancelEmpBtn) {
+				cancelEmpBtn.onclick = function() {
+					employeeModal.style.display = 'none';
+				};
+			}
+			
+			// Instruction modal
+			const instructionModal = document.getElementById('instructionModal');
+			const closeInstBtn = document.getElementById('closeInstructionModal');
+			const cancelInstBtn = document.getElementById('cancelInstructionModal');
+			
+			if (closeInstBtn) {
+				closeInstBtn.onclick = function() {
+					instructionModal.style.display = 'none';
+				};
+			}
+			
+			if (cancelInstBtn) {
+				cancelInstBtn.onclick = function() {
+					instructionModal.style.display = 'none';
+				};
+			}
+			
+			// Training modal
+			const trainingModal = document.getElementById('trainingModal');
+			const closeTrainBtn = document.getElementById('closeTrainingModal');
+			const cancelTrainBtn = document.getElementById('cancelTrainingModal');
+			
+			if (closeTrainBtn) {
+				closeTrainBtn.onclick = function() {
+					trainingModal.style.display = 'none';
+				};
+			}
+			
+			if (cancelTrainBtn) {
+				cancelTrainBtn.onclick = function() {
+					trainingModal.style.display = 'none';
+				};
+			}
+			
+			// Close on outside click
+			window.addEventListener('click', function(e) {
+				if (e.target === employeeModal) {
+					employeeModal.style.display = 'none';
+				}
+				if (e.target === instructionModal) {
+					instructionModal.style.display = 'none';
+				}
+				if (e.target === trainingModal) {
+					trainingModal.style.display = 'none';
+				}
+			});
+			
+			// Form submits
+			document.getElementById('employeeForm').addEventListener('submit', function(e) {
+				e.preventDefault();
+				saveEmployee();
+			});
+			
+			document.getElementById('instructionForm').addEventListener('submit', function(e) {
+				e.preventDefault();
+				saveInstruction();
+			});
+			
+			document.getElementById('trainingForm').addEventListener('submit', function(e) {
+				e.preventDefault();
+				saveTraining();
+			});
+		}
+        // PRACOWNICY
+        function loadEmployees() {
+            const tbody = document.getElementById('employeesTable');
+            tbody.innerHTML = '';
+            
+            const filtered = getFilteredEmployees();
+            
+            filtered.forEach(emp => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${emp.number}</td>
+                    <td>${emp.firstName} ${emp.lastName}</td>
+                    <td>${emp.email || '-'}</td>
+                    <td>${emp.department}</td>
+                    <td><span class="badge badge-${emp.status}">${getStatusLabel(emp.status)}</span></td>
+                    <td>${emp.hireDate}</td>
+                    <td>${emp.onboardingProgress || 0}%</td>
+                    <td>
+                        <button class="btn" onclick="editEmployee(${emp.id})" style="padding: 4px 8px; font-size: 0.8em; margin-right: 5px;">Edytuj</button>
+                        <button class="btn btn-secondary" onclick="deleteEmployee(${emp.id})" style="padding: 4px 8px; font-size: 0.8em;">Usuń</button>
+                    </td>
+                `;
+            });
+        }
+
+        function getFilteredEmployees() {
+            let filtered = [...employees];
+            
+            const dept = document.getElementById('filterDepartment').value;
+            const status = document.getElementById('filterStatus').value;
+            const search = document.getElementById('searchEmployee').value.toLowerCase();
+            
+            if (dept) filtered = filtered.filter(e => e.department === dept);
+            if (status) filtered = filtered.filter(e => e.status === status);
+            if (search) filtered = filtered.filter(e => 
+                e.firstName.toLowerCase().includes(search) ||
+                e.lastName.toLowerCase().includes(search) ||
+                e.number.toLowerCase().includes(search)
+            );
+            
+            return filtered;
+        }
+
+        function filterEmployees() {
+            loadEmployees();
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'new': 'Nowy',
+                'training': 'W trakcie',
+                'active': 'Aktywny'
+            };
+            return labels[status] || status;
+        }
+
+        function openAddEmployeeModal() {
+            currentEditId = null;
+            document.getElementById('employeeModalTitle').textContent = 'Dodaj pracownika';
+            document.getElementById('employeeForm').reset();
+            document.getElementById('empHireDate').value = new Date().toISOString().split('T')[0];
+            loadDepartmentOptions();
+            document.getElementById('employeeModal').style.display = 'block';
+        }
+
+        function editEmployee(id) {
+            const emp = employees.find(e => e.id === id);
+            if (emp) {
+                currentEditId = id;
+                document.getElementById('employeeModalTitle').textContent = 'Edytuj pracownika';
+                document.getElementById('empNumber').value = emp.number;
+                document.getElementById('empFirstName').value = emp.firstName;
+                document.getElementById('empLastName').value = emp.lastName;
+                document.getElementById('empEmail').value = emp.email || '';
+                document.getElementById('empHireDate').value = emp.hireDate;
+                loadDepartmentOptions();
+                document.getElementById('empDepartment').value = emp.department;
+                document.getElementById('employeeModal').style.display = 'block';
+            }
+        }
+
+        function deleteEmployee(id) {
+            if (confirm('Czy na pewno chcesz usunąć tego pracownika?')) {
+                employees = employees.filter(e => e.id !== id);
+                localStorage.setItem('employees', JSON.stringify(employees));
+                loadEmployees();
+            }
+        }
+
+        function saveEmployee() {
+			const empData = {
+				number: document.getElementById('empNumber').value.trim(),
+				firstName: document.getElementById('empFirstName').value.trim(),
+				lastName: document.getElementById('empLastName').value.trim(),
+				email: document.getElementById('empEmail').value.trim(),
+				department: document.getElementById('empDepartment').value,
+				hireDate: document.getElementById('empHireDate').value,
+				status: 'new',
+				onboardingProgress: 0
+			};
+			
+			if (!empData.number || !empData.firstName || !empData.lastName || !empData.department || !empData.hireDate) {
+				alert('Proszę wypełnić wszystkie wymagane pola');
+				return;
+			}
+			
+			if (currentEditId) {
+				const index = employees.findIndex(e => e.id === currentEditId);
+				if (index !== -1) {
+					employees[index] = { ...employees[index], ...empData };
+				}
+			} else {
+				employees.push({ id: Date.now(), ...empData, createdDate: new Date().toISOString() });
+			}
+			
+			localStorage.setItem('employees', JSON.stringify(employees));
+			document.getElementById('employeeModal').style.display = 'none';
+			loadEmployees();  // ✅ TO JUŻ MASZ
+			loadFilters();    // ✅ DODAJ TĘ LINIĘ - odświeża filtry
+			alert('Pracownik zapisany!');
+		}
+
+        function loadDepartmentOptions() {
+            const select = document.getElementById('empDepartment');
+            select.innerHTML = departments.map(d => `<option value="${d}">${d}</option>`).join('');
+        }
+
+        function loadFilters() {
+            const select = document.getElementById('filterDepartment');
+            select.innerHTML = '<option value="">Wszystkie</option>' + 
+                departments.map(d => `<option value="${d}">${d}</option>`).join('');
+        }
+
+        // INSTRUKCJE
+        function loadInstructions() {
+            const tbody = document.getElementById('instructionsTable');
+            tbody.innerHTML = '';
+            
+            instructions.forEach(inst => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td><input type="text" value="${inst.number}" onchange="updateInstField(${inst.id}, 'number', this.value)"></td>
+                    <td><input type="text" value="${inst.version}" onchange="updateInstField(${inst.id}, 'version', this.value)"></td>
+                    <td><input type="text" value="${inst.name}" onchange="updateInstField(${inst.id}, 'name', this.value)"></td>
+                    <td>
+                        <select onchange="updateInstField(${inst.id}, 'type', this.value)">
+                            <option value="core" ${inst.type === 'core' ? 'selected' : ''}>Core</option>
+                            <option value="linked" ${inst.type === 'linked' ? 'selected' : ''}>Linked</option>
+                            <option value="other" ${inst.type === 'other' ? 'selected' : ''}>Other</option>
+                        </select>
+                    </td>
+                    <td><input type="number" value="${inst.cycleTime}" onchange="updateInstField(${inst.id}, 'cycleTime', this.value)"></td>
+                    <td><input type="text" value="${inst.unit}" onchange="updateInstField(${inst.id}, 'unit', this.value)"></td>
+                    <td><small>${inst.department || '-'}</small></td>
+                    <td><small>${(inst.processes || []).join(', ') || '-'}</small></td>
+                    <td>
+                        <button class="btn" onclick="editInstruction(${inst.id})" style="padding: 4px 8px; font-size: 0.8em; margin-right: 5px;">Edytuj</button>
+                        <button class="btn btn-secondary" onclick="deleteInstruction(${inst.id})" style="padding: 4px 8px; font-size: 0.8em;">Usuń</button>
+                    </td>
+                `;
+            });
+        }
+
+        function updateInstField(id, field, value) {
+            const inst = instructions.find(i => i.id === id);
+            if (inst) {
+                inst[field] = field === 'cycleTime' ? parseInt(value) : value;
+                localStorage.setItem('instructions', JSON.stringify(instructions));
+            }
+        }
+
+        function openAddInstructionModal() {
+            currentEditId = null;
+            document.getElementById('instructionForm').reset();
+            loadDepartmentOptionsForInst();
+            document.getElementById('instructionModal').style.display = 'block';
+        }
+
+        function editInstruction(id) {
+            const inst = instructions.find(i => i.id === id);
+            if (inst) {
+                currentEditId = id;
+                document.getElementById('instNumber').value = inst.number;
+                document.getElementById('instVersion').value = inst.version;
+                document.getElementById('instName').value = inst.name;
+                document.getElementById('instType').value = inst.type;
+                document.getElementById('instCycleTime').value = inst.cycleTime;
+                document.getElementById('instUnit').value = inst.unit;
+                loadDepartmentOptionsForInst();
+                document.getElementById('instDepartment').value = inst.department || '';
+                loadDepartmentProcesses(inst.processes || []);
+                document.getElementById('instructionModal').style.display = 'block';
+            }
+        }
+
+        function deleteInstruction(id) {
+            if (confirm('Czy na pewno chcesz usunąć tę instrukcję?')) {
+                instructions = instructions.filter(i => i.id !== id);
+                localStorage.setItem('instructions', JSON.stringify(instructions));
+                loadInstructions();
+            }
+        }
+
+        function loadProcessCheckboxes(selected = []) {
+            const container = document.getElementById('processCheckboxes');
+            container.innerHTML = '';
+            processes.forEach(proc => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <label style="display: flex; align-items: center; margin: 5px 0;">
+                        <input type="checkbox" value="${proc}" ${selected.includes(proc) ? 'checked' : ''} 
+                               style="margin-right: 8px;"> ${proc}
+                    </label>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function loadDepartmentOptionsForInst() {
+            const select = document.getElementById('instDepartment');
+            select.innerHTML = '<option value="">-- Wybierz dział --</option>';
+            
+            if (deptStructure && deptStructure.length > 0) {
+                deptStructure.forEach(dept => {
+                    select.innerHTML += `<option value="${dept.name}">${dept.name}</option>`;
+                });
+            } else {
+                departments.forEach(d => {
+                    select.innerHTML += `<option value="${d}">${d}</option>`;
+                });
+            }
+        }
+
+        function loadDepartmentProcesses(selected = []) {
+            const deptName = document.getElementById('instDepartment').value;
+            const container = document.getElementById('processCheckboxes');
+            
+            if (!deptName) {
+                container.innerHTML = '<p style="color: #666; padding: 10px;">Najpierw wybierz dział</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            // Znajdź dział w strukturze
+            const dept = deptStructure.find(d => d.name === deptName);
+            
+            if (dept && dept.processes && dept.processes.length > 0) {
+                dept.processes.slice(0, 5).forEach(proc => {
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <label style="display: flex; align-items: center; margin: 5px 0;">
+                            <input type="checkbox" value="${proc.name}" ${selected.includes(proc.name) ? 'checked' : ''} 
+                                   style="margin-right: 8px;"> ${proc.name}
+                        </label>
+                    `;
+                    container.appendChild(div);
+                });
+            } else {
+                container.innerHTML = '<p style="color: #666; padding: 10px;">Brak procesów dla tego działu. Skonfiguruj je w Macierzy Kompetencji.</p>';
+            }
+        }
+
+        function saveInstruction() {
+			const selectedProcesses = Array.from(document.querySelectorAll('#processCheckboxes input:checked'))
+				.map(cb => cb.value).slice(0, 5);
+			
+			const instData = {
+				number: document.getElementById('instNumber').value.trim(),
+				version: document.getElementById('instVersion').value.trim(),
+				name: document.getElementById('instName').value.trim(),
+				type: document.getElementById('instType').value,
+				cycleTime: parseInt(document.getElementById('instCycleTime').value) || 0,
+				unit: document.getElementById('instUnit').value.trim(),
+				department: document.getElementById('instDepartment').value,
+				processes: selectedProcesses
+			};
+			
+			if (!instData.number || !instData.version || !instData.name || !instData.unit || !instData.department) {
+				alert('Proszę wypełnić wszystkie wymagane pola, w tym dział');
+				return;
+			}
+			
+			if (currentEditId) {
+				const index = instructions.findIndex(i => i.id === currentEditId);
+				if (index !== -1) {
+					instructions[index] = { ...instructions[index], ...instData };
+				}
+			} else {
+				instructions.push({ id: Date.now(), ...instData });
+			}
+			
+			localStorage.setItem('instructions', JSON.stringify(instructions));
+			document.getElementById('instructionModal').style.display = 'none';
+			loadInstructions();  // ✅ TO JUŻ MASZ
+			alert('Instrukcja zapisana!');
+		}
+
+        // SZKOLENIA
+        function loadTrainings() {
+            const tbody = document.getElementById('trainingsTable');
+            tbody.innerHTML = '';
+            
+           trainings.forEach(training => {
+				const employee = employees.find(e => e.id === training.employeeId);
+				const instList = training.instructions.map(i => {
+					const inst = instructions.find(ins => ins.id === i.id);
+					const instName = inst ? inst.name : 'Nieznana';
+					return `<label style="display: block; font-size: 0.85em; margin: 2px 0;">
+						<input type="checkbox" ${i.completed ? 'checked' : ''} 
+							onchange="toggleInstructionComplete(${training.id}, ${i.id}, this.checked)"
+							style="margin-right: 5px;">
+						${instName}
+					</label>`;
+				}).join('');
+                
+                const row = tbody.insertRow();
+                const isOverdue = new Date(training.deadline) < new Date() && training.status !== 'completed';
+                
+                row.innerHTML = `
+                    <td>${employee ? `${employee.firstName} ${employee.lastName}` : 'Usunięty'}</td>
+                    <td>${training.process}</td>
+                    <td><div style="max-height: 120px; overflow-y: auto;">${instList}</div></td>
+                    <td>${training.assignedDate}</td>
+                    <td style="color: ${isOverdue ? 'red' : 'inherit'}">${training.deadline}</td>
+                    <td>
+                        <select onchange="updateTrainingStatus(${training.id}, this.value)" style="padding: 4px;">
+                            <option value="pending" ${training.status === 'pending' ? 'selected' : ''}>Oczekujące</option>
+                            <option value="in_progress" ${training.status === 'in_progress' ? 'selected' : ''}>W trakcie</option>
+                            <option value="completed" ${training.status === 'completed' ? 'selected' : ''}>Ukończone</option>
+                        </select>
+                    </td>
+                    <td>${training.supervisor}</td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="deleteTraining(${training.id})" style="padding: 4px 8px; font-size: 0.8em;">Usuń</button>
+                    </td>
+                `;
+            });
+            
+            updateTrainingStats();
+        }
+
+        function updateTrainingStats() {
+            const active = trainings.filter(t => t.status !== 'completed').length;
+            const completed = trainings.filter(t => t.status === 'completed').length;
+            const overdue = trainings.filter(t => new Date(t.deadline) < new Date() && t.status !== 'completed').length;
+            
+            document.getElementById('activeTrainings').textContent = active;
+            document.getElementById('completedTrainings').textContent = completed;
+            document.getElementById('overdueTrainings').textContent = overdue;
+        }
+
+        function updateTrainingStatus(id, status) {
+            const training = trainings.find(t => t.id === id);
+            if (training) {
+                training.status = status;
+                if (status === 'completed') {
+                    training.completedDate = new Date().toISOString().split('T')[0];
+                }
+                localStorage.setItem('trainings', JSON.stringify(trainings));
+                updateTrainingStats();
+            }
+        }
+
+        function deleteTraining(id) {
+            if (confirm('Czy na pewno chcesz usunąć to szkolenie?')) {
+                trainings = trainings.filter(t => t.id !== id);
+                localStorage.setItem('trainings', JSON.stringify(trainings));
+                loadTrainings();
+            }
+        }
+
+        function openAssignTrainingModal() {
+			document.getElementById('trainingForm').reset();
+			loadDepartmentsForTraining();
+			document.getElementById('trainingDeadline').value = new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0];
+			
+			// Reset wyboru procesów i pracowników
+			document.getElementById('trainingProcess').innerHTML = '<option value="">-- Najpierw wybierz dział --</option>';
+			document.getElementById('trainingEmployees').innerHTML = '<option value="">-- Najpierw wybierz dział --</option>';
+			document.getElementById('trainingInstructions').innerHTML = '<p style="color: #666;">Wybierz proces aby zobaczyć instrukcje</p>';
+			
+			document.getElementById('trainingModal').style.display = 'block';
+		}
+
+		function loadDepartmentsForTraining() {
+			const select = document.getElementById('trainingDepartment');
+			select.innerHTML = '<option value="">-- Wybierz dział --</option>';
+			
+			// Pobierz unikalne działy z struktury działów lub z listy działów
+			if (deptStructure && deptStructure.length > 0) {
+				deptStructure.forEach(dept => {
+					select.innerHTML += `<option value="${dept.name}">${dept.name}</option>`;
+				});
+			} else {
+				departments.forEach(d => {
+					select.innerHTML += `<option value="${d}">${d}</option>`;
+				});
+			}
+		}
+
+		function loadDepartmentProcessesForTraining() {
+			const deptName = document.getElementById('trainingDepartment').value;
+			const processSelect = document.getElementById('trainingProcess');
+			const employeesSelect = document.getElementById('trainingEmployees');
+			
+			if (!deptName) {
+				processSelect.innerHTML = '<option value="">-- Najpierw wybierz dział --</option>';
+				employeesSelect.innerHTML = '<option value="">-- Najpierw wybierz dział --</option>';
+				return;
+			}
+			
+			// Załaduj procesy dla wybranego działu
+			processSelect.innerHTML = '<option value="">-- Wybierz proces --</option>';
+			
+			const dept = deptStructure.find(d => d.name === deptName);
+			if (dept && dept.processes && dept.processes.length > 0) {
+				dept.processes.forEach(proc => {
+					processSelect.innerHTML += `<option value="${proc.name}">${proc.name}</option>`;
+				});
+			} else {
+				// Fallback - pokaż wszystkie procesy jeśli nie ma struktury
+				processes.forEach(proc => {
+					processSelect.innerHTML += `<option value="${proc}">${proc}</option>`;
+				});
+			}
+			
+			// Załaduj pracowników z wybranego działu
+			employeesSelect.innerHTML = '';
+			const deptEmployees = employees.filter(emp => emp.department === deptName && (emp.status === 'active' || emp.status === 'training' || emp.status === 'new'));
+			
+			if (deptEmployees.length === 0) {
+				employeesSelect.innerHTML = '<option value="">Brak pracowników w tym dziale</option>';
+			} else {
+				deptEmployees.forEach(emp => {
+					const option = document.createElement('option');
+					option.value = emp.id;
+					option.textContent = `${emp.number} - ${emp.firstName} ${emp.lastName}`;
+					employeesSelect.appendChild(option);
+				});
+			}
+		}
+
+		// Zostaw funkcję loadProcessInstructions bez zmian
+		function loadProcessInstructions() {
+			const process = document.getElementById('trainingProcess').value;
+			const container = document.getElementById('trainingInstructions');
+			
+			if (!process) {
+				container.innerHTML = '<p style="color: #666;">Wybierz proces aby zobaczyć instrukcje</p>';
+				return;
+			}
+			
+			const processInsts = instructions.filter(i => i.processes && i.processes.includes(process));
+			
+			if (processInsts.length === 0) {
+				container.innerHTML = '<p style="color: #666;">Brak instrukcji dla tego procesu</p>';
+			} else {
+				container.innerHTML = processInsts.map(inst => 
+					`<div style="padding: 5px; border-bottom: 1px solid #ddd;">
+						${inst.number} - ${inst.name} (${inst.type})
+					</div>`
+				).join('');
+			}
+		}
+
+
+        function saveTraining() {
+            const selectedEmployees = Array.from(document.getElementById('trainingEmployees').selectedOptions)
+                .map(opt => parseInt(opt.value));
+            const process = document.getElementById('trainingProcess').value;
+            const processInsts = instructions.filter(i => i.processes && i.processes.includes(process));
+            
+            if (selectedEmployees.length === 0 || !process || processInsts.length === 0) {
+                alert('Proszę wybrać pracowników, proces i upewnić się, że proces ma przypisane instrukcje');
+                return;
+            }
+            
+            const deadline = document.getElementById('trainingDeadline').value;
+            const supervisor = document.getElementById('trainingSupervisor').value;
+            const reminderDays = parseInt(document.getElementById('trainingReminderDays').value);
+            
+            selectedEmployees.forEach(empId => {
+                const training = {
+                    id: Date.now() + Math.random(),
+                    employeeId: empId,
+                    process: process,
+                    instructions: processInsts.map(i => ({ id: i.id, completed: false })),
+                    assignedDate: new Date().toISOString().split('T')[0],
+                    deadline: deadline,
+                    supervisor: supervisor,
+                    reminderDays: reminderDays,
+                    status: 'pending'
+                };
+                trainings.push(training);
+            });
+            
+            localStorage.setItem('trainings', JSON.stringify(trainings));
+            document.getElementById('trainingModal').style.display = 'none';
+            loadTrainings();
+            alert(`Przypisano szkolenie dla ${selectedEmployees.length} pracowników`);
+        }
+        
+        function checkTrainingCompletion(trainingId) {
+            const training = trainings.find(t => t.id === trainingId);
+            if (!training) return;
+            
+            const allCompleted = training.instructions.every(i => i.completed);
+            
+            if (allCompleted && training.status !== 'completed') {
+                const employee = employees.find(e => e.id === training.employeeId);
+                const empName = employee ? `${employee.firstName} ${employee.lastName}` : 'Pracownik';
+                
+                if (confirm(`${empName} zapoznał się ze wszystkimi instrukcjami dla procesu "${training.process}".\n\nCzy potwierdzasz, że pracownik pracuje samodzielnie?\n\n(Kliknięcie "OK" ustawi poziom 2 w Macierzy Kompetencji)`)) {
+                    // Zmień status szkolenia
+                    training.status = 'completed';
+                    training.completedDate = new Date().toISOString().split('T')[0];
+                    localStorage.setItem('trainings', JSON.stringify(trainings));
+                    
+                    // Zaktualizuj macierz kompetencji
+                    updateCompetencyMatrix(training.employeeId, training.process, 2);
+                    
+                    alert('Szkolenie zakończone! Poziom kompetencji zaktualizowany do 2 (Samodzielny).');
+                    loadTrainings();
+                }
+            }
+        }
+        
+        function updateCompetencyMatrix(employeeId, processName, level) {
+            // Pobierz strukturę działów i znajdź proces
+            const deptStructure = JSON.parse(localStorage.getItem('dept_structure') || '[]');
+            let processId = null;
+            
+            deptStructure.forEach(dept => {
+                if (dept.processes) {
+                    const proc = dept.processes.find(p => p.name === processName);
+                    if (proc) processId = proc.id;
+                }
+            });
+            
+            if (processId) {
+                const processMatrix = JSON.parse(localStorage.getItem('process_matrix') || '{}');
+                const key = `${employeeId}_${processId}`;
+                processMatrix[key] = level;
+                localStorage.setItem('process_matrix', JSON.stringify(processMatrix));
+            }
+        }
+
+        function sendTrainingReminders() {
+            const today = new Date();
+            const reminders = trainings.filter(t => {
+                if (t.status === 'completed') return false;
+                const deadline = new Date(t.deadline);
+                const daysUntil = Math.floor((deadline - today) / (1000 * 60 * 60 * 24));
+                return daysUntil <= t.reminderDays && daysUntil >= 0;
+            });
+            
+            if (reminders.length === 0) {
+                alert('Brak szkoleń wymagających przypomnienia');
+                return;
+            }
+            
+            let emailContent = 'Przypomnienie o nadchodzących terminach szkoleń:\n\n';
+            const grouped = {};
+            
+            reminders.forEach(t => {
+                if (!grouped[t.supervisor]) grouped[t.supervisor] = [];
+                const emp = employees.find(e => e.id === t.employeeId);
+                if (emp) {
+                    grouped[t.supervisor].push({
+                        employee: `${emp.firstName} ${emp.lastName}`,
+                        process: t.process,
+                        deadline: t.deadline
+                    });
+                }
+            });
+            
+            Object.entries(grouped).forEach(([supervisor, list]) => {
+                emailContent += `Do: ${supervisor}\n`;
+                list.forEach(item => {
+                    emailContent += `- ${item.employee}: ${item.process} (termin: ${item.deadline})\n`;
+                });
+                emailContent += '\n';
+            });
+            
+            const subject = encodeURIComponent('Przypomnienie - Nadchodzące terminy szkoleń');
+            const body = encodeURIComponent(emailContent);
+            window.open(`mailto:?subject=${subject}&body=${body}`);
+            alert(`Przygotowano przypomnienia dla ${reminders.length} szkoleń`);
+        }
+
+        // KARTY WDROŻENIA
+        function loadOnboardingCards() {
+            const container = document.getElementById('onboardingCards');
+            const newEmployees = employees.filter(e => e.status === 'new' || e.status === 'training');
+            
+            if (newEmployees.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">Brak pracowników w trakcie wdrożenia</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            newEmployees.forEach(emp => {
+                const onboarding = getEmployeeOnboarding(emp.id);
+                const currentStep = onboarding.findIndex(s => !s.completed);
+                const progress = Math.round((onboarding.filter(s => s.completed).length / onboarding.length) * 100);
+                
+                const card = document.createElement('div');
+                card.className = 'onboarding-card';
+                card.innerHTML = `
+                    <h3>${emp.firstName} ${emp.lastName} (${emp.number})</h3>
+                    <p><strong>Dział:</strong> ${emp.department} | <strong>Data zatrudnienia:</strong> ${emp.hireDate}</p>
+                    <p><strong>Postęp wdrożenia:</strong> ${progress}%</p>
+                    
+                    <div class="onboarding-progress">
+                        ${onboarding.map((step, idx) => `
+                            <div class="progress-step ${step.completed ? 'completed' : idx === currentStep ? 'current' : ''}">
+                                <div>${step.name}</div>
+                                <div><small>${step.days} dni</small></div>
+                                <input type="checkbox" class="checkbox-large" 
+                                       ${step.completed ? 'checked' : ''} 
+                                       onchange="toggleOnboardingStep(${emp.id}, ${idx}, this.checked)">
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function getEmployeeOnboarding(empId) {
+            let onboarding = JSON.parse(localStorage.getItem(`onboarding_${empId}`) || 'null');
+            if (!onboarding) {
+                onboarding = onboardingSteps.map(step => ({ ...step, completed: false }));
+                localStorage.setItem(`onboarding_${empId}`, JSON.stringify(onboarding));
+            }
+            return onboarding;
+        }
+
+        function toggleOnboardingStep(empId, stepIndex, completed) {
+            const onboarding = getEmployeeOnboarding(empId);
+            onboarding[stepIndex].completed = completed;
+            localStorage.setItem(`onboarding_${empId}`, JSON.stringify(onboarding));
+            
+            const emp = employees.find(e => e.id === empId);
+            if (emp) {
+                const progress = Math.round((onboarding.filter(s => s.completed).length / onboarding.length) * 100);
+                emp.onboardingProgress = progress;
+                emp.status = progress === 100 ? 'active' : 'training';
+                localStorage.setItem('employees', JSON.stringify(employees));
+            }
+            
+            loadOnboardingCards();
+        }
+
+        function generateOnboardingCards() {
+            const newEmps = employees.filter(e => e.status === 'new');
+            newEmps.forEach(emp => {
+                emp.status = 'training';
+                getEmployeeOnboarding(emp.id);
+            });
+            localStorage.setItem('employees', JSON.stringify(employees));
+            loadOnboardingCards();
+            alert(`Wygenerowano karty wdrożenia dla ${newEmps.length} pracowników`);
+        }
+
+        function viewOnboardingReport() {
+            const report = {
+                new: employees.filter(e => e.status === 'new').length,
+                training: employees.filter(e => e.status === 'training').length,
+                active: employees.filter(e => e.status === 'active').length
+            };
+            alert(`Raport wdrożeń:\nNowi: ${report.new}\nW trakcie: ${report.training}\nAktywni: ${report.active}`);
+        }
+
+        // KONFIGURACJA
+        function loadConfig() {
+            loadDepartmentsList();
+            loadStepsList();
+            loadProcessesList();
+        }
+
+        function loadDepartmentsList() {
+            const container = document.getElementById('departmentsList');
+            container.innerHTML = departments.map(dept => 
+                `<div style="padding: 8px; border: 1px solid #ddd; border-radius: 6px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center;">
+                    <span>${dept}</span>
+                    <button class="btn btn-secondary" onclick="deleteDepartment('${dept}')" style="padding: 4px 8px; font-size: 0.8em;">Usuń</button>
+                </div>`
+            ).join('');
+        }
+
+        function addDepartment() {
+            const name = document.getElementById('newDepartment').value.trim();
+            if (name && !departments.includes(name)) {
+                departments.push(name);
+                localStorage.setItem('departments', JSON.stringify(departments));
+                loadDepartmentsList();
+                loadFilters();
+                document.getElementById('newDepartment').value = '';
+            }
+        }
+
+        function deleteDepartment(name) {
+            if (confirm(`Czy na pewno chcesz usunąć dział "${name}"?`)) {
+                departments = departments.filter(d => d !== name);
+                localStorage.setItem('departments', JSON.stringify(departments));
+                loadDepartmentsList();
+                loadFilters();
+            }
+        }
+
+        function loadStepsList() {
+            const container = document.getElementById('stepsList');
+            container.innerHTML = onboardingSteps.map((step, idx) => 
+                `<div style="padding: 8px; border: 1px solid #ddd; border-radius: 6px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center;">
+                    <span>${step.name} (${step.days} dni)</span>
+                    <button class="btn btn-secondary" onclick="deleteStep(${idx})" style="padding: 4px 8px; font-size: 0.8em;">Usuń</button>
+                </div>`
+            ).join('');
+        }
+
+        function addOnboardingStep() {
+            const name = document.getElementById('newStep').value.trim();
+            const days = parseInt(document.getElementById('newStepDays').value);
+            if (name && days > 0) {
+                onboardingSteps.push({ name, days });
+                localStorage.setItem('onboarding_steps', JSON.stringify(onboardingSteps));
+                loadStepsList();
+                document.getElementById('newStep').value = '';
+                document.getElementById('newStepDays').value = '';
+            }
+        }
+
+        function deleteStep(idx) {
+            if (confirm('Czy na pewno chcesz usunąć ten etap?')) {
+                onboardingSteps.splice(idx, 1);
+                localStorage.setItem('onboarding_steps', JSON.stringify(onboardingSteps));
+                loadStepsList();
+            }
+        }
+
+        function loadProcessesList() {
+            const container = document.getElementById('processesList');
+            container.innerHTML = processes.map(proc => 
+                `<div style="padding: 8px; border: 1px solid #ddd; border-radius: 6px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center;">
+                    <span>${proc}</span>
+                    <button class="btn btn-secondary" onclick="deleteProcess('${proc}')" style="padding: 4px 8px; font-size: 0.8em;">Usuń</button>
+                </div>`
+            ).join('');
+        }
+
+        function addProcess() {
+            const name = document.getElementById('newProcess').value.trim();
+            if (name && !processes.includes(name)) {
+                processes.push(name);
+                localStorage.setItem('processes', JSON.stringify(processes));
+                loadProcessesList();
+            }
+        }
+
+        // IMPORT/EXPORT
+        function importEmployees() {
+            const input = document.getElementById('fileInput');
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const rows = XLSX.utils.sheet_to_json(sheet);
+                    
+                    rows.forEach(row => {
+                        if (row['Nr ewidencyjny'] && row['Imię'] && row['Nazwisko']) {
+                            employees.push({
+                                id: Date.now() + Math.random(),
+                                number: row['Nr ewidencyjny'].toString(),
+                                firstName: row['Imię'],
+                                lastName: row['Nazwisko'],
+                                email: row['Email'] || '',
+                                department: row['Dział'] || departments[0],
+                                hireDate: row['Data zatrudnienia'] || new Date().toISOString().split('T')[0],
+                                status: 'new',
+                                onboardingProgress: 0
+                            });
+                        }
+                    });
+                    
+                    localStorage.setItem('employees', JSON.stringify(employees));
+                    loadEmployees();
+                    alert(`Zaimportowano ${rows.length} pracowników`);
+                };
+                reader.readAsArrayBuffer(file);
+            };
+            input.click();
+        }
+
+        function exportEmployees() {
+            const data = employees.map(e => ({
+                'Nr ewidencyjny': e.number,
+                'Imię': e.firstName,
+                'Nazwisko': e.lastName,
+                'Email': e.email,
+                'Dział': e.department,
+                'Data zatrudnienia': e.hireDate,
+                'Status': getStatusLabel(e.status),
+                'Postęp wdrożenia': e.onboardingProgress + '%'
+            }));
+            
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Pracownicy');
+            XLSX.writeFile(wb, `Pracownicy_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+		function downloadTemplate() {
+				const template = [
+					{
+						'Nr instrukcji': 'INS-001',
+						'Wersja': '1.0',
+						'Nazwa': 'Montaż komponentu A',
+						'Rodzaj': 'core',
+						'Czas cyklu': 45,
+						'Jednostka': 'szt',
+						'Dział': 'Produkcja',
+						'Procesy': 'Montaż, Pakowanie'
+					}
+				];
+				
+				const ws = XLSX.utils.json_to_sheet(template);
+				const wb = XLSX.utils.book_new();
+				XLSX.utils.book_append_sheet(wb, ws, 'Szablon');
+				XLSX.writeFile(wb, 'Szablon_Instrukcje.xlsx');
+			}
+
+		function importInstructions() {
+			const input = document.getElementById('fileInput');
+			input.onchange = function(e) {
+				const file = e.target.files[0];
+				const reader = new FileReader();
+				reader.onload = function(e) {
+					const data = new Uint8Array(e.target.result);
+					const workbook = XLSX.read(data, {type: 'array'});
+					const sheet = workbook.Sheets[workbook.SheetNames[0]];
+					const rows = XLSX.utils.sheet_to_json(sheet);
+					
+					rows.forEach(row => {
+						if (row['Nr instrukcji'] && row['Nazwa']) {
+							const procs = row['Procesy'] ? row['Procesy'].split(',').map(p => p.trim()).slice(0, 5) : [];
+							instructions.push({
+								id: Date.now() + Math.random(),
+								number: row['Nr instrukcji'].toString(),
+								version: row['Wersja'] || '1.0',
+								name: row['Nazwa'],
+								type: row['Rodzaj'] || 'other',
+								cycleTime: parseInt(row['Czas cyklu']) || 0,
+								unit: row['Jednostka'] || 'szt',
+								department: row['Dział'] || '',  // DODANE
+								processes: procs
+							});
+						}
+					});
+					
+					localStorage.setItem('instructions', JSON.stringify(instructions));
+					loadInstructions();
+					alert(`Zaimportowano ${rows.length} instrukcji`);
+				};
+				reader.readAsArrayBuffer(file);
+			};
+			input.click();
+		}
+
+        function exportInstructions() {
+            const data = instructions.map(i => ({
+                'Nr instrukcji': i.number,
+                'Wersja': i.version,
+                'Nazwa': i.name,
+                'Rodzaj': i.type,
+                'Czas cyklu': i.cycleTime,
+                'Jednostka': i.unit,
+                'Procesy': (i.processes || []).join(', ')
+            }));
+            
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Instrukcje');
+            XLSX.writeFile(wb, `Instrukcje_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        // EXPORT/IMPORT JSON
+        function exportAllDataToJSON() {
+            const allData = {
+                exportDate: new Date().toISOString(),
+                version: '1.0',
+                training: {
+                    employees: employees,
+                    instructions: instructions,
+                    trainings: trainings,
+                    departments: departments,
+                    processes: processes,
+                    deptStructure: deptStructure,
+                    onboardingSteps: onboardingSteps
+                },
+                competencyMatrix: {
+                    departments: JSON.parse(localStorage.getItem('dept_structure') || '[]'),
+                    processMatrix: JSON.parse(localStorage.getItem('process_matrix') || '{}'),
+                    additionalSkills: JSON.parse(localStorage.getItem('additional_skills') || '[]'),
+                    skillsMatrix: JSON.parse(localStorage.getItem('skills_matrix') || '{}')
+                },
+                audits: {
+                    fiveS: {
+                        zones: JSON.parse(localStorage.getItem('5s_zones') || '[]'),
+                        auditors: JSON.parse(localStorage.getItem('5s_auditors') || '[]'),
+                        questions: JSON.parse(localStorage.getItem('5s_questions') || '[]'),
+                        history: JSON.parse(localStorage.getItem('5s_history') || '[]')
+                    },
+                    actionPlan: JSON.parse(localStorage.getItem('action_plan') || '[]')
+                }
+            };
+            
+            const dataStr = JSON.stringify(allData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `System_Training_Backup_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            alert('Wszystkie dane systemu zostały wyeksportowane do pliku JSON');
+        }
+
+        function importDataFromJSON() {
+            const input = document.getElementById('jsonFileInput');
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const importedData = JSON.parse(e.target.result);
+                            
+                            if (confirm('Czy na pewno chcesz zaimportować dane? Obecne dane zostaną nadpisane!')) {
+                                // Training module
+                                if (importedData.training) {
+                                    if (importedData.training.employees) {
+                                        localStorage.setItem('employees', JSON.stringify(importedData.training.employees));
+                                        employees = importedData.training.employees;
+                                    }
+                                    if (importedData.training.instructions) {
+                                        localStorage.setItem('instructions', JSON.stringify(importedData.training.instructions));
+                                        instructions = importedData.training.instructions;
+                                    }
+                                    if (importedData.training.trainings) {
+                                        localStorage.setItem('trainings', JSON.stringify(importedData.training.trainings));
+                                        trainings = importedData.training.trainings;
+                                    }
+                                    if (importedData.training.departments) {
+                                        localStorage.setItem('departments', JSON.stringify(importedData.training.departments));
+                                        departments = importedData.training.departments;
+                                    }
+                                    if (importedData.training.processes) {
+                                        localStorage.setItem('processes', JSON.stringify(importedData.training.processes));
+                                        processes = importedData.training.processes;
+                                    }
+                                    if (importedData.training.deptStructure) {
+                                        localStorage.setItem('dept_structure', JSON.stringify(importedData.training.deptStructure));
+                                        deptStructure = importedData.training.deptStructure;
+                                    }
+                                    if (importedData.training.onboardingSteps) {
+                                        localStorage.setItem('onboarding_steps', JSON.stringify(importedData.training.onboardingSteps));
+                                        onboardingSteps = importedData.training.onboardingSteps;
+                                    }
+                                }
+                                
+                                // Competency Matrix
+                                if (importedData.competencyMatrix) {
+                                    if (importedData.competencyMatrix.departments) {
+                                        localStorage.setItem('dept_structure', JSON.stringify(importedData.competencyMatrix.departments));
+                                    }
+                                    if (importedData.competencyMatrix.processMatrix) {
+                                        localStorage.setItem('process_matrix', JSON.stringify(importedData.competencyMatrix.processMatrix));
+                                    }
+                                    if (importedData.competencyMatrix.additionalSkills) {
+                                        localStorage.setItem('additional_skills', JSON.stringify(importedData.competencyMatrix.additionalSkills));
+                                    }
+                                    if (importedData.competencyMatrix.skillsMatrix) {
+                                        localStorage.setItem('skills_matrix', JSON.stringify(importedData.competencyMatrix.skillsMatrix));
+                                    }
+                                }
+                                
+                                // Audits
+                                if (importedData.audits) {
+                                    if (importedData.audits.fiveS) {
+                                        if (importedData.audits.fiveS.zones) {
+                                            localStorage.setItem('5s_zones', JSON.stringify(importedData.audits.fiveS.zones));
+                                        }
+                                        if (importedData.audits.fiveS.auditors) {
+                                            localStorage.setItem('5s_auditors', JSON.stringify(importedData.audits.fiveS.auditors));
+                                        }
+                                        if (importedData.audits.fiveS.questions) {
+                                            localStorage.setItem('5s_questions', JSON.stringify(importedData.audits.fiveS.questions));
+                                        }
+                                        if (importedData.audits.fiveS.history) {
+                                            localStorage.setItem('5s_history', JSON.stringify(importedData.audits.fiveS.history));
+                                        }
+                                    }
+                                    if (importedData.audits.actionPlan) {
+                                        localStorage.setItem('action_plan', JSON.stringify(importedData.audits.actionPlan));
+                                    }
+                                }
+                                
+                                alert('Import zakończony pomyślnie! Strona zostanie odświeżona.');
+                                location.reload();
+                            }
+                        } catch (error) {
+                            alert('Błąd podczas importu: ' + error.message);
+                            console.error('Import error:', error);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+		function toggleInstructionComplete(trainingId, instructionId, completed) {
+			const training = trainings.find(t => t.id === trainingId);
+			if (training) {
+				const instruction = training.instructions.find(i => i.id === instructionId);
+				if (instruction) {
+						instruction.completed = completed;
+						localStorage.setItem('trainings', JSON.stringify(trainings));
+						checkTrainingCompletion(trainingId);
+				}
+			}
+		}
+		// Funkcje synchronizacji - DODAJ TO
+		function exportSyncData() {
+			const syncData = {
+				syncDate: new Date().toISOString(),
+				version: '1.0',
+				system: 'Training & Competency Management System',
+				data: {
+					employees: employees,
+					instructions: instructions,
+					trainings: trainings,
+					departments: departments,
+					processes: processes,
+					deptStructure: deptStructure,
+					onboardingSteps: onboardingSteps
+				}
+			};
+			
+			const dataStr = JSON.stringify(syncData, null, 2);
+			const dataBlob = new Blob([dataStr], {type: 'application/json'});
+			const url = URL.createObjectURL(dataBlob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = 'training_data.json';
+			link.click();
+			URL.revokeObjectURL(url);
+			
+			alert('Dane szkoleń wyeksportowane!\n\nSkopiuj plik do OneDrive/SharePoint aby zsynchronizować z innymi.');
+		}
+
+		function importSyncData() {
+			const input = document.getElementById('jsonFileInput');
+			input.onchange = function(e) {
+				const file = e.target.files[0];
+				if (file) {
+					const reader = new FileReader();
+					reader.onload = function(e) {
+						try {
+							const syncData = JSON.parse(e.target.result);
+							if (!syncData.data) {
+								alert('Nieprawidłowy format pliku!');
+								return;
+							}
+							
+							const syncDate = new Date(syncData.syncDate);
+							if (confirm(`Dane z: ${syncDate.toLocaleString('pl-PL')}\n\nCZY NA PEWNO ZAIMPORTOWAĆ?\nObecne dane zostaną nadpisane!`)) {
+								const data = syncData.data;
+								
+								if (data.employees) {
+									localStorage.setItem('employees', JSON.stringify(data.employees));
+									employees = data.employees;
+								}
+								if (data.instructions) {
+									localStorage.setItem('instructions', JSON.stringify(data.instructions));
+									instructions = data.instructions;
+								}
+								if (data.trainings) {
+									localStorage.setItem('trainings', JSON.stringify(data.trainings));
+									trainings = data.trainings;
+								}
+								if (data.departments) {
+									localStorage.setItem('departments', JSON.stringify(data.departments));
+									departments = data.departments;
+								}
+								if (data.processes) {
+									localStorage.setItem('processes', JSON.stringify(data.processes));
+									processes = data.processes;
+								}
+								if (data.deptStructure) {
+									localStorage.setItem('dept_structure', JSON.stringify(data.deptStructure));
+									deptStructure = data.deptStructure;
+								}
+								if (data.onboardingSteps) {
+									localStorage.setItem('onboarding_steps', JSON.stringify(data.onboardingSteps));
+									onboardingSteps = data.onboardingSteps;
+								}
+								
+								alert('Import zakończony pomyślnie!');
+								location.reload();
+							}
+						} catch (error) {
+							alert('Błąd podczas importu: ' + error.message);
+						}
+					};
+					reader.readAsText(file);
+				}
+			};
+			input.click();
+		}
+    </script>
+</body>
+</html>
+                document.getElementById('newProcess').value = '';
+            }
+        }
+
+        function deleteProcess(name) {
+            if (confirm(`Czy na pewno chcesz usunąć proces "${name}"?`)) {
+                processes = processes.filter(p => p !== name);
+                localStorage.setItem('processes', JSON.stringify(processes));
+                loadProcessesList();
