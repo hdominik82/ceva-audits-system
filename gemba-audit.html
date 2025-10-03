@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GEMBA Walk - CEVA</title>
+    <title>GEMBA Walk - CEVA Mobile</title>
+    <script src="config.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #4ecdc4, #26d0ce);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            padding-bottom: 40px;
         }
         .header {
             background: rgba(255, 255, 255, 0.1);
@@ -27,11 +29,11 @@
             padding: 10px 20px;
             border-radius: 25px;
             cursor: pointer;
-            font-size: 1em;
+            font-weight: 600;
         }
-        .header h1 {
+        .header-title {
             color: white;
-            font-size: 1.5em;
+            font-size: 1.3em;
             font-weight: 300;
         }
         .content {
@@ -39,20 +41,21 @@
             max-width: 600px;
             margin: 0 auto;
         }
-        .form-card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        .level-indicator {
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
             margin-bottom: 20px;
         }
-        .section-title {
-            font-size: 1.2em;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #4ecdc4;
+        .form-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         .form-group {
             margin-bottom: 20px;
@@ -62,326 +65,582 @@
             font-weight: 600;
             margin-bottom: 8px;
             color: #333;
-            font-size: 0.95em;
         }
         .form-control {
             width: 100%;
             padding: 12px;
             border: 2px solid #e0e0e0;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 1em;
-            font-family: inherit;
         }
-        .form-control:focus {
-            outline: none;
-            border-color: #4ecdc4;
+        .section-header {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0 15px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1em;
         }
-        textarea.form-control {
-            min-height: 100px;
-            resize: vertical;
+        .question-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
         }
-        .type-buttons {
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            line-height: 1.4;
+        }
+        .answer-buttons {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
         }
-        .type-btn {
-            padding: 18px;
+        .answer-btn {
+            padding: 15px 10px;
             border: 3px solid #e0e0e0;
-            border-radius: 12px;
+            border-radius: 8px;
             background: white;
             cursor: pointer;
-            font-size: 1.05em;
             font-weight: 600;
             transition: all 0.3s;
             text-align: center;
         }
-        .type-btn.selected {
-            border-width: 3px;
+        .answer-btn.selected { border-width: 4px; }
+        .answer-btn-yes { color: #28a745; border-color: #28a745; }
+        .answer-btn-yes.selected { background: #28a745; color: white; }
+        .answer-btn-no { color: #dc3545; border-color: #dc3545; }
+        .answer-btn-no.selected { background: #dc3545; color: white; }
+        .answer-btn-na { color: #6c757d; border-color: #6c757d; }
+        .answer-btn-na.selected { background: #6c757d; color: white; }
+        .waste-section {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
         }
-        .type-positive {
-            color: #28a745;
-            border-color: #28a745;
+        .waste-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 1.1em;
         }
-        .type-positive.selected {
-            background: #28a745;
-            color: white;
+        .waste-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffc107;
         }
-        .type-negative {
-            color: #dc3545;
-            border-color: #dc3545;
+        .waste-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
         }
-        .type-negative.selected {
+        .waste-type {
+            font-weight: 600;
+            color: #333;
+        }
+        .btn-remove {
             background: #dc3545;
             color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            cursor: pointer;
         }
-        .submit-btn {
+        .btn-add-waste {
             width: 100%;
-            padding: 18px;
-            background: #4ecdc4;
+            padding: 12px;
+            background: #ffc107;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .textarea-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95em;
+            resize: vertical;
+            min-height: 80px;
+            margin-top: 10px;
+        }
+        .nav-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
             color: white;
             border: none;
-            border-radius: 15px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-secondary {
+            width: 100%;
+            padding: 15px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-success {
+            width: 100%;
+            padding: 18px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 12px;
             font-size: 1.2em;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            margin-top: 20px;
         }
-        .submit-btn:active {
-            transform: scale(0.98);
-        }
-        .photo-upload {
-            border: 2px dashed #e0e0e0;
-            border-radius: 10px;
-            padding: 25px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .photo-upload:hover {
-            border-color: #4ecdc4;
-            background: #f8f9fa;
-        }
-        .photo-preview {
-            max-width: 100%;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 20px;
+        .result-card {
+            background: white;
             border-radius: 15px;
+            padding: 30px;
             text-align: center;
-            font-weight: 600;
             display: none;
         }
-        .info-box {
-            background: #e7f3ff;
-            border-left: 4px solid #2196f3;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 0.9em;
-            color: #0d47a1;
+        .result-card.visible { display: block; }
+        .sharepoint-section {
+            background: #f0f8ff;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
         }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="header">
         <button class="back-btn" onclick="window.location.href='mobile-index.html'">← Powrót</button>
-        <h1>GEMBA Walk</h1>
-        <div style="width: 60px;"></div>
+        <div class="header-title">GEMBA Walk</div>
+        <div style="width:80px"></div>
     </div>
 
     <div class="content">
-        <div class="info-box">
-            📊 GEMBA = miejsce gdzie tworzy się wartość. Obserwuj procesy i identyfikuj możliwości usprawnień.
+        <div class="level-indicator" id="levelIndicator">Poziom 1 z 3</div>
+
+        <!-- POZIOM 1 -->
+        <div id="level1">
+            <div class="form-card">
+                <div class="form-group">
+                    <label>Data GEMBA Walk:</label>
+                    <input type="date" id="gembaDate" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Obszar/Strefa:</label>
+                    <select id="gembaZone" class="form-control">
+                        <option value="">-- Wybierz obszar --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Osoba przeprowadzająca:</label>
+                    <select id="gembaLead" class="form-control">
+                        <option value="">-- Wybierz --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Kategoria obserwacji:</label>
+                    <select id="category" class="form-control">
+                        <option value="">-- Wybierz kategorię --</option>
+                        <option value="process">Proces</option>
+                        <option value="5s">5S</option>
+                        <option value="bhp">BHP</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="questionsLevel1"></div>
+
+            <div class="waste-section">
+                <div class="waste-title">📊 Zaobserwowane straty (7 strat Lean)</div>
+                <div id="wastesContainer"></div>
+                <button class="btn-add-waste" onclick="addWaste()">+ Dodaj stratę</button>
+            </div>
+
+            <div class="form-card">
+                <div class="form-group">
+                    <label>Inne uwagi (opcjonalnie):</label>
+                    <textarea id="notesLevel1" class="textarea-field" placeholder="Dodatkowe obserwacje..."></textarea>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="goToLevel(2)">Przejdź do poziomu 2 →</button>
         </div>
 
-        <div class="form-card">
-            <form id="gembaForm">
-                <div class="section-title">Podstawowe informacje</div>
-
+        <!-- POZIOM 2 -->
+        <div id="level2" class="hidden">
+            <div class="form-card">
+                <div class="section-header">Analiza Procesu - Poziom 2</div>
                 <div class="form-group">
-                    <label>Data i czas:</label>
-                    <input type="datetime-local" class="form-control" id="datetime" required>
+                    <label>Opis procesu i jego przebieg:</label>
+                    <textarea id="processAnalysis2" class="textarea-field" placeholder="Opisz szczegółowo przebieg procesu..."></textarea>
                 </div>
-
                 <div class="form-group">
-                    <label>Strefa obserwacji:*</label>
-                    <select class="form-control" id="zone" required>
-                        <option value="">-- Wybierz strefę --</option>
-                        <option value="Inbound">Inbound</option>
-                        <option value="Odnowa">Odnowa</option>
-                        <option value="Zwroty">Zwroty</option>
-                        <option value="B2B">B2B</option>
-                        <option value="B2C">B2C</option>
-                    </select>
+                    <label>Zidentyfikowane problemy:</label>
+                    <textarea id="processProblems2" class="textarea-field" placeholder="Jakie problemy zauważyłeś w procesie?"></textarea>
                 </div>
-
-                <div class="form-group">
-                    <label>Obserwujący:</label>
-                    <input type="text" class="form-control" id="observer" placeholder="Imię i nazwisko">
-                </div>
-
-                <div class="section-title">Kategoria obserwacji</div>
-
-                <div class="form-group">
-                    <label>Wybierz kategorię:*</label>
-                    <select class="form-control" id="category" required onchange="updateSubcategories()">
-                        <option value="">-- Wybierz kategorię --</option>
-                        <option value="BHP">BHP - Bezpieczeństwo</option>
-                        <option value="Jakość">Jakość</option>
-                        <option value="5S">5S - Porządek i czystość</option>
-                        <option value="Standard Pracy">Standard Pracy</option>
-                        <option value="7 Strat LEAN">7 Strat LEAN</option>
-                        <option value="Inne">Inne</option>
-                    </select>
-                </div>
-
-                <div class="form-group" id="subcategoryGroup" style="display: none;">
-                    <label>Typ straty LEAN:*</label>
-                    <select class="form-control" id="subcategory">
-                        <option value="">-- Wybierz typ straty --</option>
-                        <option value="Nadprodukcja">Nadprodukcja</option>
-                        <option value="Oczekiwanie">Oczekiwanie</option>
-                        <option value="Transport">Transport</option>
-                        <option value="Nadmierne przetwarzanie">Nadmierne przetwarzanie</option>
-                        <option value="Zapasy">Zapasy</option>
-                        <option value="Ruchy">Ruchy (zbędne przemieszczenia)</option>
-                        <option value="Wady">Wady / Braki</option>
-                    </select>
-                </div>
-
-                <div class="section-title">Typ obserwacji</div>
-
-                <div class="form-group">
-                    <div class="type-buttons">
-                        <button type="button" class="type-btn type-positive" onclick="selectType('Pozytywna', this)">
-                            ✅ Pozytywna<br>
-                            <small style="font-weight: normal;">Dobre praktyki</small>
-                        </button>
-                        <button type="button" class="type-btn type-negative" onclick="selectType('Do poprawy', this)">
-                            ⚠️ Do poprawy<br>
-                            <small style="font-weight: normal;">Wymaga działań</small>
-                        </button>
-                    </div>
-                    <input type="hidden" id="type" required>
-                </div>
-
-                <div class="section-title">Szczegóły obserwacji</div>
-
-                <div class="form-group">
-                    <label>Opis obserwacji:*</label>
-                    <textarea class="form-control" id="description" placeholder="Co dokładnie zaobserwowałeś? Opisz szczegółowo..." required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Sugerowane działanie:</label>
-                    <textarea class="form-control" id="action" placeholder="Jakie działanie zalecasz?"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Zdjęcie (opcjonalne):</label>
-                    <div class="photo-upload" onclick="document.getElementById('photoInput').click()">
-                        <div id="uploadText">📷 Kliknij aby dodać zdjęcie</div>
-                        <input type="file" id="photoInput" accept="image/*" capture="environment" style="display: none;" onchange="previewPhoto(this)">
-                        <img id="photoPreview" class="photo-preview" style="display: none;">
-                    </div>
-                </div>
-
-                <button type="submit" class="submit-btn">Zapisz obserwację</button>
-            </form>
-
-            <div class="success-message" id="successMessage">
-                ✅ Obserwacja GEMBA zapisana!<br>
-                <small>Dane gotowe do synchronizacji z desktop</small>
             </div>
+
+            <div class="waste-section">
+                <div class="waste-title">📊 Dodatkowe straty - Poziom 2</div>
+                <div id="wastesContainer2"></div>
+                <button class="btn-add-waste" onclick="addWasteLevel2()">+ Dodaj stratę</button>
+            </div>
+
+            <div class="form-card">
+                <div class="form-group">
+                    <label>Inne uwagi (opcjonalnie):</label>
+                    <textarea id="notesLevel2" class="textarea-field" placeholder="Dodatkowe obserwacje..."></textarea>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-secondary" onclick="goToLevel(1)">← Poziom 1</button>
+                <button class="btn-primary" onclick="goToLevel(3)">Poziom 3 →</button>
+            </div>
+        </div>
+
+        <!-- POZIOM 3 -->
+        <div id="level3" class="hidden">
+            <div class="form-card">
+                <div class="section-header">Głęboka Analiza - Poziom 3</div>
+                <div class="form-group">
+                    <label>Główne przyczyny problemów (root cause):</label>
+                    <textarea id="rootCause3" class="textarea-field" placeholder="Dlaczego występują te problemy? (5x Dlaczego)"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Proponowane działania naprawcze:</label>
+                    <textarea id="actions3" class="textarea-field" placeholder="Jakie działania należy podjąć?"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Oczekiwane rezultaty:</label>
+                    <textarea id="expectedResults3" class="textarea-field" placeholder="Jakie będą rezultaty po wdrożeniu?"></textarea>
+                </div>
+            </div>
+
+            <div class="waste-section">
+                <div class="waste-title">📊 Dodatkowe straty - Poziom 3</div>
+                <div id="wastesContainer3"></div>
+                <button class="btn-add-waste" onclick="addWasteLevel3()">+ Dodaj stratę</button>
+            </div>
+
+            <div class="form-card">
+                <div class="form-group">
+                    <label>Inne uwagi (opcjonalnie):</label>
+                    <textarea id="notesLevel3" class="textarea-field" placeholder="Dodatkowe obserwacje..."></textarea>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-secondary" onclick="goToLevel(2)">← Poziom 2</button>
+                <button class="btn-success" onclick="saveGemba()">Zapisz GEMBA Walk</button>
+            </div>
+        </div>
+
+        <!-- WYNIK -->
+        <div id="resultSection" class="result-card">
+            <h2 style="color: #667eea; margin-bottom: 20px;">GEMBA Walk zapisany!</h2>
+            
+            <div class="sharepoint-section">
+                <h3 style="color: #667eea; margin-bottom: 15px;">📤 Prześlij na SharePoint</h3>
+                <ol style="margin-left: 20px; line-height: 1.8;">
+                    <li>Kliknij przycisk "Otwórz SharePoint" poniżej</li>
+                    <li>W folderze kliknij <strong>+ Nowy → Przekaż pliki</strong></li>
+                    <li>Wybierz pobrany plik JSON:</li>
+                </ol>
+                <div style="background: white; padding: 10px; border-radius: 5px; margin: 10px 0; font-family: monospace; font-size: 0.85em;" id="fileName">gemba.json</div>
+            </div>
+
+            <button class="btn-primary" id="openSharePoint" style="margin-top: 15px;">
+                📁 Otwórz SharePoint - folder Gemba
+            </button>
+            
+            <button class="btn-secondary" onclick="location.reload()" style="margin-top: 10px;">
+                🔄 Nowy GEMBA Walk
+            </button>
         </div>
     </div>
 
     <script>
-        let selectedType = null;
-        let photoData = null;
+        const branch = CEVA_CONFIG.getCurrentBranch();
+        
+        const questionsBank = {
+            process: [
+                "Czy proces przebiega zgodnie ze standardem?",
+                "Czy pracownicy znają standard procesu?",
+                "Czy narzędzia i materiały są dostępne w odpowiednim miejscu?",
+                "Czy widoczne są wskaźniki wydajności procesu?",
+                "Czy występują wąskie gardła w procesie?",
+                "Czy komunikacja między stanowiskami jest efektywna?"
+            ],
+            "5s": [
+                "Czy w obszarze są tylko potrzebne przedmioty?",
+                "Czy wszystko ma swoje miejsce i jest oznaczone?",
+                "Czy obszar jest czysty i uporządkowany?",
+                "Czy standardy 5S są widoczne i aktualne?",
+                "Czy zespół przestrzega zasad 5S?",
+                "Czy przeprowadzane są regularne audyty 5S?"
+            ],
+            bhp: [
+                "Czy drogi ewakuacyjne są wolne i oznaczone?",
+                "Czy pracownicy używają wymaganych środków ochrony osobistej?",
+                "Czy maszyny i urządzenia mają zabezpieczenia?",
+                "Czy w obszarze są widoczne instrukcje BHP?",
+                "Czy pracownicy zgłaszają zagrożenia?",
+                "Czy wyposażenie BHP (gaśnice, apteczki) jest dostępne?"
+            ]
+        };
 
-        // Set current datetime
-        document.getElementById('datetime').value = new Date().toISOString().slice(0, 16);
+        const wasteTypes = [
+            "Nadprodukcja",
+            "Oczekiwanie",
+            "Transport",
+            "Nadmierny proces",
+            "Zapasy",
+            "Ruch",
+            "Wady/Defekty"
+        ];
 
-        function updateSubcategories() {
+        let currentLevel = 1;
+        let answers = {};
+        let wastes = { level1: [], level2: [], level3: [] };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('gembaDate').value = new Date().toISOString().split('T')[0];
+            
+            const zoneSelect = document.getElementById('gembaZone');
+            branch.zones.forEach(zone => {
+                const option = document.createElement('option');
+                option.value = zone.name;
+                option.textContent = zone.name;
+                zoneSelect.appendChild(option);
+            });
+            
+            const leadSelect = document.getElementById('gembaLead');
+            branch.auditors.forEach(auditor => {
+                const option = document.createElement('option');
+                option.value = auditor;
+                option.textContent = auditor;
+                leadSelect.appendChild(option);
+            });
+
+            document.getElementById('category').addEventListener('change', renderQuestions);
+        });
+
+        function renderQuestions() {
             const category = document.getElementById('category').value;
-            const subcategoryGroup = document.getElementById('subcategoryGroup');
-            const subcategory = document.getElementById('subcategory');
-
-            if (category === '7 Strat LEAN') {
-                subcategoryGroup.style.display = 'block';
-                subcategory.required = true;
-            } else {
-                subcategoryGroup.style.display = 'none';
-                subcategory.required = false;
-                subcategory.value = '';
-            }
+            const container = document.getElementById('questionsLevel1');
+            container.innerHTML = '';
+            
+            if (!category) return;
+            
+            const header = document.createElement('div');
+            header.className = 'section-header';
+            header.textContent = `Pytania: ${category === 'process' ? 'Proces' : category === '5s' ? '5S' : 'BHP'}`;
+            container.appendChild(header);
+            
+            questionsBank[category].forEach((q, idx) => {
+                const key = `${category}_${idx}`;
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-item';
+                questionDiv.innerHTML = `
+                    <div class="question-text">${idx + 1}. ${q}</div>
+                    <div class="answer-buttons">
+                        <button class="answer-btn answer-btn-yes" onclick="selectAnswer('${key}', 'yes', this)">✓ Tak</button>
+                        <button class="answer-btn answer-btn-no" onclick="selectAnswer('${key}', 'no', this)">✗ Nie</button>
+                        <button class="answer-btn answer-btn-na" onclick="selectAnswer('${key}', 'na', this)">− N/A</button>
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            });
         }
 
-        function selectType(type, btn) {
-            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+        function selectAnswer(key, value, btn) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
-            selectedType = type;
-            document.getElementById('type').value = type;
+            answers[key] = value;
         }
 
-        function previewPhoto(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    photoData = e.target.result;
-                    document.getElementById('photoPreview').src = e.target.result;
-                    document.getElementById('photoPreview').style.display = 'block';
-                    document.getElementById('uploadText').style.display = 'none';
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
+        function addWaste() {
+            addWasteToLevel('level1', 'wastesContainer');
         }
 
-        document.getElementById('gembaForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        function addWasteLevel2() {
+            addWasteToLevel('level2', 'wastesContainer2');
+        }
 
-            if (!selectedType) {
-                alert('Proszę wybrać typ obserwacji (Pozytywna / Do poprawy)');
-                return;
+        function addWasteLevel3() {
+            addWasteToLevel('level3', 'wastesContainer3');
+        }
+
+        function addWasteToLevel(level, containerId) {
+            const wasteId = Date.now() + Math.random();
+            const container = document.getElementById(containerId);
+            
+            const wasteDiv = document.createElement('div');
+            wasteDiv.className = 'waste-item';
+            wasteDiv.id = `waste_${wasteId}`;
+            wasteDiv.innerHTML = `
+                <div class="waste-header">
+                    <select class="form-control" style="width: 70%;" id="type_${wasteId}">
+                        <option value="">-- Wybierz typ straty --</option>
+                        ${wasteTypes.map(w => `<option value="${w}">${w}</option>`).join('')}
+                    </select>
+                    <button class="btn-remove" onclick="removeWaste('${wasteId}', '${level}')">Usuń</button>
+                </div>
+                <textarea class="textarea-field" id="desc_${wasteId}" placeholder="Opisz zaobserwowaną stratę..." style="min-height: 60px;"></textarea>
+            `;
+            container.appendChild(wasteDiv);
+            
+            wastes[level].push({ id: wasteId });
+        }
+
+        function removeWaste(wasteId, level) {
+            document.getElementById(`waste_${wasteId}`).remove();
+            wastes[level] = wastes[level].filter(w => w.id !== wasteId);
+        }
+
+        function goToLevel(level) {
+            if (level === 2 && currentLevel === 1) {
+                const date = document.getElementById('gembaDate').value;
+                const zone = document.getElementById('gembaZone').value;
+                const lead = document.getElementById('gembaLead').value;
+                const category = document.getElementById('category').value;
+                
+                if (!date || !zone || !lead || !category) {
+                    alert('Wypełnij wszystkie pola podstawowe!');
+                    return;
+                }
             }
+            
+            document.getElementById('level1').classList.add('hidden');
+            document.getElementById('level2').classList.add('hidden');
+            document.getElementById('level3').classList.add('hidden');
+            
+            document.getElementById(`level${level}`).classList.remove('hidden');
+            document.getElementById('levelIndicator').textContent = `Poziom ${level} z 3`;
+            currentLevel = level;
+        }
 
+        function saveGemba() {
+            const date = document.getElementById('gembaDate').value;
+            const zone = document.getElementById('gembaZone').value;
+            const lead = document.getElementById('gembaLead').value;
             const category = document.getElementById('category').value;
-            const subcategory = document.getElementById('subcategory').value;
 
-            const observation = {
-                id: Date.now(),
-                datetime: document.getElementById('datetime').value,
-                zone: document.getElementById('zone').value,
-                observer: document.getElementById('observer').value.trim() || 'Anonimowy',
+            const allWastes = [];
+            ['level1', 'level2', 'level3'].forEach(level => {
+                wastes[level].forEach(w => {
+                    const type = document.getElementById(`type_${w.id}`)?.value;
+                    const desc = document.getElementById(`desc_${w.id}`)?.value.trim();
+                    if (type && desc) {
+                        allWastes.push({
+                            level: level,
+                            type: type,
+                            description: desc,
+                            id: w.id
+                        });
+                    }
+                });
+            });
+
+            const gembaData = {
+                type: 'GEMBA',
+                branch: branch.code,
+                branchName: branch.name,
+                date: date,
+                timestamp: new Date().toISOString(),
+                zone: zone,
+                lead: lead,
                 category: category,
-                subcategory: category === '7 Strat LEAN' ? subcategory : null,
-                type: selectedType,
-                description: document.getElementById('description').value.trim(),
-                action: document.getElementById('action').value.trim(),
-                photo: photoData,
-                status: selectedType === 'Do poprawy' ? 'Otwarte' : 'Zamknięte',
-                createdDate: new Date().toISOString(),
-                branch: 'ORA-PL-01',
-                source: 'gemba'
+                
+                level1: {
+                    answers: answers,
+                    notes: document.getElementById('notesLevel1').value.trim()
+                },
+                
+                level2: {
+                    processAnalysis: document.getElementById('processAnalysis2').value.trim(),
+                    processProblems: document.getElementById('processProblems2').value.trim(),
+                    notes: document.getElementById('notesLevel2').value.trim()
+                },
+                
+                level3: {
+                    rootCause: document.getElementById('rootCause3').value.trim(),
+                    actions: document.getElementById('actions3').value.trim(),
+                    expectedResults: document.getElementById('expectedResults3').value.trim(),
+                    notes: document.getElementById('notesLevel3').value.trim()
+                },
+                
+                wastes: allWastes,
+                wastesCount: allWastes.length
             };
 
-            // Save to localStorage
-            let observations = JSON.parse(localStorage.getItem('gemba_observations') || '[]');
-            observations.push(observation);
-            localStorage.setItem('gemba_observations', JSON.stringify(observations));
-
-            // If "Do poprawy", also add to action plan
-            if (selectedType === 'Do poprawy') {
-                let actionPlan = JSON.parse(localStorage.getItem('action_plan') || '[]');
-                actionPlan.push({
-                    id: Date.now() + 1,
-                    source: 'GEMBA Walk',
-                    description: `${category}${subcategory ? ' - ' + subcategory : ''}: ${observation.description}`,
-                    actions: observation.action || 'Do określenia',
-                    status: 'Otwarte',
-                    responsible: null,
-                    priority: 'medium',
-                    createdDate: new Date().toISOString().split('T')[0],
-                    dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                    zone: observation.zone
-                });
-                localStorage.setItem('action_plan', JSON.stringify(actionPlan));
+            try {
+                let localGemba = JSON.parse(localStorage.getItem('gemba_mobile_audits') || '[]');
+                localGemba.push(gembaData);
+                localStorage.setItem('gemba_mobile_audits', JSON.stringify(localGemba));
+            } catch (e) {
+                console.warn('Nie można zapisać do localStorage:', e);
             }
 
-            // Show success
-            document.getElementById('gembaForm').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'block';
+            const fileName = CEVA_CONFIG.generateFileName('gemba', zone, date);
 
-            setTimeout(() => {
-                window.location.href = 'mobile-index.html';
-            }, 2000);
-        });
+            const json = JSON.stringify(gembaData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showResult(fileName);
+        }
+
+        function showResult(fileName) {
+            document.getElementById('level3').classList.add('hidden');
+            document.getElementById('levelIndicator').style.display = 'none';
+            
+            const resultSection = document.getElementById('resultSection');
+            resultSection.classList.add('visible');
+            
+            document.getElementById('fileName').textContent = fileName;
+            
+            const sharePointUrl = CEVA_CONFIG.getSharePointFolderUrl(branch.code, 'gemba');
+            document.getElementById('openSharePoint').onclick = function() {
+                window.open(sharePointUrl, '_blank');
+            };
+        }
     </script>
 </body>
 </html>
