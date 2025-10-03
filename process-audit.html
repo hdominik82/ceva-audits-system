@@ -306,6 +306,20 @@
         <div id="resultSection" class="result-card">
             <h2 style="color: #4ecdc4; margin-bottom: 20px;">Audyt procesu zapisany!</h2>
             
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="color: #333; margin-bottom: 15px;">Podsumowanie audytu:</h3>
+                <div style="text-align: left; line-height: 1.8;">
+                    <p><strong>Wynik:</strong> <span id="resultScore" style="color: #4ecdc4; font-size: 1.2em;"></span></p>
+                    <p><strong>Zaudytowane instrukcje:</strong> <span id="resultInstructionsCount"></span></p>
+                    <div id="cycleTimeResult" style="display: none; margin-top: 10px; padding: 10px; background: #e8f5f1; border-radius: 5px;">
+                        <p><strong>⏱️ Pomiar czasu cyklu:</strong></p>
+                        <p style="margin-left: 20px;">Całkowity czas: <span id="resultTotalTime"></span></p>
+                        <p style="margin-left: 20px;">Ilość zadań: <span id="resultTaskCount"></span></p>
+                        <p style="margin-left: 20px; color: #4ecdc4; font-weight: 600;">Czas cyklu: <span id="resultCycleTime"></span></p>
+                    </div>
+                </div>
+            </div>
+            
             <div class="sharepoint-section">
                 <h3 style="color: #4ecdc4; margin-bottom: 15px;">📤 Prześlij na SharePoint</h3>
                 <ol style="margin-left: 20px; line-height: 1.8;">
@@ -482,37 +496,45 @@
                 instructionsToAudit = [selected];
             }
             
-            // Renderuj instrukcje
-            instructionsToAudit.forEach((instruction, instrIdx) => {
-                const instrCard = document.createElement('div');
-                instrCard.className = 'instruction-card';
-                
-                let html = `<div class="instruction-title">📋 ${instruction}</div>`;
-                
-                auditQuestions.forEach((q, qIdx) => {
-                    const key = `${instrIdx}_${qIdx}`;
-                    html += `
-                        <div class="question-item">
-                            <div class="question-text">${qIdx + 1}. ${q}</div>
-                            <div class="answer-buttons">
-                                <button class="answer-btn answer-btn-yes" onclick="selectAnswer('${key}', 'yes', this)">✓ Tak</button>
-                                <button class="answer-btn answer-btn-no" onclick="selectAnswer('${key}', 'no', this)">✗ Nie</button>
-                                <button class="answer-btn answer-btn-na" onclick="selectAnswer('${key}', 'na', this)">− N/A</button>
-                            </div>
-                            <div class="comment-label" id="label_${key}">
-                                <span class="required-star">*</span> Wymagany komentarz - opisz problem:
-                            </div>
-                            <textarea 
-                                class="comment-area" 
-                                id="comment_${key}" 
-                                placeholder="Opisz szczegółowo problem..."
-                            ></textarea>
-                        </div>
-                    `;
-                });
-                
-                instrCard.innerHTML = html;
-                container.appendChild(instrCard);
+            // Pokaż listę instrukcji
+            const instrListCard = document.createElement('div');
+            instrListCard.className = 'instruction-card';
+            instrListCard.innerHTML = `
+                <div class="instruction-title">📋 Instrukcje objęte audytem:</div>
+                <ul style="margin-left: 20px; line-height: 1.8;">
+                    ${instructionsToAudit.map(i => `<li><strong>${i}</strong></li>`).join('')}
+                </ul>
+            `;
+            container.appendChild(instrListCard);
+            
+            // Sekcja z pytaniami (RAZ dla wszystkich instrukcji)
+            const header = document.createElement('div');
+            header.className = 'section-header';
+            header.textContent = 'Pytania audytu (dla wszystkich instrukcji)';
+            container.appendChild(header);
+            
+            // Renderuj pytania RAZ
+            auditQuestions.forEach((q, qIdx) => {
+                const key = `q_${qIdx}`;
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-item';
+                questionDiv.innerHTML = `
+                    <div class="question-text">${qIdx + 1}. ${q}</div>
+                    <div class="answer-buttons">
+                        <button class="answer-btn answer-btn-yes" onclick="selectAnswer('${key}', 'yes', this)">✓ Tak</button>
+                        <button class="answer-btn answer-btn-no" onclick="selectAnswer('${key}', 'no', this)">✗ Nie</button>
+                        <button class="answer-btn answer-btn-na" onclick="selectAnswer('${key}', 'na', this)">− N/A</button>
+                    </div>
+                    <div class="comment-label" id="label_${key}">
+                        <span class="required-star">*</span> Wymagany komentarz - wskaż instrukcję i opisz problem:
+                    </div>
+                    <textarea 
+                        class="comment-area" 
+                        id="comment_${key}" 
+                        placeholder="Wskaż której instrukcji dotyczy problem i opisz szczegółowo..."
+                    ></textarea>
+                `;
+                container.appendChild(questionDiv);
             });
             
             document.getElementById('submitBtn').style.display = 'block';
@@ -552,9 +574,8 @@
                 return;
             }
 
-            // Walidacja odpowiedzi
-            const expectedAnswers = instructionsToAudit.length * auditQuestions.length;
-            if (Object.keys(answers).length < expectedAnswers) {
+            // Walidacja odpowiedzi - tylko 7 pytań (nie × ilość instrukcji)
+            if (Object.keys(answers).length < auditQuestions.length) {
                 alert('Odpowiedz na wszystkie pytania!');
                 return;
             }
@@ -564,7 +585,7 @@
                 if (answers[key] === 'no') {
                     const commentValue = document.getElementById(`comment_${key}`).value.trim();
                     if (!commentValue) {
-                        alert('Wszystkie odpowiedzi "Nie" wymagają komentarza!');
+                        alert('Wszystkie odpowiedzi "Nie" wymagają komentarza ze wskazaniem instrukcji!');
                         return;
                     }
                     comments[key] = commentValue;
@@ -594,7 +615,8 @@
                 auditor: auditor,
                 auditType: type,
                 selectedItem: selected,
-                instructions: instructionsToAudit,
+                instructions: instructionsToAudit, // Lista zaudytowanych instrukcji dla dashboardu
+                instructionsCount: instructionsToAudit.length, // Łatwe zliczanie
                 answers: answers,
                 comments: comments,
                 score: score,
@@ -624,15 +646,40 @@
             a.click();
             URL.revokeObjectURL(url);
 
-            showResult(fileName);
+            showResult(fileName, score, instructionsToAudit.length, auditData.cycleTime);
         }
 
-        function showResult(fileName) {
+        function showResult(fileName, score, instructionsCount, cycleData) {
             document.getElementById('formSection').style.display = 'none';
             document.querySelector('.timer-card').style.display = 'none';
             
             const resultSection = document.getElementById('resultSection');
             resultSection.classList.add('visible');
+            
+            // Wypełnij podsumowanie
+            document.getElementById('resultScore').textContent = score + '%';
+            document.getElementById('resultInstructionsCount').textContent = instructionsCount;
+            
+            // Pokaż czas cyklu jeśli był mierzony
+            if (cycleData.totalSeconds > 0 && cycleData.tasksCount > 0) {
+                const cycleResult = document.getElementById('cycleTimeResult');
+                cycleResult.style.display = 'block';
+                
+                // Formatuj czas całkowity
+                const totalHours = Math.floor(cycleData.totalSeconds / 3600);
+                const totalMinutes = Math.floor((cycleData.totalSeconds % 3600) / 60);
+                const totalSeconds = cycleData.totalSeconds % 60;
+                document.getElementById('resultTotalTime').textContent = 
+                    `${totalHours}h ${totalMinutes}m ${totalSeconds}s`;
+                
+                document.getElementById('resultTaskCount').textContent = cycleData.tasksCount;
+                
+                // Formatuj czas cyklu
+                const cycleMinutes = Math.floor(cycleData.cycleTimeSeconds / 60);
+                const cycleSeconds = cycleData.cycleTimeSeconds % 60;
+                document.getElementById('resultCycleTime').textContent = 
+                    `${cycleMinutes}m ${cycleSeconds}s / zadanie`;
+            }
             
             document.getElementById('fileName').textContent = fileName;
             
