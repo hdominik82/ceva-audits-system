@@ -118,6 +118,28 @@
         .answer-btn-no.selected { background: #dc3545; color: white; }
         .answer-btn-na { color: #6c757d; border-color: #6c757d; }
         .answer-btn-na.selected { background: #6c757d; color: white; }
+        .comment-area {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dc3545;
+            border-radius: 8px;
+            font-size: 0.9em;
+            resize: vertical;
+            min-height: 70px;
+            margin-top: 10px;
+            display: none;
+            background: #fff5f5;
+        }
+        .comment-area.visible { display: block; }
+        .comment-label {
+            color: #dc3545;
+            font-weight: 600;
+            font-size: 0.85em;
+            margin-top: 10px;
+            display: none;
+        }
+        .comment-label.visible { display: block; }
+        .required-star { color: #dc3545; }
         .waste-section {
             background: #fff3cd;
             border: 2px solid #ffc107;
@@ -431,6 +453,7 @@
 
         let currentLevel = 1;
         let answers = {};
+        let comments = {};
         let wastes = { level1: [], level2: [], level3: [] };
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -478,6 +501,14 @@
                         <button class="answer-btn answer-btn-no" onclick="selectAnswer('${key}', 'no', this)">✗ Nie</button>
                         <button class="answer-btn answer-btn-na" onclick="selectAnswer('${key}', 'na', this)">− N/A</button>
                     </div>
+                    <div class="comment-label" id="label_${key}">
+                        <span class="required-star">*</span> Wymagany komentarz - opisz problem:
+                    </div>
+                    <textarea 
+                        class="comment-area" 
+                        id="comment_${key}" 
+                        placeholder="Opisz szczegółowo problem..."
+                    ></textarea>
                 `;
                 container.appendChild(questionDiv);
             });
@@ -488,6 +519,21 @@
             parent.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
             answers[key] = value;
+            
+            const commentArea = document.getElementById(`comment_${key}`);
+            const commentLabel = document.getElementById(`label_${key}`);
+            
+            if (value === 'no') {
+                commentArea.classList.add('visible');
+                commentLabel.classList.add('visible');
+                commentArea.required = true;
+            } else {
+                commentArea.classList.remove('visible');
+                commentLabel.classList.remove('visible');
+                commentArea.required = false;
+                commentArea.value = '';
+                delete comments[key];
+            }
         }
 
         function addWaste() {
@@ -540,6 +586,18 @@
                     alert('Wypełnij wszystkie pola podstawowe!');
                     return;
                 }
+                
+                // Sprawdź czy wszystkie "Nie" mają komentarze
+                for (let key in answers) {
+                    if (answers[key] === 'no') {
+                        const commentValue = document.getElementById(`comment_${key}`).value.trim();
+                        if (!commentValue) {
+                            alert('Wszystkie odpowiedzi "Nie" wymagają komentarza opisującego problem!');
+                            return;
+                        }
+                        comments[key] = commentValue;
+                    }
+                }
             }
             
             document.getElementById('level1').classList.add('hidden');
@@ -585,6 +643,7 @@
                 
                 level1: {
                     answers: answers,
+                    comments: comments,
                     notes: document.getElementById('notesLevel1').value.trim()
                 },
                 
