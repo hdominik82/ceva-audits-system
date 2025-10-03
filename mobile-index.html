@@ -3,131 +3,321 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CEVA Audyty Mobile</title>
+    <title>CEVA Audits - Mobile</title>
+    <script src="config.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1e3a5f 0%, #2d5986 100%);
             min-height: 100vh;
-            padding: 20px;
         }
         .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
             text-align: center;
-            color: white;
-            margin-bottom: 40px;
-            padding-top: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
         .logo {
-            font-size: 2.5em;
-            font-weight: 900;
-            letter-spacing: -2px;
-            margin-bottom: 10px;
-        }
-        .branch-info {
-            font-size: 1.2em;
-            opacity: 0.9;
-            margin-top: 10px;
+            color: white;
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
         }
         .subtitle {
+            color: rgba(255, 255, 255, 0.8);
             font-size: 0.9em;
-            margin-top: 5px;
-            opacity: 0.8;
         }
-        .modules-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            max-width: 500px;
+        .branch-info {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            margin: 20px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+        }
+        .branch-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .change-branch {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+        .content {
+            padding: 20px;
+            max-width: 600px;
             margin: 0 auto;
         }
-        .module-card {
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .menu-item {
+            background: white;
+            border-radius: 15px;
+            padding: 25px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            text-decoration: none;
+            color: #333;
+        }
+        .menu-item:active {
+            transform: scale(0.95);
+        }
+        .menu-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        .menu-title {
+            font-weight: 600;
+            font-size: 1em;
+        }
+        .menu-5s { border-top: 4px solid #667eea; }
+        .menu-gemba { border-top: 4px solid #764ba2; }
+        .menu-problem { border-top: 4px solid #ff6b6b; }
+        .menu-process { border-top: 4px solid #4ecdc4; }
+        
+        /* Branch Selection Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
             background: white;
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: block;
-            border-left: 6px solid #e30613;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
-        .module-card:active {
-            transform: scale(0.98);
-        }
-        .module-icon {
-            font-size: 3em;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        .module-title {
+        .modal-title {
             font-size: 1.5em;
             font-weight: 600;
-            color: #1e3a5f;
-            text-align: center;
             margin-bottom: 10px;
+            color: #333;
         }
-        .module-desc {
+        .modal-subtitle {
             color: #666;
-            text-align: center;
-            font-size: 0.95em;
-            line-height: 1.4;
+            margin-bottom: 20px;
+            font-size: 0.9em;
         }
-        .sync-info {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255,255,255,0.9);
-            padding: 10px 20px;
-            border-radius: 20px;
+        .branch-option {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .branch-option:hover {
+            background: #e8f5f1;
+            border-color: #4ecdc4;
+        }
+        .branch-option.selected {
+            background: #4ecdc4;
+            border-color: #4ecdc4;
+            color: white;
+        }
+        .branch-option-name {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        .branch-option-code {
             font-size: 0.85em;
-            color: #666;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            opacity: 0.8;
+            margin-top: 5px;
         }
-        @media (min-width: 600px) {
-            .modules-grid {
-                grid-template-columns: 1fr 1fr;
-                max-width: 900px;
-            }
+        .btn-confirm {
+            width: 100%;
+            padding: 15px;
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .btn-confirm:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .info-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            color: white;
+        }
+        .info-card h3 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .info-card p {
+            font-size: 0.9em;
+            line-height: 1.6;
+            opacity: 0.9;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="logo">CEVA</div>
-        <div class="branch-info">ORA-PL-01 | Orange</div>
-        <p class="subtitle">System Audytów Mobilnych</p>
+        <div class="logo">CEVA Audits</div>
+        <div class="subtitle">System audytów mobilnych</div>
     </div>
-    
-    <div class="modules-grid">
-        <a href="5s-audit-simple.html" class="module-card">
-            <div class="module-icon">🔧</div>
-            <div class="module-title">Audyt 5S</div>
-            <div class="module-desc">Audyty miesięczne 5S dla stref magazynowych</div>
-        </a>
-        
-        <a href="gemba-audit.html" class="module-card">
-            <div class="module-icon">👁️</div>
-            <div class="module-title">GEMBA Walk</div>
-            <div class="module-desc">Obserwacje miejsca pracy i identyfikacja marnotrawstwa</div>
-        </a>
-        
-        <a href="process-audit.html" class="module-card">
-            <div class="module-icon">⚙️</div>
-            <div class="module-title">Audyt Procesów</div>
-            <div class="module-desc">Weryfikacja zgodności z instrukcjami stanowiskowymi</div>
-        </a>
-        
-        <a href="problem-report.html" class="module-card">
-            <div class="module-icon">📋</div>
-            <div class="module-title">Zgłoś Problem</div>
-            <div class="module-desc">Szybkie zgłaszanie problemów i niezgodności</div>
-        </a>
+
+    <div class="content">
+        <div class="branch-info" id="branchInfo">
+            <div class="branch-name" id="branchName">Ładowanie...</div>
+            <div style="font-size: 0.9em; opacity: 0.8;" id="branchCode"></div>
+            <button class="change-branch" onclick="showBranchSelector()">Zmień oddział</button>
+        </div>
+
+        <div class="menu-grid">
+            <a href="5s-audit-simple.html" class="menu-item menu-5s">
+                <div class="menu-icon">📋</div>
+                <div class="menu-title">Audyt 5S</div>
+            </a>
+
+            <a href="gemba-audit.html" class="menu-item menu-gemba">
+                <div class="menu-icon">👁️</div>
+                <div class="menu-title">GEMBA Walk</div>
+            </a>
+
+            <a href="problem-report.html" class="menu-item menu-problem">
+                <div class="menu-icon">⚠️</div>
+                <div class="menu-title">Zgłoś Problem</div>
+            </a>
+
+            <a href="process-audit.html" class="menu-item menu-process">
+                <div class="menu-icon">⚙️</div>
+                <div class="menu-title">Audyt Procesu</div>
+            </a>
+        </div>
+
+        <div class="info-card">
+            <h3>Jak korzystać z aplikacji?</h3>
+            <p>
+                1. Wybierz typ audytu z menu powyżej<br>
+                2. Wypełnij formularz audytu<br>
+                3. Pobierz plik JSON<br>
+                4. Prześlij na SharePoint<br>
+                5. Dane będą dostępne w wersji desktop
+            </p>
+        </div>
     </div>
-    
-    <div class="sync-info">
-        📱 Wersja mobilna | Dane do synchronizacji przez Desktop
+
+    <!-- Branch Selection Modal -->
+    <div class="modal" id="branchModal">
+        <div class="modal-content">
+            <div class="modal-title">Wybierz oddział</div>
+            <div class="modal-subtitle">Wybór oddziału można zmienić w każdej chwili</div>
+            <div id="branchOptions"></div>
+            <button class="btn-confirm" id="confirmBtn" onclick="confirmBranch()" disabled>Potwierdź</button>
+        </div>
     </div>
+
+    <script>
+        let selectedBranchCode = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sprawdź czy oddział jest już wybrany
+            const currentBranch = CEVA_CONFIG.getCurrentBranch();
+            const savedBranch = localStorage.getItem('ceva_selected_branch');
+            
+            if (!savedBranch) {
+                // Pokaż modal wyboru oddziału
+                showBranchSelector();
+            } else {
+                // Wyświetl informacje o wybranym oddziale
+                updateBranchInfo(currentBranch);
+            }
+        });
+
+        function updateBranchInfo(branch) {
+            document.getElementById('branchName').textContent = branch.fullName || branch.name;
+            document.getElementById('branchCode').textContent = branch.code;
+        }
+
+        function showBranchSelector() {
+            const modal = document.getElementById('branchModal');
+            const optionsContainer = document.getElementById('branchOptions');
+            
+            // Wyczyść opcje
+            optionsContainer.innerHTML = '';
+            
+            // Renderuj opcje oddziałów
+            Object.values(CEVA_CONFIG.branches).forEach(branch => {
+                const option = document.createElement('div');
+                option.className = 'branch-option';
+                option.onclick = function() { selectBranch(branch.code, option); };
+                option.innerHTML = `
+                    <div class="branch-option-name">${branch.fullName || branch.name}</div>
+                    <div class="branch-option-code">${branch.code}</div>
+                `;
+                optionsContainer.appendChild(option);
+            });
+            
+            modal.classList.add('active');
+        }
+
+        function selectBranch(code, element) {
+            // Usuń zaznaczenie z innych opcji
+            document.querySelectorAll('.branch-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Zaznacz wybraną opcję
+            element.classList.add('selected');
+            selectedBranchCode = code;
+            
+            // Aktywuj przycisk
+            document.getElementById('confirmBtn').disabled = false;
+        }
+
+        function confirmBranch() {
+            if (!selectedBranchCode) return;
+            
+            // Zapisz wybór
+            CEVA_CONFIG.setBranch(selectedBranchCode);
+            
+            // Zaktualizuj UI
+            const branch = CEVA_CONFIG.getBranch(selectedBranchCode);
+            updateBranchInfo(branch);
+            
+            // Ukryj modal
+            document.getElementById('branchModal').classList.remove('active');
+            
+            // Reset
+            selectedBranchCode = null;
+            document.getElementById('confirmBtn').disabled = true;
+        }
+    </script>
 </body>
 </html>
