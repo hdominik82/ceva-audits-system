@@ -171,6 +171,7 @@
         .branch-option.selected {
             background: #e8f5f1;
             border-color: #4caf50;
+            border-width: 3px;
         }
         .branch-option-name {
             font-weight: 600;
@@ -198,7 +199,7 @@
             border-radius: 5px;
             margin: 15px 0;
             font-size: 0.9em;
-            line-height: 1.6;
+            line-height: 1.8;
         }
         .btn-sharepoint {
             width: 100%;
@@ -249,20 +250,28 @@
     </div>
 
     <div class="content">
-        <!-- SEKCJA WGRYWANIA KONFIGURACJI -->
+        <!-- SEKCJA KONFIGURACJI -->
         <div class="config-upload-section" id="configSection">
             <h3 style="margin-bottom: 15px;">Konfiguracja aplikacji</h3>
             <div id="configStatus"></div>
             <input type="file" id="configFileInput" accept=".js" style="display: none;">
-            <button class="upload-btn" onclick="showBranchDownloadModal()">Pobierz konfigurację z SharePoint</button>
-            <button class="upload-btn" onclick="uploadConfigManually()" style="background: #2196F3; margin-top: 10px;">Lub wgraj plik ręcznie</button>
-            <button class="clear-btn" onclick="clearConfig()" id="clearConfigBtn" style="display: none;">Usuń konfigurację</button>
+            <button class="upload-btn" onclick="showBranchDownloadModal()">
+                Pobierz konfigurację z SharePoint
+            </button>
+            <button class="upload-btn" onclick="uploadConfigManually()" style="background: #2196F3; margin-top: 10px;">
+                Lub wgraj plik ręcznie
+            </button>
+            <button class="clear-btn" onclick="clearConfig()" id="clearConfigBtn" style="display: none;">
+                Usuń konfigurację
+            </button>
         </div>
 
         <div class="branch-info" id="branchInfo">
             <div class="branch-name" id="branchName">Ładowanie...</div>
             <div style="font-size: 0.9em; opacity: 0.8;" id="branchCode"></div>
-            <button class="change-branch" onclick="showBranchSelector()" id="changeBranchBtn">Zmień oddział</button>
+            <button class="change-branch" onclick="showBranchSelector()" id="changeBranchBtn">
+                Zmień oddział
+            </button>
         </div>
 
         <div class="menu-grid">
@@ -292,7 +301,7 @@
             <p>
                 1. Pobierz konfigurację dla swojego oddziału z SharePoint<br>
                 2. Wgraj pobrany plik do aplikacji<br>
-                3. Wybierz typ audytu z menu powyżej<br>
+                3. Wybierz typ audytu z menu<br>
                 4. Wypełnij formularz audytu<br>
                 5. Prześlij wyniki na SharePoint
             </p>
@@ -301,7 +310,7 @@
 
     <!-- Modal pobierania konfiguracji -->
     <div class="modal" id="branchDownloadModal">
-        <div class="modal-content">
+        <div class="modal-content" id="downloadModalContent">
             <div class="modal-title">Wybierz oddział</div>
             <div class="modal-subtitle">Pobierz plik konfiguracyjny dla swojego oddziału</div>
             
@@ -332,7 +341,6 @@
             const currentBranch = CEVA_CONFIG.getCurrentBranch();
             updateBranchInfo(currentBranch);
             
-            // Jeśli nie ma konfiguracji, pokaż instrukcję
             if (!CONFIG_LOADER.hasCustomConfig()) {
                 document.getElementById('changeBranchBtn').style.display = 'none';
             }
@@ -351,7 +359,7 @@
                 
                 statusDiv.innerHTML = `
                     <div style="background: rgba(76, 175, 80, 0.2); padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 2px solid #4caf50;">
-                        <div style="font-weight: 600; margin-bottom: 5px;">✓ Konfiguracja wgrana</div>
+                        <div style="font-weight: 600; margin-bottom: 5px;">Konfiguracja wgrana</div>
                         <div style="font-size: 0.85em; opacity: 0.9;">
                             Oddziały: ${branchCount}<br>
                             Data: ${dateStr}
@@ -363,7 +371,7 @@
             } else {
                 statusDiv.innerHTML = `
                     <div style="background: rgba(255, 152, 0, 0.2); padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 2px solid #ff9800;">
-                        <div style="font-weight: 600; margin-bottom: 5px;">⚠ Brak konfiguracji</div>
+                        <div style="font-weight: 600; margin-bottom: 5px;">Brak konfiguracji</div>
                         <div style="font-size: 0.85em; opacity: 0.9;">
                             Pobierz plik konfiguracyjny z SharePoint
                         </div>
@@ -376,9 +384,19 @@
 
         function showBranchDownloadModal() {
             const modal = document.getElementById('branchDownloadModal');
+            const content = document.getElementById('downloadModalContent');
             const optionsContainer = document.getElementById('branchDownloadOptions');
             
-            optionsContainer.innerHTML = '';
+            // Reset do stanu początkowego
+            content.innerHTML = `
+                <div class="modal-title">Wybierz oddział</div>
+                <div class="modal-subtitle">Pobierz plik konfiguracyjny dla swojego oddziału</div>
+                <div id="branchDownloadOptions"></div>
+                <button class="btn-cancel" onclick="closeBranchDownloadModal()">Anuluj</button>
+            `;
+            
+            const newOptionsContainer = document.getElementById('branchDownloadOptions');
+            newOptionsContainer.innerHTML = '';
             
             Object.values(CONFIG_LOADER.availableBranches).forEach(branch => {
                 const option = document.createElement('div');
@@ -387,12 +405,12 @@
                 option.innerHTML = `
                     <div class="branch-option-name">${branch.name}</div>
                     <div class="branch-option-code">${branch.code}</div>
-                    <div class="branch-option-file">📄 ${branch.configFileName}</div>
+                    <div class="branch-option-file">${branch.configFileName}</div>
                     <div style="margin-top: 10px; font-size: 0.85em; color: #666;">
                         ${branch.description}
                     </div>
                 `;
-                optionsContainer.appendChild(option);
+                newOptionsContainer.appendChild(option);
             });
             
             modal.classList.add('active');
@@ -406,85 +424,71 @@
             element.classList.add('selected');
             selectedBranchForDownload = branchCode;
             
-            // Dodaj przycisk do pobrania
-            let downloadBtn = document.getElementById('downloadConfigBtn');
+            let downloadBtn = element.querySelector('.btn-sharepoint');
             if (!downloadBtn) {
                 downloadBtn = document.createElement('button');
-                downloadBtn.id = 'downloadConfigBtn';
                 downloadBtn.className = 'btn-sharepoint';
                 downloadBtn.onclick = openSharePointForDownload;
                 element.appendChild(downloadBtn);
             }
             
             const branch = CONFIG_LOADER.availableBranches[branchCode];
-            downloadBtn.innerHTML = `📥 Otwórz SharePoint i pobierz ${branch.configFileName}`;
-            
-            // Przenieś przycisk do wybranej opcji
-            element.appendChild(downloadBtn);
+            downloadBtn.innerHTML = `Otwórz SharePoint i pobierz plik`;
         }
 
-       function openSharePointForDownload() {
-    if (!selectedBranchForDownload) return;
-    
-    const branch = CONFIG_LOADER.availableBranches[selectedBranchForDownload];
-    
-    // Otwórz folder Config (nie bezpośredni plik)
-    const configFolderUrl = CONFIG_LOADER.getConfigFolderUrl();
-    window.open(configFolderUrl, '_blank');
-    
-    // Pokaż instrukcję
-    const modal = document.getElementById('branchDownloadModal');
-    const content = modal.querySelector('.modal-content');
-    
-    content.innerHTML = `
-        <div class="modal-title">Instrukcja pobierania</div>
-        
-        <div style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 15px; border-radius: 5px; margin: 15px 0;">
-            <div style="font-weight: 600; margin-bottom: 10px; color: #1565C0;">
-                Znajdź i pobierz plik:
-            </div>
-            <div style="background: white; padding: 12px; border-radius: 5px; font-family: 'Courier New', monospace; font-size: 1.1em; color: #d84315; font-weight: bold; text-align: center;">
-                ${branch.configFileName}
-            </div>
-        </div>
-        
-        <div class="download-steps">
-            <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                <strong style="color: #e65100;">⚠️ WAŻNE - Jak pobrać plik:</strong>
-            </div>
+        function openSharePointForDownload() {
+            if (!selectedBranchForDownload) return;
             
-            <strong>SPOSÓB 1 (zalecany):</strong><br>
-            • Znajdź plik <strong>${branch.configFileName}</strong> w folderze<br>
-            • Kliknij na niego PRAWYM przyciskiem myszy (lub przytrzymaj palec na telefonie)<br>
-            • Wybierz <strong>"Pobierz"</strong> (Download)<br><br>
+            const branch = CONFIG_LOADER.availableBranches[selectedBranchForDownload];
+            const configFolderUrl = CONFIG_LOADER.getConfigFolderUrl();
             
-            <strong>SPOSÓB 2 (alternatywny):</strong><br>
-            • Zaznacz plik (kliknij checkbox obok nazwy)<br>
-            • W górnym menu kliknij przycisk <strong>"Pobierz"</strong> (ikona strzałki w dół)<br><br>
+            window.open(configFolderUrl, '_blank');
             
-            <strong>SPOSÓB 3 (na telefonie):</strong><br>
-            • Kliknij na plik - otworzy się podgląd kodu<br>
-            • Kliknij ikonę <strong>"..." (trzy kropki)</strong> w górnym menu<br>
-            • Wybierz <strong>"Pobierz"</strong>
-        </div>
-        
-        <button class="btn-sharepoint" onclick="triggerFileUpload()">
-            ✓ Pobrałem plik - wgraj do aplikacji
-        </button>
-        
-        <button class="btn-cancel" onclick="closeBranchDownloadModal()">
-            Anuluj
-        </button>
-    `;
-}
-// Dodaj nową funkcję do otwierania całego folderu (backup)
-function openConfigFolder() {
-    const configFolderUrl = CONFIG_LOADER.getConfigFolderUrl();
-    window.open(configFolderUrl, '_blank');
-    
-    alert('Otwarto cały folder Config.\n\nZnajdź i pobierz plik:\n' + 
-          CONFIG_LOADER.availableBranches[selectedBranchForDownload].configFileName);
-}
+            const content = document.getElementById('downloadModalContent');
+            
+            content.innerHTML = `
+                <div class="modal-title">Instrukcja pobierania</div>
+                
+                <div style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                    <div style="font-weight: 600; margin-bottom: 10px; color: #1565C0;">
+                        Znajdź i pobierz plik:
+                    </div>
+                    <div style="background: white; padding: 12px; border-radius: 5px; font-family: 'Courier New', monospace; font-size: 1.1em; color: #d84315; font-weight: bold; text-align: center;">
+                        ${branch.configFileName}
+                    </div>
+                </div>
+                
+                <div class="download-steps">
+                    <div style="background: #fff3e0; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                        <strong style="color: #e65100;">SPOSÓB 1 (zalecany na komputerze):</strong>
+                    </div>
+                    Znajdź plik <strong>${branch.configFileName}</strong><br>
+                    Kliknij na niego PRAWYM przyciskiem myszy<br>
+                    Wybierz <strong>"Pobierz"</strong> (Download)<br><br>
+                    
+                    <div style="background: #fff3e0; padding: 12px; border-radius: 8px; margin: 15px 0;">
+                        <strong style="color: #e65100;">SPOSÓB 2 (zalecany na telefonie):</strong>
+                    </div>
+                    Zaznacz plik (kliknij checkbox obok nazwy)<br>
+                    W górnym menu kliknij przycisk <strong>"Pobierz"</strong><br><br>
+                    
+                    <div style="background: #fff3e0; padding: 12px; border-radius: 8px; margin: 15px 0;">
+                        <strong style="color: #e65100;">SPOSÓB 3 (alternatywny):</strong>
+                    </div>
+                    Kliknij na plik - otworzy się podgląd kodu<br>
+                    Kliknij ikonę <strong>"..."</strong> (trzy kropki) w górnym menu<br>
+                    Wybierz <strong>"Pobierz"</strong>
+                </div>
+                
+                <button class="btn-sharepoint" onclick="triggerFileUpload()">
+                    Pobrałem plik - wgraj do aplikacji
+                </button>
+                
+                <button class="btn-cancel" onclick="closeBranchDownloadModal()">
+                    Anuluj
+                </button>
+            `;
+        }
 
         function triggerFileUpload() {
             closeBranchDownloadModal();
@@ -509,7 +513,6 @@ function openConfigFolder() {
                     if (CONFIG_LOADER.saveCustomConfig(config, file.name)) {
                         CEVA_CONFIG = config;
                         
-                        // Otwórz SharePoint żeby zweryfikować logowanie
                         const sharePointUrl = config.sharePointSite || CONFIG_LOADER.sharePointBaseUrl;
                         window.open(sharePointUrl, '_blank');
                         
@@ -525,7 +528,6 @@ function openConfigFolder() {
                     console.error('Błąd:', error);
                 }
                 
-                // Reset input
                 e.target.value = '';
             };
             
@@ -577,35 +579,3 @@ function openConfigFolder() {
     </script>
 </body>
 </html>
-3. W Desktop - zaktualizuj funkcję generowania config (w index.html):
-Dodaj do generateMobileConfig() informację o nazwie pliku:
-javascriptfunction downloadConfigFile() {
-    const editor = document.getElementById('configCodeEditor');
-    generatedConfigContent = editor.value;
-    
-    // Nazwa pliku zgodna z konwencją SharePoint
-    const branchCode = document.querySelector('[id="configStatsGrid"]').textContent.match(/([A-Z]+-[A-Z]+-\d+)/)?.[0] || 'CONFIG';
-    const fileName = `config_${branchCode}.js`;
-    
-    const blob = new Blob([generatedConfigContent], { type: 'text/javascript' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    a.click();
-    URL.revokeObjectURL(url);
-    
-    alert(`Plik ${fileName} został pobrany!
-
-📤 KOLEJNE KROKI:
-1. Otwórz SharePoint (przycisk poniżej)
-2. Przejdź do folderu: Shared Documents/Config
-3. Wgraj pobrany plik: ${fileName}
-4. Upewnij się, że plik jest dostępny dla użytkowników mobilnych
-
-Użytkownicy mobilni będą pobierać ten plik po wybraniu oddziału ${branchCode}.`);
-    
-    // Otwórz SharePoint w nowej karcie
-    const sharePointUrl = 'https://cevalogisticsoffice365.sharepoint.com/sites/AuditTool/Shared%20Documents/Config';
-    window.open(sharePointUrl, '_blank');
-}
