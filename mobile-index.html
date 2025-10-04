@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CEVA Audits - Mobile</title>
-    <!-- ZAŁADUJ LOADER KONFIGURACJI ZAMIAST STATYCZNEGO CONFIG.JS -->
     <script src="mobile-config-loader.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -53,6 +52,46 @@
             font-size: 0.85em;
             margin-top: 10px;
         }
+        .config-warning {
+            background: rgba(255, 152, 0, 0.2);
+            border: 2px solid #ff9800;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+        }
+        .config-upload-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            color: white;
+        }
+        .upload-btn {
+            width: 100%;
+            padding: 15px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .clear-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
         .content {
             padding: 20px;
             max-width: 600px;
@@ -90,8 +129,6 @@
         .menu-gemba { border-top: 4px solid #764ba2; }
         .menu-problem { border-top: 4px solid #ff6b6b; }
         .menu-process { border-top: 4px solid #4ecdc4; }
-        
-        /* Branch Selection Modal */
         .modal {
             display: none;
             position: fixed;
@@ -194,6 +231,15 @@
     </div>
 
     <div class="content">
+        <!-- SEKCJA WGRYWANIA KONFIGURACJI -->
+        <div class="config-upload-section" id="configSection">
+            <h3 style="margin-bottom: 15px;">Konfiguracja aplikacji</h3>
+            <div id="configStatus"></div>
+            <input type="file" id="configFileInput" accept=".js" style="display: none;">
+            <button class="upload-btn" onclick="uploadConfig()">Wgraj plik config.js</button>
+            <button class="clear-btn" onclick="clearConfig()" id="clearConfigBtn" style="display: none;">Usuń konfigurację</button>
+        </div>
+
         <div class="branch-info" id="branchInfo">
             <div class="branch-name" id="branchName">Ładowanie...</div>
             <div style="font-size: 0.9em; opacity: 0.8;" id="branchCode"></div>
@@ -225,15 +271,13 @@
         <div class="info-card">
             <h3>Jak korzystać z aplikacji?</h3>
             <p>
-                1. Wybierz typ audytu z menu powyżej<br>
-                2. Wypełnij formularz audytu<br>
-                3. Pobierz plik JSON<br>
-                4. Prześlij na SharePoint<br>
-                5. Dane będą dostępne w wersji desktop
+                1. Wgraj plik config.js pobrany z systemu Desktop<br>
+                2. Wybierz typ audytu z menu powyżej<br>
+                3. Wypełnij formularz audytu<br>
+                4. Pobierz plik JSON<br>
+                5. Prześlij na SharePoint<br>
+                6. Dane będą dostępne w wersji desktop
             </p>
-            <button onclick="refreshConfig()" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 8px; margin-top: 15px; cursor: pointer;">
-                🔄 Odśwież konfigurację
-            </button>
         </div>
     </div>
 
@@ -250,19 +294,9 @@
     <script>
         let selectedBranchCode = null;
 
-        // === GŁÓWNA INICJALIZACJA - ZAŁADUJ CONFIG Z SHAREPOINT ===
-        document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                // Załaduj config z SharePoint (lub cache/fallback)
-                CEVA_CONFIG = await CONFIG_LOADER.load();
-                
-                // Teraz kontynuuj normalną inicjalizację
-                initializeApp();
-                
-            } catch (error) {
-                console.error('Błąd inicjalizacji:', error);
-                alert('Nie można załadować konfiguracji. Sprawdź połączenie z internetem.');
-            }
+        document.addEventListener('DOMContentLoaded', function() {
+            updateConfigStatus();
+            initializeApp();
         });
         
         function initializeApp() {
@@ -270,11 +304,77 @@
             const savedBranch = localStorage.getItem('ceva_selected_branch');
             
             if (!savedBranch) {
-                // Pokaż modal wyboru oddziału
                 showBranchSelector();
             } else {
-                // Wyświetl informacje o wybranym oddziale
                 updateBranchInfo(currentBranch);
+            }
+        }
+
+        function updateConfigStatus() {
+            const hasCustom = CONFIG_LOADER.hasCustomConfig();
+            const statusDiv = document.getElementById('configStatus');
+            const clearBtn = document.getElementById('clearConfigBtn');
+            
+            if (hasCustom) {
+                const branches = Object.keys(CEVA_CONFIG.branches);
+                const branchCount = branches.filter(b => b !== 'DEFAULT').length;
+                
+                statusDiv.innerHTML = `
+                    <div style="background: rgba(76, 175, 80, 0.2); padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 2px solid #4caf50;">
+                        <div style="font-weight: 600; margin-bottom: 5px;">✓ Konfiguracja wgrana</div>
+                        <div style="font-size: 0.85em; opacity: 0.9;">
+                            Oddziały: ${branchCount}<br>
+                            Strefy: ${CEVA_CONFIG.getCurrentBranch().zones?.length || 0}<br>
+                            Audytorzy: ${CEVA_CONFIG.getCurrentBranch().auditors?.length || 0}
+                        </div>
+                    </div>
+                `;
+                clearBtn.style.display = 'block';
+            } else {
+                statusDiv.innerHTML = `
+                    <div style="background: rgba(255, 152, 0, 0.2); padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 2px solid #ff9800;">
+                        <div style="font-weight: 600; margin-bottom: 5px;">⚠ Brak konfiguracji</div>
+                        <div style="font-size: 0.85em; opacity: 0.9;">
+                            Używam konfiguracji domyślnej.<br>
+                            Wgraj plik config.js z Desktop.
+                        </div>
+                    </div>
+                `;
+                clearBtn.style.display = 'none';
+            }
+        }
+
+        function uploadConfig() {
+            const input = document.getElementById('configFileInput');
+            
+            input.onchange = async function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                try {
+                    const config = await CONFIG_LOADER.loadFromFile(file);
+                    
+                    if (CONFIG_LOADER.saveCustomConfig(config)) {
+                        CEVA_CONFIG = config;
+                        updateConfigStatus();
+                        alert('Konfiguracja wgrana pomyślnie!\n\nAplikacja zostanie przeładowana.');
+                        location.reload();
+                    } else {
+                        alert('Błąd zapisu konfiguracji');
+                    }
+                } catch (error) {
+                    alert('Błąd wczytywania pliku config.js:\n\n' + error.message);
+                    console.error('Błąd:', error);
+                }
+            };
+            
+            input.click();
+        }
+
+        function clearConfig() {
+            if (confirm('Czy na pewno chcesz usunąć zapisaną konfigurację?\n\nAplikacja przejdzie na konfigurację domyślną.')) {
+                CONFIG_LOADER.clearCustomConfig();
+                location.reload();
             }
         }
 
@@ -287,10 +387,8 @@
             const modal = document.getElementById('branchModal');
             const optionsContainer = document.getElementById('branchOptions');
             
-            // Wyczyść opcje
             optionsContainer.innerHTML = '';
             
-            // Renderuj opcje oddziałów
             Object.values(CEVA_CONFIG.branches).forEach(branch => {
                 const option = document.createElement('div');
                 option.className = 'branch-option';
@@ -306,47 +404,28 @@
         }
 
         function selectBranch(code, element) {
-            // Usuń zaznaczenie z innych opcji
             document.querySelectorAll('.branch-option').forEach(opt => {
                 opt.classList.remove('selected');
             });
             
-            // Zaznacz wybraną opcję
             element.classList.add('selected');
             selectedBranchCode = code;
             
-            // Aktywuj przycisk
             document.getElementById('confirmBtn').disabled = false;
         }
 
         function confirmBranch() {
             if (!selectedBranchCode) return;
             
-            // Zapisz wybór
             CEVA_CONFIG.setBranch(selectedBranchCode);
             
-            // Zaktualizuj UI
             const branch = CEVA_CONFIG.getBranch(selectedBranchCode);
             updateBranchInfo(branch);
             
-            // Ukryj modal
             document.getElementById('branchModal').classList.remove('active');
             
-            // Reset
             selectedBranchCode = null;
             document.getElementById('confirmBtn').disabled = true;
-        }
-
-        // === FUNKCJA ODŚWIEŻANIA KONFIGURACJI ===
-        function refreshConfig() {
-            CONFIG_LOADER.load(true).then(config => {
-                CEVA_CONFIG = config;
-                alert('Konfiguracja odświeżona z SharePoint!\n\nStrona zostanie przeładowana.');
-                location.reload();
-            }).catch(error => {
-                alert('Nie można odświeżyć konfiguracji.\nSprawdź połączenie z internetem.');
-                console.error('Błąd odświeżania config:', error);
-            });
         }
     </script>
 </body>
