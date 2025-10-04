@@ -341,7 +341,19 @@
     </div>
 
     <script>
-        const branch = CEVA_CONFIG.getCurrentBranch();
+        // Poczekaj na załadowanie config
+if (typeof CEVA_CONFIG === 'undefined' || !CEVA_CONFIG.getCurrentBranch) {
+    document.addEventListener('DOMContentLoaded', async function() {
+        CEVA_CONFIG = await CONFIG_LOADER.load();
+        initializePage();
+    });
+} else {
+    document.addEventListener('DOMContentLoaded', initializePage);
+}
+
+function initializePage() {
+    const branch = CEVA_CONFIG.getCurrentBranch();
+
         
         // PRZYKŁADOWE PROCESY I INSTRUKCJE (do aktualizacji według potrzeb)
         const processes = {
@@ -691,3 +703,4 @@
     </script>
 </body>
 </html>
+
