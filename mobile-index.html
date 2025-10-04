@@ -428,44 +428,47 @@
     
     const branch = CONFIG_LOADER.availableBranches[selectedBranchForDownload];
     
-    // Otwórz folder Config
+    // Otwórz folder Config (nie bezpośredni plik)
     const configFolderUrl = CONFIG_LOADER.getConfigFolderUrl();
     window.open(configFolderUrl, '_blank');
     
-    // URL z parametrem download (może działać w niektórych przypadkach)
-    const downloadUrl = `${CONFIG_LOADER.sharePointBaseUrl}/${CONFIG_LOADER.configFolderPath}/${branch.configFileName}?download=1`;
-    
+    // Pokaż instrukcję
     const modal = document.getElementById('branchDownloadModal');
     const content = modal.querySelector('.modal-content');
     
     content.innerHTML = `
-        <div class="modal-title">Pobierz plik konfiguracyjny</div>
+        <div class="modal-title">Instrukcja pobierania</div>
         
         <div style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 15px; border-radius: 5px; margin: 15px 0;">
             <div style="font-weight: 600; margin-bottom: 10px; color: #1565C0;">
-                Plik do pobrania:
+                Znajdź i pobierz plik:
             </div>
             <div style="background: white; padding: 12px; border-radius: 5px; font-family: 'Courier New', monospace; font-size: 1.1em; color: #d84315; font-weight: bold; text-align: center;">
                 ${branch.configFileName}
             </div>
         </div>
         
-        <button class="btn-sharepoint" onclick="window.open('${downloadUrl}', '_blank')">
-            📥 Kliknij tutaj aby pobrać plik
-        </button>
-        
-        <div class="download-steps" style="margin-top: 15px;">
-            <strong>Jeśli powyższy przycisk nie działa:</strong><br><br>
+        <div class="download-steps">
+            <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <strong style="color: #e65100;">⚠️ WAŻNE - Jak pobrać plik:</strong>
+            </div>
             
-            W otwartym oknie SharePoint:<br>
-            1. Znajdź plik <strong>${branch.configFileName}</strong><br>
-            2. Kliknij na niego PRAWYM przyciskiem myszy<br>
-            3. Wybierz <strong>"Pobierz"</strong><br><br>
+            <strong>SPOSÓB 1 (zalecany):</strong><br>
+            • Znajdź plik <strong>${branch.configFileName}</strong> w folderze<br>
+            • Kliknij na niego PRAWYM przyciskiem myszy (lub przytrzymaj palec na telefonie)<br>
+            • Wybierz <strong>"Pobierz"</strong> (Download)<br><br>
             
-            <strong>Lub:</strong> Zaznacz plik i kliknij przycisk "Pobierz" w górnym menu
+            <strong>SPOSÓB 2 (alternatywny):</strong><br>
+            • Zaznacz plik (kliknij checkbox obok nazwy)<br>
+            • W górnym menu kliknij przycisk <strong>"Pobierz"</strong> (ikona strzałki w dół)<br><br>
+            
+            <strong>SPOSÓB 3 (na telefonie):</strong><br>
+            • Kliknij na plik - otworzy się podgląd kodu<br>
+            • Kliknij ikonę <strong>"..." (trzy kropki)</strong> w górnym menu<br>
+            • Wybierz <strong>"Pobierz"</strong>
         </div>
         
-        <button class="btn-sharepoint" onclick="triggerFileUpload()" style="margin-top: 15px;">
+        <button class="btn-sharepoint" onclick="triggerFileUpload()">
             ✓ Pobrałem plik - wgraj do aplikacji
         </button>
         
