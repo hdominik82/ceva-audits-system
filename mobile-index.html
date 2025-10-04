@@ -423,21 +423,18 @@
             element.appendChild(downloadBtn);
         }
 
-        function openSharePointForDownload() {
+       function openSharePointForDownload() {
     if (!selectedBranchForDownload) return;
     
     const branch = CONFIG_LOADER.availableBranches[selectedBranchForDownload];
     
-    // Bezpośredni link do pliku (SharePoint go otworzy w podglądzie)
-    const directFileUrl = `${CONFIG_LOADER.sharePointBaseUrl}/${CONFIG_LOADER.configFolderPath}/${branch.configFileName}`;
-    
-    // Link do folderu (backup)
+    // Otwórz folder Config
     const configFolderUrl = CONFIG_LOADER.getConfigFolderUrl();
+    window.open(configFolderUrl, '_blank');
     
-    // Otwórz bezpośredni link do pliku
-    window.open(directFileUrl, '_blank');
+    // URL z parametrem download (może działać w niektórych przypadkach)
+    const downloadUrl = `${CONFIG_LOADER.sharePointBaseUrl}/${CONFIG_LOADER.configFolderPath}/${branch.configFileName}?download=1`;
     
-    // Pokaż instrukcję
     const modal = document.getElementById('branchDownloadModal');
     const content = modal.querySelector('.modal-content');
     
@@ -446,27 +443,30 @@
         
         <div style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 15px; border-radius: 5px; margin: 15px 0;">
             <div style="font-weight: 600; margin-bottom: 10px; color: #1565C0;">
-                📄 Plik do pobrania:
+                Plik do pobrania:
             </div>
             <div style="background: white; padding: 12px; border-radius: 5px; font-family: 'Courier New', monospace; font-size: 1.1em; color: #d84315; font-weight: bold; text-align: center;">
                 ${branch.configFileName}
             </div>
         </div>
         
-        <div class="download-steps">
-            <strong>Krok 1:</strong> W otwartym oknie SharePoint kliknij przycisk <strong>"Pobierz"</strong> (Download)<br><br>
-            
-            <strong>Krok 2:</strong> Plik zostanie pobrany do folderu Pobrane na telefonie<br><br>
-            
-            <strong>Krok 3:</strong> Wróć do aplikacji i kliknij przycisk poniżej
-        </div>
-        
-        <button class="btn-sharepoint" onclick="triggerFileUpload()">
-            ✓ Pobrałem plik - wgraj do aplikacji
+        <button class="btn-sharepoint" onclick="window.open('${downloadUrl}', '_blank')">
+            📥 Kliknij tutaj aby pobrać plik
         </button>
         
-        <button class="btn-sharepoint" onclick="openConfigFolder()" style="background: #ff9800; margin-top: 10px;">
-            📂 Lub otwórz cały folder Config
+        <div class="download-steps" style="margin-top: 15px;">
+            <strong>Jeśli powyższy przycisk nie działa:</strong><br><br>
+            
+            W otwartym oknie SharePoint:<br>
+            1. Znajdź plik <strong>${branch.configFileName}</strong><br>
+            2. Kliknij na niego PRAWYM przyciskiem myszy<br>
+            3. Wybierz <strong>"Pobierz"</strong><br><br>
+            
+            <strong>Lub:</strong> Zaznacz plik i kliknij przycisk "Pobierz" w górnym menu
+        </div>
+        
+        <button class="btn-sharepoint" onclick="triggerFileUpload()" style="margin-top: 15px;">
+            ✓ Pobrałem plik - wgraj do aplikacji
         </button>
         
         <button class="btn-cancel" onclick="closeBranchDownloadModal()">
@@ -474,7 +474,6 @@
         </button>
     `;
 }
-
 // Dodaj nową funkcję do otwierania całego folderu (backup)
 function openConfigFolder() {
     const configFolderUrl = CONFIG_LOADER.getConfigFolderUrl();
