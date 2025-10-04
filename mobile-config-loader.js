@@ -1,6 +1,21 @@
-// LOADER KONFIGURACJI - WERSJA Z RĘCZNYM WGRYWANIEM
+// LOADER KONFIGURACJI - WERSJA Z RĘCZNYM POBIERANIEM Z SHAREPOINT
 const CONFIG_LOADER = {
     cacheKey: 'ceva_mobile_config',
+    
+    // SharePoint - folder Config z plikami konfiguracyjnymi
+    sharePointBaseUrl: 'https://cevalogisticsoffice365.sharepoint.com/sites/AuditTool',
+    configFolderPath: 'Shared%20Documents/Config',
+    
+    // Dostępne oddziały i ich pliki config
+    availableBranches: {
+        'ORA-PL-01': {
+            code: 'ORA-PL-01',
+            name: 'Orange Poland',
+            configFileName: 'config_ORA-PL-01.js',
+            description: 'CEVA Orange - Polska'
+        }
+        // Tutaj dodasz kolejne oddziały
+    },
     
     // Podstawowa konfiguracja (używana póki użytkownik nie wgra własnej)
     fallbackConfig: {
@@ -17,7 +32,7 @@ const CONFIG_LOADER = {
                 code: 'DEFAULT',
                 name: 'Domyślny',
                 country: 'PL',
-                fullName: 'CEVA - Wgraj konfigurację',
+                fullName: 'Wybierz oddział i pobierz konfigurację',
                 sharePointFolder: 'DEFAULT',
                 zones: [{id: 1, name: 'Strefa', responsible: 'Manager', target: 90}],
                 auditors: ['Auditor'],
@@ -55,6 +70,19 @@ const CONFIG_LOADER = {
         }
     },
     
+    // Pobierz URL do pliku config na SharePoint
+    getConfigFileUrl: function(branchCode) {
+        const branch = this.availableBranches[branchCode];
+        if (!branch) return null;
+        
+        return `${this.sharePointBaseUrl}/${this.configFolderPath}/${branch.configFileName}`;
+    },
+    
+    // Pobierz URL do folderu Config na SharePoint
+    getConfigFolderUrl: function() {
+        return `${this.sharePointBaseUrl}/${this.configFolderPath}/Forms/AllItems.aspx`;
+    },
+    
     // Sprawdź czy jest zapisana konfiguracja
     hasCustomConfig: function() {
         return localStorage.getItem(this.cacheKey) !== null;
@@ -65,7 +93,11 @@ const CONFIG_LOADER = {
         try {
             const saved = localStorage.getItem(this.cacheKey);
             if (saved) {
-                return JSON.parse(saved);
+                const parsed = JSON.parse(saved);
+                // Dodaj informację o źródle
+                parsed._loadedFrom = localStorage.getItem('ceva_config_source') || 'unknown';
+                parsed._loadedDate = localStorage.getItem('ceva_config_date') || 'unknown';
+                return parsed;
             }
         } catch (e) {
             console.error('Błąd odczytu config:', e);
@@ -74,9 +106,11 @@ const CONFIG_LOADER = {
     },
     
     // Zapisz konfigurację
-    saveCustomConfig: function(config) {
+    saveCustomConfig: function(config, source) {
         try {
             localStorage.setItem(this.cacheKey, JSON.stringify(config));
+            localStorage.setItem('ceva_config_source', source || 'file');
+            localStorage.setItem('ceva_config_date', new Date().toISOString());
             return true;
         } catch (e) {
             console.error('Błąd zapisu config:', e);
@@ -87,6 +121,9 @@ const CONFIG_LOADER = {
     // Usuń zapisaną konfigurację
     clearCustomConfig: function() {
         localStorage.removeItem(this.cacheKey);
+        localStorage.removeItem('ceva_config_source');
+        localStorage.removeItem('ceva_config_date');
+        localStorage.removeItem('ceva_selected_branch');
     },
     
     // Załaduj config (z localStorage lub fallback)
@@ -96,7 +133,7 @@ const CONFIG_LOADER = {
             console.log('Używam zapisanej konfiguracji');
             return custom;
         }
-        console.log('Używam domyślnej konfiguracji - wgraj plik config.js');
+        console.log('Używam domyślnej konfiguracji');
         return this.fallbackConfig;
     },
     
