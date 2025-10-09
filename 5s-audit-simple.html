@@ -9,7 +9,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3a5f 0%, #2d5986 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding-bottom: 40px;
         }
@@ -30,9 +30,7 @@
             border-radius: 25px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s;
         }
-        .back-btn:active { transform: scale(0.95); }
         .header-title {
             color: white;
             font-size: 1.3em;
@@ -42,15 +40,6 @@
             padding: 20px;
             max-width: 600px;
             margin: 0 auto;
-        }
-        .progress {
-            background: rgba(255,255,255,0.9);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            font-weight: 600;
-            color: #1e3a5f;
-            margin-bottom: 20px;
         }
         .form-card {
             background: white;
@@ -75,44 +64,25 @@
             border-radius: 8px;
             font-size: 1em;
         }
-        .category-header {
-            background: #4ecdc4;
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0 15px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 1.1em;
-        }
         .question-item {
             background: #f8f9fa;
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 15px;
-            border-left: 4px solid #4ecdc4;
-        }
-        .question-number {
-            font-size: 0.85em;
-            color: #666;
-            font-weight: 600;
-            margin-bottom: 5px;
+            border-left: 4px solid #667eea;
         }
         .question-text {
             font-weight: 600;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             color: #333;
-            line-height: 1.4;
-            font-size: 0.95em;
         }
         .answer-buttons {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 10px;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 8px;
         }
         .answer-btn {
-            padding: 15px 10px;
+            padding: 15px 8px;
             border: 3px solid #e0e0e0;
             border-radius: 8px;
             background: white;
@@ -120,41 +90,48 @@
             font-weight: 600;
             transition: all 0.3s;
             text-align: center;
-            font-size: 0.95em;
+            font-size: 0.9em;
         }
-        .answer-btn:active { transform: scale(0.95); }
-        .answer-btn.selected { border-width: 4px; }
-        .answer-btn-yes { color: #28a745; border-color: #28a745; }
-        .answer-btn-yes.selected { background: #28a745; color: white; }
-        .answer-btn-no { color: #dc3545; border-color: #dc3545; }
-        .answer-btn-no.selected { background: #dc3545; color: white; }
-        .answer-btn-na { color: #6c757d; border-color: #6c757d; }
-        .answer-btn-na.selected { background: #6c757d; color: white; }
+        .answer-btn.selected {
+            border-width: 4px;
+        }
+        .btn-0 { color: #dc3545; border-color: #dc3545; }
+        .btn-0.selected { background: #dc3545; color: white; }
+        .btn-1 { color: #fd7e14; border-color: #fd7e14; }
+        .btn-1.selected { background: #fd7e14; color: white; }
+        .btn-2 { color: #ffc107; border-color: #ffc107; }
+        .btn-2.selected { background: #ffc107; color: white; }
+        .btn-3 { color: #28a745; border-color: #28a745; }
+        .btn-3.selected { background: #28a745; color: white; }
         .comment-area {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 2px solid #dc3545;
             border-radius: 8px;
             font-size: 0.9em;
             resize: vertical;
-            min-height: 80px;
+            min-height: 60px;
             margin-top: 10px;
             display: none;
             background: #fff5f5;
         }
-        .comment-area.visible { display: block; }
+        .comment-area.visible {
+            display: block;
+        }
         .comment-label {
             color: #dc3545;
             font-weight: 600;
             font-size: 0.85em;
-            margin-top: 10px;
+            margin-top: 8px;
             display: none;
         }
-        .comment-label.visible { display: block; }
-        .submit-btn {
+        .comment-label.visible {
+            display: block;
+        }
+        .btn-submit {
             width: 100%;
             padding: 18px;
-            background: #4ecdc4;
+            background: #667eea;
             color: white;
             border: none;
             border-radius: 12px;
@@ -162,82 +139,38 @@
             font-weight: 600;
             cursor: pointer;
             margin-top: 20px;
-            transition: all 0.3s;
         }
-        .submit-btn:active { transform: scale(0.98); }
         .result-card {
             background: white;
             border-radius: 15px;
             padding: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             text-align: center;
             display: none;
         }
-        .result-card.visible { display: block; }
-        .score-display {
-            font-size: 4em;
-            font-weight: bold;
-            color: #4ecdc4;
-            margin: 20px 0;
+        .result-card.visible {
+            display: block;
         }
-        .score-status {
-            font-size: 1.5em;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-        .score-status.pass { color: #28a745; }
-        .score-status.fail { color: #dc3545; }
         .sharepoint-section {
             background: #f0f8ff;
-            border: 2px solid #4ecdc4;
+            border: 2px solid #667eea;
             border-radius: 10px;
             padding: 20px;
             margin-top: 20px;
             text-align: left;
         }
-        .sharepoint-section h3 {
-            color: #4ecdc4;
+        .auto-selected {
+            background: #e3f2fd;
+            border: 2px solid #2196F3;
+        }
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
             margin-bottom: 15px;
-        }
-        .sharepoint-section ol {
-            margin-left: 20px;
-            line-height: 1.8;
-        }
-        .file-name {
-            background: white;
-            padding: 10px;
             border-radius: 5px;
-            margin: 10px 0;
-            font-family: monospace;
-            font-size: 0.85em;
-            word-break: break-all;
+            font-size: 0.9em;
+            color: #1976D2;
         }
-        .btn-sharepoint {
-            width: 100%;
-            padding: 15px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 15px;
-        }
-        .btn-new {
-            width: 100%;
-            padding: 15px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .required-star { color: #dc3545; }
     </style>
 </head>
 <body>
@@ -248,358 +181,264 @@
     </div>
 
     <div class="content">
-        <div class="progress" id="progress">Postęp: 0 / 27 pytań</div>
-
-        <div id="formSection">
-            <div class="form-card">
-                <div class="form-group">
-                    <label>Data audytu:</label>
-                    <input type="date" id="auditDate" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label>Strefa:</label>
-                    <select id="zone" class="form-control">
-                        <option value="">-- Wybierz strefę --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Audytor:</label>
-                    <select id="auditor" class="form-control">
-                        <option value="">-- Wybierz audytora --</option>
-                    </select>
+        <div class="form-card">
+            <div class="form-group">
+                <label>Data audytu:</label>
+                <input type="date" id="auditDate" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Strefa:</label>
+                <select id="zone" class="form-control" onchange="updateAuditor()">
+                    <option value="">-- Wybierz strefę --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Audytor:</label>
+                <input type="text" id="auditor" class="form-control" readonly>
+                <div class="info-box" id="auditorInfo" style="display:none; margin-top:10px;">
+                    ✓ Audytor przypisany automatycznie na podstawie wybranej strefy
                 </div>
             </div>
-
-            <div id="questionsContainer"></div>
-
-            <button class="submit-btn" onclick="saveAudit()">Zapisz audyt i pobierz JSON</button>
         </div>
 
+        <div id="questionsContainer"></div>
+
+        <button class="btn-submit" onclick="saveAudit()" id="submitBtn" style="display:none;">Zapisz audyt</button>
+
         <div id="resultSection" class="result-card">
-            <div class="score-display" id="scoreDisplay">0%</div>
-            <div class="score-status" id="scoreStatus">Status</div>
+            <h2 style="color: #667eea; margin-bottom: 20px;">Audyt 5S zapisany!</h2>
+            
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="color: #333; margin-bottom: 15px;">Wyniki audytu:</h3>
+                <div style="text-align: left; line-height: 1.8;">
+                    <p><strong>Wynik:</strong> <span id="resultScore" style="color: #667eea; font-size: 1.5em;"></span></p>
+                    <p><strong>Strefa:</strong> <span id="resultZone"></span></p>
+                    <p><strong>Audytor:</strong> <span id="resultAuditor"></span></p>
+                </div>
+            </div>
             
             <div class="sharepoint-section">
-                <h3>📤 Prześlij na SharePoint</h3>
-                <ol>
+                <h3 style="color: #667eea; margin-bottom: 15px;">📤 Prześlij na SharePoint</h3>
+                <ol style="margin-left: 20px; line-height: 1.8;">
                     <li>Kliknij przycisk "Otwórz SharePoint" poniżej</li>
                     <li>W folderze kliknij <strong>+ Nowy → Przekaż pliki</strong></li>
                     <li>Wybierz pobrany plik JSON:</li>
                 </ol>
-                <div class="file-name" id="fileName">audit_5s.json</div>
-                <p style="margin-top: 15px; color: #666; font-size: 0.9em;">
-                    Po przesłaniu pliku, dane będą dostępne w wersji desktop do analizy.
-                </p>
+                <div style="background: white; padding: 10px; border-radius: 5px; margin: 10px 0; font-family: monospace; font-size: 0.85em;" id="fileName">5s.json</div>
             </div>
 
-            <button class="btn-sharepoint" id="openSharePoint">
+            <button class="btn-submit" id="openSharePoint" style="margin-top: 15px; background: #28a745;">
                 📁 Otwórz SharePoint - folder 5S
             </button>
             
-            <button class="btn-new" onclick="location.reload()">
+            <button class="btn-submit" onclick="location.reload()" style="margin-top: 10px; background: #6c757d;">
                 🔄 Nowy audyt
             </button>
         </div>
     </div>
 
     <script>
+        // Poczekaj na załadowanie config
         if (typeof CEVA_CONFIG === 'undefined' || !CEVA_CONFIG.getCurrentBranch) {
-    document.addEventListener('DOMContentLoaded', async function() {
-        CEVA_CONFIG = await CONFIG_LOADER.load();
-        initializePage();
-    });
-} else {
-    document.addEventListener('DOMContentLoaded', initializePage);
-}
+            document.addEventListener('DOMContentLoaded', async function() {
+                CEVA_CONFIG = await CONFIG_LOADER.load();
+                initializePage();
+            });
+        } else {
+            document.addEventListener('DOMContentLoaded', initializePage);
+        }
 
-function initializePage() {
-    const branch = CEVA_CONFIG.getCurrentBranch();
-     
-        
-        // WSZYSTKIE 27 PYTAŃ - zgodne z wersją desktop
-        const questions = [
-            // 1S - Sortowanie (5 pytań)
-            {category: 1, question: "Tylko przedmioty potrzebne do realizacji procesu (zgodnie z instrukcją pracy oraz określonym standardem)"},
-            {category: 1, question: "Nie ma pozostawionych przedmiotów w alejkach, ścieżce dla pieszych, korytarzach, schodach, kątach"},
-            {category: 1, question: "Wszystkie artykuły zużywalne (karton, biurowe, etykiety, taśmy, etc.) posiadają określone poziomy min i max w miejscach pobrań"},
-            {category: 1, question: "Brak przeszkód stanowiących potencjalne zagrożenie (otwarte szuflady, kable, palety, etc.)"},
-            {category: 1, question: "Gaśnica i hydrant niezastawione"},
+        function initializePage() {
+            const branch = CEVA_CONFIG.getCurrentBranch();
             
-            // 2S - Systematyczność (6 pytań)
-            {category: 2, question: "Przedmioty znajdują się w opisanych/oznaczonych miejscach lub zgodnie z określonym zdjęciem/schematem rozmieszczenia (na biurku, stacji roboczej, obszarze)"},
-            {category: 2, question: "Szafki, stacje robocze, działy i obszary są oznaczone (znaki, oznaczenia poziome, kraty, etc.)"},
-            {category: 2, question: "Uszkodzone materiały i wyposażenie są właściwie odseparowane i oznakowane (palety, produkty, drukarki, narzędzia, środki transportu, etc.)"},
-            {category: 2, question: "Istnieją shadow boards (zgodne ze standardem CEVA) i są one używane zgodnie z zasadami (przedmioty odkładane w odpowiednie miejsce). W biurze, środki czystości trzymane są w zdefiniowanych miejscach."},
-            {category: 2, question: "Materiały (palety, dokumenty, etc.) są składowane zgodnie z określonym standardem"},
-            {category: 2, question: "Przedmioty są odkładane na swoje miejsce po użyciu (zszywacz, skaner, dokumenty, śr. transportu, narzędzia)"},
-            
-            // 3S - Sprzątanie (4 pytania)
-            {category: 3, question: "Stacje robocze (podłoga, stoły, biurka), maszyny (śr. transportu, owijarka, etc.) oraz wyposażenie (telefony, komputery, drukarki, etc.) są czyste"},
-            {category: 3, question: "Obszar jest zabezpieczony przed niebezpieczeństwami wynikającymi z wycieków (wody, benzyny, chemikaliów, etc.)"},
-            {category: 3, question: "Odpady są właściwie posegregowane (papier, plastik, etc.)"},
-            {category: 3, question: "Nie ma odpadów na podłodze (plastik, papier, karton, puszki, kubki po napojach) a w obszarze utrzymywana jest czystość"},
-            
-            // 4S - Standaryzacja (5 pytań)
-            {category: 4, question: "Każda zapytana osoba potrafi wyjaśnić swą odpowiedzialność za 5S w danym obszarze oraz na terenie zakładu"},
-            {category: 4, question: "Istnieje określony standard dla każdego obszaru roboczego, stacji roboczej, biurka, etc. (zdjęcie, schemat, oznaczenia wizualne)"},
-            {category: 4, question: "Zdefiniowano czynności dot. sprzątania, zarówno ogólnie dla działu jak i dla konkretnego wyposażenia (listy kontrolne); listy kontrolne są podpisywane z określoną częstotliwością"},
-            {category: 4, question: "Istnieje lista działań korygujących oparta na wynikach audytu 5S"},
-            {category: 4, question: "Obszar istnieje na mapie 5S, znajduje się na harmonogramie audytów 5S oraz jest brany pod uwagę przy wyliczaniu wyniku magazynu"},
-            
-            // 5S - Samodyscyplina (7 pytań)
-            {category: 5, question: "Wszyscy pracownicy zostali formalnie przeszkoleni z 5S (udokumentowane)"},
-            {category: 5, question: "Audyt 5S przeprowadzany jest przynajmniej raz w miesiącu"},
-            {category: 5, question: "Wyniki obszaru oraz działania korygujące są omawiane z wszystkimi pracownikami podczas spotkań przedzmianowych"},
-            {category: 5, question: "Wyniki obszaru, targety i działania korygujące są aktualizowane na tablicy 5S"},
-            {category: 5, question: "Działania korygujące z poprzednich audytów są zrealizowane lub w trakcie realizacji"},
-            {category: 5, question: "Wyniki ostatniego audytu 5S zostały omówione przez odpowiedzialnego za obszar (1) i kierownika obszaru (2)"},
-            {category: 5, question: "Jeżeli zaobserwowano odstępstwa od standardu podczas audytu, następuje natychmiastowa reakcja ze strony innego pracownika lub nadzorcy"}
-        ];
-        
-        const categoryNames = ['Sortowanie', 'Systematyczność', 'Sprzątanie', 'Standaryzacja', 'Samodyscyplina'];
-        let answers = {};
-        let comments = {};
+            const questions = [
+                { id: 's1', text: 'SORTOWANIE - Czy w obszarze znajdują się tylko niezbędne przedmioty?' },
+                { id: 's2', text: 'SYSTEMATYKA - Czy wszystko ma swoje miejsce i jest oznaczone?' },
+                { id: 's3', text: 'SPRZĄTANIE - Czy obszar jest czysty?' },
+                { id: 's4', text: 'STANDARYZACJA - Czy standardy 5S są widoczne i przestrzegane?' },
+                { id: 's5', text: 'SAMODYSCYPLINA - Czy pracownicy utrzymują porządek na bieżąco?' }
+            ];
 
-        document.addEventListener('DOMContentLoaded', function() {
+            let answers = {};
+            let comments = {};
+
             document.getElementById('auditDate').value = new Date().toISOString().split('T')[0];
             
+            // Załaduj strefy
             const zoneSelect = document.getElementById('zone');
             branch.zones.forEach(zone => {
                 const option = document.createElement('option');
                 option.value = zone.name;
-                option.textContent = `${zone.name} (Cel: ${zone.target}%)`;
-                option.dataset.target = zone.target;
-                option.dataset.responsible = zone.responsible;
+                option.textContent = zone.name;
+                option.dataset.auditor = zone.auditor5S;
                 zoneSelect.appendChild(option);
             });
-            
-            const auditorSelect = document.getElementById('auditor');
-            branch.auditors.forEach(auditor => {
-                const option = document.createElement('option');
-                option.value = auditor;
-                option.textContent = auditor;
-                auditorSelect.appendChild(option);
-            });
-            
-            renderQuestions();
-        });
 
-        function renderQuestions() {
-            const container = document.getElementById('questionsContainer');
-            container.innerHTML = '';
-            
-            let questionNumber = 1;
-            
-            for (let cat = 1; cat <= 5; cat++) {
-                const header = document.createElement('div');
-                header.className = 'category-header';
-                header.textContent = `${cat}S - ${categoryNames[cat - 1]}`;
-                container.appendChild(header);
+            // Automatyczna aktualizacja audytora przy zmianie strefy
+            window.updateAuditor = function() {
+                const zoneSelect = document.getElementById('zone');
+                const selectedOption = zoneSelect.options[zoneSelect.selectedIndex];
+                const auditorInput = document.getElementById('auditor');
+                const auditorInfo = document.getElementById('auditorInfo');
                 
-                questions.filter(q => q.category === cat).forEach((q, idx) => {
-                    const key = `${cat}_${idx}`;
+                if (selectedOption.dataset.auditor) {
+                    auditorInput.value = selectedOption.dataset.auditor;
+                    auditorInput.classList.add('auto-selected');
+                    auditorInfo.style.display = 'block';
                     
+                    // Pokaż pytania
+                    renderQuestions();
+                } else {
+                    auditorInput.value = '';
+                    auditorInput.classList.remove('auto-selected');
+                    auditorInfo.style.display = 'none';
+                    document.getElementById('questionsContainer').innerHTML = '';
+                    document.getElementById('submitBtn').style.display = 'none';
+                }
+            };
+
+            function renderQuestions() {
+                const container = document.getElementById('questionsContainer');
+                container.innerHTML = '';
+                
+                questions.forEach((q, idx) => {
                     const questionDiv = document.createElement('div');
                     questionDiv.className = 'question-item';
                     questionDiv.innerHTML = `
-                        <div class="question-number">Pytanie ${questionNumber}</div>
-                        <div class="question-text">${q.question}</div>
+                        <div class="question-text">${idx + 1}. ${q.text}</div>
                         <div class="answer-buttons">
-                            <button class="answer-btn answer-btn-yes" onclick="selectAnswer('${key}', 'yes', this)">
-                                ✓ Tak
-                            </button>
-                            <button class="answer-btn answer-btn-no" onclick="selectAnswer('${key}', 'no', this)">
-                                ✗ Nie
-                            </button>
-                            <button class="answer-btn answer-btn-na" onclick="selectAnswer('${key}', 'na', this)">
-                                − N/A
-                            </button>
+                            <button class="answer-btn btn-0" onclick="selectAnswer('${q.id}', 0, this)">0</button>
+                            <button class="answer-btn btn-1" onclick="selectAnswer('${q.id}', 1, this)">1</button>
+                            <button class="answer-btn btn-2" onclick="selectAnswer('${q.id}', 2, this)">2</button>
+                            <button class="answer-btn btn-3" onclick="selectAnswer('${q.id}', 3, this)">3</button>
                         </div>
-                        <div class="comment-label" id="label_${key}">
-                            <span class="required-star">*</span> Wymagany komentarz - opisz problem:
+                        <div class="comment-label" id="label_${q.id}">
+                            Komentarz (wymagany dla oceny < 3):
                         </div>
                         <textarea 
                             class="comment-area" 
-                            id="comment_${key}" 
-                            placeholder="Opisz szczegółowo problem i jego wpływ na proces..."
+                            id="comment_${q.id}" 
+                            placeholder="Opisz problem i co należy poprawić..."
                         ></textarea>
                     `;
                     container.appendChild(questionDiv);
-                    questionNumber++;
                 });
-            }
-        }
-
-        function selectAnswer(key, value, btn) {
-            const parent = btn.parentElement;
-            parent.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            answers[key] = value;
-            
-            const commentArea = document.getElementById(`comment_${key}`);
-            const commentLabel = document.getElementById(`label_${key}`);
-            
-            if (value === 'no') {
-                commentArea.classList.add('visible');
-                commentLabel.classList.add('visible');
-                commentArea.required = true;
-            } else {
-                commentArea.classList.remove('visible');
-                commentLabel.classList.remove('visible');
-                commentArea.required = false;
-                commentArea.value = '';
-                delete comments[key];
-            }
-            
-            updateProgress();
-        }
-
-        function updateProgress() {
-            const total = questions.length;
-            const answered = Object.keys(answers).length;
-            document.getElementById('progress').textContent = `Postęp: ${answered} / ${total} pytań`;
-        }
-
-        function saveAudit() {
-            const date = document.getElementById('auditDate').value;
-            const zone = document.getElementById('zone').value;
-            const auditor = document.getElementById('auditor').value;
-
-            if (!date || !zone || !auditor) {
-                alert('Wypełnij wszystkie pola podstawowe (data, strefa, audytor)!');
-                return;
-            }
-
-            if (Object.keys(answers).length < questions.length) {
-                alert('Odpowiedz na wszystkie pytania!');
-                return;
-            }
-
-            for (let key in answers) {
-                if (answers[key] === 'no') {
-                    const commentValue = document.getElementById(`comment_${key}`).value.trim();
-                    if (!commentValue) {
-                        alert('Wszystkie odpowiedzi "Nie" wymagają komentarza opisującego problem!');
-                        return;
-                    }
-                    comments[key] = commentValue;
-                }
-            }
-
-            let total = 0, correct = 0;
-            let categoryScores = [0, 0, 0, 0, 0];
-            let categoryTotals = [0, 0, 0, 0, 0];
-            
-            for (let key in answers) {
-                total++;
-                const cat = parseInt(key.split('_')[0]) - 1;
-                categoryTotals[cat]++;
                 
-                if (answers[key] === 'yes' || answers[key] === 'na') {
-                    correct++;
-                    categoryScores[cat]++;
+                document.getElementById('submitBtn').style.display = 'block';
+            }
+
+            window.selectAnswer = function(questionId, value, btn) {
+                const parent = btn.parentElement;
+                parent.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                answers[questionId] = value;
+                
+                const commentArea = document.getElementById(`comment_${questionId}`);
+                const commentLabel = document.getElementById(`label_${questionId}`);
+                
+                if (value < 3) {
+                    commentArea.classList.add('visible');
+                    commentLabel.classList.add('visible');
+                    commentArea.required = true;
+                } else {
+                    commentArea.classList.remove('visible');
+                    commentLabel.classList.remove('visible');
+                    commentArea.required = false;
+                    commentArea.value = '';
+                    delete comments[questionId];
                 }
-            }
+            };
 
-            const score = Math.round((correct / total) * 100);
-            const categoryPercentages = categoryScores.map((s, i) => 
-                categoryTotals[i] > 0 ? Math.round((s / categoryTotals[i]) * 100) : 0
-            );
+            window.saveAudit = function() {
+                const date = document.getElementById('auditDate').value;
+                const zone = document.getElementById('zone').value;
+                const auditor = document.getElementById('auditor').value;
 
-            const zoneSelect = document.getElementById('zone');
-            const selectedOption = zoneSelect.options[zoneSelect.selectedIndex];
-            const target = parseInt(selectedOption.dataset.target);
-            const responsible = selectedOption.dataset.responsible;
+                if (!date || !zone || !auditor) {
+                    alert('Wypełnij wszystkie pola!');
+                    return;
+                }
 
-            const observations = [];
-            let questionNumber = 1;
-            for (let cat = 1; cat <= 5; cat++) {
-                const catQuestions = questions.filter(q => q.category === cat);
-                catQuestions.forEach((q, idx) => {
-                    const key = `${cat}_${idx}`;
-                    if (comments[key]) {
-                        observations.push({
-                            id: Date.now() + Math.random(),
-                            source: '5S',
-                            category: `${cat}S - ${categoryNames[cat - 1]}`,
-                            questionNumber: questionNumber,
-                            description: q.question,
-                            comment: comments[key],
-                            actions: comments[key],
-                            status: 'Otwarte',
-                            responsible: responsible,
-                            priority: 'medium',
-                            createdDate: date,
-                            dueDate: new Date(new Date(date).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-                        });
+                if (Object.keys(answers).length !== questions.length) {
+                    alert('Odpowiedz na wszystkie pytania!');
+                    return;
+                }
+
+                // Walidacja komentarzy
+                for (let qId in answers) {
+                    if (answers[qId] < 3) {
+                        const commentValue = document.getElementById(`comment_${qId}`).value.trim();
+                        if (!commentValue) {
+                            alert('Wszystkie oceny poniżej 3 wymagają komentarza!');
+                            return;
+                        }
+                        comments[qId] = commentValue;
                     }
-                    questionNumber++;
-                });
-            }
+                }
 
-            const auditData = {
-                type: '5S',
-                branch: branch.code,
-                branchName: branch.name,
-                date: date,
-                timestamp: new Date().toISOString(),
-                zone: zone,
-                zoneResponsible: responsible,
-                auditor: auditor,
-                answers: answers,
-                comments: comments,
-                score: score,
-                target: target,
-                categoryScores: categoryPercentages,
-                status: score >= target ? 'Pozytywny' : 'Wymaga uwagi',
-                observations: observations,
-                observationsCount: observations.length
+                // Oblicz wynik
+                let total = 0;
+                for (let qId in answers) {
+                    total += answers[qId];
+                }
+                const maxScore = questions.length * 3;
+                const score = Math.round((total / maxScore) * 100);
+
+                const auditData = {
+                    type: '5S',
+                    branch: branch.code,
+                    branchName: branch.name,
+                    date: date,
+                    timestamp: new Date().toISOString(),
+                    zone: zone,
+                    auditor: auditor,
+                    answers: answers,
+                    comments: comments,
+                    score: score,
+                    totalPoints: total,
+                    maxPoints: maxScore
+                };
+
+                try {
+                    let local5S = JSON.parse(localStorage.getItem('5s_mobile_audits') || '[]');
+                    local5S.push(auditData);
+                    localStorage.setItem('5s_mobile_audits', JSON.stringify(local5S));
+                } catch (e) {
+                    console.warn('Nie można zapisać do localStorage:', e);
+                }
+
+                const fileName = CEVA_CONFIG.generateFileName('5s', zone, date);
+
+                const json = JSON.stringify(auditData, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                showResult(fileName, score, zone, auditor);
             };
 
-            try {
-                let localAudits = JSON.parse(localStorage.getItem('5s_mobile_audits') || '[]');
-                localAudits.push(auditData);
-                localStorage.setItem('5s_mobile_audits', JSON.stringify(localAudits));
-            } catch (e) {
-                console.warn('Nie można zapisać do localStorage:', e);
+            function showResult(fileName, score, zone, auditor) {
+                document.getElementById('questionsContainer').style.display = 'none';
+                document.querySelector('.form-card').style.display = 'none';
+                document.getElementById('submitBtn').style.display = 'none';
+                
+                const resultSection = document.getElementById('resultSection');
+                resultSection.classList.add('visible');
+                
+                document.getElementById('resultScore').textContent = score + '%';
+                document.getElementById('resultZone').textContent = zone;
+                document.getElementById('resultAuditor').textContent = auditor;
+                document.getElementById('fileName').textContent = fileName;
+                
+                const sharePointUrl = CEVA_CONFIG.getSharePointFolderUrl(branch.code, 'fiveS');
+                document.getElementById('openSharePoint').onclick = function() {
+                    window.open(sharePointUrl, '_blank');
+                };
             }
-
-            const fileName = CEVA_CONFIG.generateFileName('5s', zone, date);
-
-            const json = JSON.stringify(auditData, null, 2);
-            const blob = new Blob([json], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            a.click();
-            URL.revokeObjectURL(url);
-
-            showResult(score, target, fileName);
-        }
-
-        function showResult(score, target, fileName) {
-            document.getElementById('formSection').style.display = 'none';
-            const resultSection = document.getElementById('resultSection');
-            resultSection.classList.add('visible');
-            
-            document.getElementById('scoreDisplay').textContent = score + '%';
-            
-            const statusEl = document.getElementById('scoreStatus');
-            if (score >= target) {
-                statusEl.textContent = '✓ Pozytywny';
-                statusEl.className = 'score-status pass';
-            } else {
-                statusEl.textContent = '⚠ Wymaga uwagi';
-                statusEl.className = 'score-status fail';
-            }
-            
-            document.getElementById('fileName').textContent = fileName;
-            
-            const sharePointUrl = CEVA_CONFIG.getSharePointFolderUrl(branch.code, 'fiveS');
-            document.getElementById('openSharePoint').onclick = function() {
-                window.open(sharePointUrl, '_blank');
-            };
         }
     </script>
 </body>
