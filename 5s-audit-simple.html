@@ -253,18 +253,24 @@
                 </div>
             </div>
             
-            <div class="email-section">
-                <h3 style="color: #667eea; margin-bottom: 15px;">📧 Plik został pobrany</h3>
-                <p style="margin-bottom: 15px;">Kliknij przycisk poniżej, aby otworzyć swojego klienta mailowego z przygotowanym mailem:</p>
-                <button class="btn-submit" id="sendEmailBtn" style="background: #28a745;">
-                    📧 Wyślij mailem do Dominika
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <button class="btn-submit" id="downloadFileBtn" style="background: #667eea; padding: 15px; font-size: 1em;">
+                    💾 Pobierz plik
                 </button>
-                <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
-                    Załącz pobrany plik JSON do maila przed wysłaniem.
+                <button class="btn-submit" id="sendEmailBtn" style="background: #28a745; padding: 15px; font-size: 1em;">
+                    📧 Wyślij emailem
+                </button>
+            </div>
+            
+            <div class="email-section">
+                <h3 style="color: #667eea; margin-bottom: 10px;">ℹ️ Informacje</h3>
+                <p style="font-size: 0.9em; color: #666; line-height: 1.6;">
+                    <strong>Pobierz plik:</strong> Zapisuje plik JSON na urządzeniu<br>
+                    <strong>Wyślij emailem:</strong> Otwiera email z załącznikiem do dominik.harezlak@cevalogistics.com
                 </p>
             </div>
             
-            <button class="btn-submit" onclick="location.reload()" style="margin-top: 10px; background: #6c757d;">
+            <button class="btn-submit" onclick="location.reload()" style="margin-top: 15px; background: #6c757d;">
                 🔄 Nowy audyt
             </button>
         </div>
@@ -305,6 +311,7 @@
         let answers = {};
         let comments = {};
         let branch = null;
+        let savedAuditData = null;
 
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof CEVA_CONFIG === 'undefined') {
@@ -487,7 +494,18 @@
             }
 
             const fileName = CEVA_CONFIG.generateFileName('5s', zone, date);
+            savedAuditData = { auditData, fileName, score, zone, auditor, date };
 
+            showResult(fileName, score, zone, auditor, date);
+        }
+
+        function downloadFile() {
+            if (!savedAuditData) {
+                alert('Brak danych audytu!');
+                return;
+            }
+
+            const { auditData, fileName } = savedAuditData;
             const json = JSON.stringify(auditData, null, 2);
             const blob = new Blob([json], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -496,11 +514,62 @@
             a.download = fileName;
             a.click();
             URL.revokeObjectURL(url);
-
-            showResult(fileName, score, zone, auditor);
+            
+            alert('Plik został pobrany: ' + fileName);
         }
 
-        function showResult(fileName, score, zone, auditor) {
+        async function sendEmailWithAttachment() {
+            if (!savedAuditData) {
+                alert('Brak danych audytu!');
+                return;
+            }
+
+            const { auditData, fileName, score, zone, auditor, date } = savedAuditData;
+            const json = JSON.stringify(auditData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const file = new File([blob], fileName, { type: 'application/json' });
+
+            // Sprawdź czy Web Share API jest dostępne
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: `Audyt 5S - ${zone}`,
+                        text: `Audyt 5S\n\nStrefa: ${zone}\nAudytor: ${auditor}\nWynik: ${score}%\nData: ${date}\n\nWyślij do: dominik.harezlak@cevalogistics.com`
+                    });
+                    console.log('Udostępniono pomyślnie');
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        console.error('Błąd udostępniania:', err);
+                        fallbackEmailMethod(fileName, score, zone, auditor, date, file);
+                    }
+                }
+            } else {
+                // Fallback dla przeglądarek bez Web Share API
+                fallbackEmailMethod(fileName, score, zone, auditor, date, file);
+            }
+        }
+
+        function fallbackEmailMethod(fileName, score, zone, auditor, date, file) {
+            // Pobierz plik
+            const url = URL.createObjectURL(file);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            // Otwórz klienta email
+            setTimeout(() => {
+                const mailSubject = encodeURIComponent(`Audyt 5S - ${zone} - ${date}`);
+                const mailBody = encodeURIComponent(`Witaj,\n\nPrzesyłam wyniki audytu 5S:\n\nStrefa: ${zone}\nAudytor: ${auditor}\nWynik: ${score}%\nData: ${date}\n\nPlik JSON został pobrany - dołącz go do tego maila.\n\nPozdrawiam`);
+                window.location.href = `mailto:dominik.harezlak@cevalogistics.com?subject=${mailSubject}&body=${mailBody}`;
+            }, 500);
+
+            alert('Plik został pobrany. Za chwilę otworzy się klient email - pamiętaj o dołączeniu pobranego pliku!');
+        }
+
+        function showResult(fileName, score, zone, auditor, date) {
             document.getElementById('questionsContainer').style.display = 'none';
             document.querySelector('.form-card').style.display = 'none';
             document.getElementById('submitBtn').style.display = 'none';
@@ -513,12 +582,12 @@
             document.getElementById('resultZone').textContent = zone;
             document.getElementById('resultAuditor').textContent = auditor;
             
-            const mailSubject = encodeURIComponent(`Audyt 5S - ${zone} - ${date}`);
-            const mailBody = encodeURIComponent(`Witaj,\n\nPrzesyłam wyniki audytu 5S:\n\nStrefa: ${zone}\nAudytor: ${auditor}\nWynik: ${score}%\nData: ${date}\n\nPlik JSON znajduje się w załączniku.\n\nPozdrawiam`);
+            // Podłącz przycisk pobierania
+            document.getElementById('downloadFileBtn').onclick = downloadFile;
             
-            document.getElementById('sendEmailBtn').onclick = function() {
-                window.location.href = `mailto:dominik.harezlak@cevalogistics.com?subject=${mailSubject}&body=${mailBody}`;
-            };
+            // Sprawdź czy Web Share API jest dostępne i podłącz przycisk email
+            const sendBtn = document.getElementById('sendEmailBtn');
+            sendBtn.onclick = sendEmailWithAttachment;
         }
     </script>
 </body>
