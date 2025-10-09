@@ -257,7 +257,7 @@
                 <h3 style="color: #667eea; margin-bottom: 15px;">📧 Plik został pobrany</h3>
                 <p style="margin-bottom: 15px;">Kliknij przycisk poniżej, aby otworzyć swojego klienta mailowego z przygotowanym mailem:</p>
                 <button class="btn-submit" id="sendEmailBtn" style="background: #28a745;">
-                    📧 Wyślij mailem do Dominika
+                    📧 Wyślij audyt
                 </button>
                 <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
                     Załącz pobrany plik JSON do maila przed wysłaniem.
@@ -497,10 +497,10 @@
             a.click();
             URL.revokeObjectURL(url);
 
-            showResult(fileName, score, zone, auditor);
+            showResult(fileName, score, zone, auditor, date);
         }
 
-        function showResult(fileName, score, zone, auditor) {
+        function showResult(fileName, score, zone, auditor, date) {
             document.getElementById('questionsContainer').style.display = 'none';
             document.querySelector('.form-card').style.display = 'none';
             document.getElementById('submitBtn').style.display = 'none';
