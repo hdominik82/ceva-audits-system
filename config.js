@@ -33,15 +33,15 @@ const CEVA_CONFIG = {
             fullName: 'CEVA Orange Poland',
             sharePointFolder: 'ORA-PL-01_Orange',
             
-            // Strefy/obszary w oddziale z audytorami 5S
+            // Strefy/obszary w oddziale
             zones: [
-                {id: 1, name: 'B2C', responsible: 'Jan Surwilo', target: 90, auditor5S: 'PAWEŁ ADAMCZYK'},
-                {id: 2, name: 'B2B', responsible: 'Dominik Harezlak', target: 90, auditor5S: 'NATALIA FUDAŁA'},
-                {id: 3, name: 'ZWROTY', responsible: 'Mariusz Maciąg', target: 90, auditor5S: 'MONIKA SOCHA'},
-                {id: 4, name: 'ODNOWA', responsible: 'Konrad Kasinski', target: 90, auditor5S: 'JOANNA KEMPCZYŃSKA'},
-                {id: 5, name: 'PRZYJĘCIA/ VAS', responsible: 'Jan Surwilo', target: 90, auditor5S: 'ANNA KAPLER'},
-                {id: 6, name: 'ZEWNĄTRZ BUDYNKU', responsible: 'Piotr Żebrowski', target: 90, auditor5S: 'PIOTR ŻEBROWSKI'},
-                {id: 7, name: 'ŚREDNI WYNIK MAGAZYNU', responsible: 'Jan Surwilo', target: 90, auditor5S: 'JAN SURWIŁO'}
+                {id: 1, name: 'B2C', responsible: 'Jan Surwilo', target: 90},
+                {id: 2, name: 'B2B', responsible: 'Dominik Harezlak', target: 90},
+                {id: 3, name: 'ZWROTY', responsible: 'Mariusz Maciąg', target: 90},
+                {id: 4, name: 'ODNOWA', responsible: 'Konrad Kasinski', target: 90},
+                {id: 5, name: 'PRZYJĘCIA/ VAS', responsible: 'Jan Surwilo', target: 90},
+                {id: 6, name: 'ZEWNĄTRZ BUDYNKU', responsible: 'Piotr Żebrowski', target: 90},
+                {id: 7, name: 'ŚREDNI WYNIK MAGAZYNU', responsible: 'Jan Surwilo', target: 90}
             ],
             
             // Lista audytorów (do audytów Process i problemów)
@@ -174,9 +174,8 @@ const CEVA_CONFIG = {
     },
     
     getCurrentBranch: function() {
-        // Pobierz zapisany oddział z localStorage lub użyj domyślnego
-        const savedBranch = localStorage.getItem('ceva_selected_branch');
-        return this.getBranch(savedBranch || this.defaultBranch);
+        // Zawsze zwracaj domyślny oddział (uproszczona wersja)
+        return this.branches[this.defaultBranch];
     },
     
     setBranch: function(code) {
