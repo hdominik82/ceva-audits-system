@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audyt 5S - CEVA Mobile</title>
-    <script src="mobile-config-loader.js"></script>
+    <script src="config.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -158,19 +158,6 @@
             margin-top: 20px;
             text-align: left;
         }
-        .auto-selected {
-            background: #e3f2fd;
-            border: 2px solid #2196F3;
-        }
-        .info-box {
-            background: #e7f3ff;
-            border-left: 4px solid #2196F3;
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            font-size: 0.9em;
-            color: #1976D2;
-        }
     </style>
 </head>
 <body>
@@ -188,16 +175,15 @@
             </div>
             <div class="form-group">
                 <label>Strefa:</label>
-                <select id="zone" class="form-control" onchange="updateAuditor()">
+                <select id="zone" class="form-control" onchange="checkFormReady()">
                     <option value="">-- Wybierz strefę --</option>
                 </select>
             </div>
             <div class="form-group">
                 <label>Audytor:</label>
-                <input type="text" id="auditor" class="form-control" readonly>
-                <div class="info-box" id="auditorInfo" style="display:none; margin-top:10px;">
-                    ✓ Audytor przypisany automatycznie na podstawie wybranej strefy
-                </div>
+                <select id="auditor" class="form-control" onchange="checkFormReady()">
+                    <option value="">-- Wybierz audytora --</option>
+                </select>
             </div>
         </div>
 
@@ -238,18 +224,24 @@
     </div>
 
     <script>
-        // Poczekaj na załadowanie config
-        if (typeof CEVA_CONFIG === 'undefined' || !CEVA_CONFIG.getCurrentBranch) {
-            document.addEventListener('DOMContentLoaded', async function() {
-                CEVA_CONFIG = await CONFIG_LOADER.load();
-                initializePage();
-            });
-        } else {
-            document.addEventListener('DOMContentLoaded', initializePage);
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sprawdź czy config został załadowany
+            if (typeof CEVA_CONFIG === 'undefined') {
+                alert('Błąd: Nie można załadować konfiguracji. Sprawdź czy plik config.js istnieje.');
+                return;
+            }
+            
+            console.log('Config załadowany:', CEVA_CONFIG);
+            
+            initializePage();
+        });
 
         function initializePage() {
             const branch = CEVA_CONFIG.getCurrentBranch();
+            
+            console.log('Aktualny oddział:', branch);
+            console.log('Strefy:', branch.zones);
+            console.log('Audytorzy 5S:', branch.auditors5S);
             
             const questions = [
                 { id: 's1', text: 'SORTOWANIE - Czy w obszarze znajdują się tylko niezbędne przedmioty?' },
@@ -270,28 +262,26 @@
                 const option = document.createElement('option');
                 option.value = zone.name;
                 option.textContent = zone.name;
-                option.dataset.auditor = zone.auditor5S;
                 zoneSelect.appendChild(option);
             });
 
-            // Automatyczna aktualizacja audytora przy zmianie strefy
-            window.updateAuditor = function() {
-                const zoneSelect = document.getElementById('zone');
-                const selectedOption = zoneSelect.options[zoneSelect.selectedIndex];
-                const auditorInput = document.getElementById('auditor');
-                const auditorInfo = document.getElementById('auditorInfo');
+            // Załaduj audytorów 5S
+            const auditorSelect = document.getElementById('auditor');
+            branch.auditors5S.forEach(auditor => {
+                const option = document.createElement('option');
+                option.value = auditor;
+                option.textContent = auditor;
+                auditorSelect.appendChild(option);
+            });
+
+            // Sprawdź czy formularz jest gotowy do wyświetlenia pytań
+            window.checkFormReady = function() {
+                const zone = document.getElementById('zone').value;
+                const auditor = document.getElementById('auditor').value;
                 
-                if (selectedOption.dataset.auditor) {
-                    auditorInput.value = selectedOption.dataset.auditor;
-                    auditorInput.classList.add('auto-selected');
-                    auditorInfo.style.display = 'block';
-                    
-                    // Pokaż pytania
+                if (zone && auditor) {
                     renderQuestions();
                 } else {
-                    auditorInput.value = '';
-                    auditorInput.classList.remove('auto-selected');
-                    auditorInfo.style.display = 'none';
                     document.getElementById('questionsContainer').innerHTML = '';
                     document.getElementById('submitBtn').style.display = 'none';
                 }
