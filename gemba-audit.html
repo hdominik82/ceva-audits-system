@@ -216,11 +216,37 @@
             text-align: left;
         }
         .hidden { display: none; }
-        .level-content {
-            display: none;
+        .participants-section {
+            background: #e8f5f1;
+            border: 2px solid #4ecdc4;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
         }
-        .level-content.active {
-            display: block;
+        .participants-title {
+            font-weight: 600;
+            color: #2c7a7b;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        .participant-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .participant-checkbox input {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+        .participant-checkbox label {
+            margin: 0;
+            flex: 1;
+            font-weight: normal;
+            color: #333;
         }
     </style>
 </head>
@@ -253,95 +279,71 @@
                 <label>Poziom GEMBA:</label>
                 <select id="gembaLevel" class="form-control" onchange="switchLevel()">
                     <option value="">-- Wybierz poziom --</option>
-                    <option value="1">Poziom 1 - Obserwacje podstawowe</option>
-                    <option value="2">Poziom 2 - Analiza procesu</option>
-                    <option value="3">Poziom 3 - Głęboka analiza (Root Cause)</option>
+                    <option value="1">Poziom 1 - Obserwacje podstawowe (Brygadziści)</option>
+                    <option value="2">Poziom 2 - Analiza procesu (Brygadziści + Kierownicy)</option>
+                    <option value="3">Poziom 3 - Głęboka analiza (Wszyscy uczestnicy)</option>
                 </select>
             </div>
         </div>
 
-        <!-- POZIOM 1 -->
-        <div id="level1Content" class="level-content">
+        <!-- SEKCJA UCZESTNIKÓW -->
+        <div id="participantsSection" class="participants-section" style="display:none;">
+            <div class="participants-title">
+                👥 Uczestnicy GEMBA Walk 
+                <span id="participantsCounter" style="float: right; font-size: 0.9em; color: #2c7a7b;">(0 wybranych)</span>
+            </div>
+            
+            <div style="background: #fff3e0; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.9em; color: #e65100;">
+                💡 <strong>Wskazówka:</strong> Zaznacz uczestników z listy predefiniowanej LUB wpisz dodatkowych w polu poniżej
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <div style="font-weight: 600; color: #2c7a7b; margin-bottom: 10px; font-size: 1.05em;">
+                    📋 Lista predefiniowana (zaznacz uczestników):
+                </div>
+                <div id="participantsList"></div>
+            </div>
+            
+            <div>
+                <label style="font-weight: 600; color: #2c7a7b; margin-bottom: 8px; display: block; font-size: 1.05em;">
+                    ➕ Dodatkowi uczestnicy (wpisz ręcznie):
+                </label>
+                <textarea 
+                    id="additionalParticipants" 
+                    class="textarea-field" 
+                    placeholder="Wpisz imiona i nazwiska dodatkowych uczestników, każde w nowej linii...&#10;&#10;Przykład:&#10;Jan Kowalski&#10;Anna Nowak&#10;Piotr Wiśniewski"
+                    style="min-height: 100px;"
+                    oninput="updateParticipantsCounter()"
+                ></textarea>
+                <div style="font-size: 0.85em; color: #666; margin-top: 5px;">
+                    Każdy uczestnik w nowej linii
+                </div>
+            </div>
+        </div>
+
+        <!-- SEKCJA PYTAŃ -->
+        <div id="questionsSection" style="display:none;">
             <div class="form-card">
                 <div class="form-group">
                     <label>Kategoria obserwacji:</label>
                     <select id="category" class="form-control" onchange="renderQuestions()">
                         <option value="">-- Wybierz kategorię --</option>
-                        <option value="process">Proces</option>
-                        <option value="5s">5S</option>
-                        <option value="bhp">BHP</option>
                     </select>
                 </div>
             </div>
 
-            <div id="questionsLevel1"></div>
+            <div id="questionsContainer"></div>
 
             <div class="waste-section">
                 <div class="waste-title">📊 Zaobserwowane straty (7 strat Lean)</div>
-                <div id="wastesContainer1"></div>
-                <button class="btn-add-waste" onclick="addWaste(1)">+ Dodaj stratę</button>
+                <div id="wastesContainer"></div>
+                <button class="btn-add-waste" onclick="addWaste()">+ Dodaj stratę</button>
             </div>
 
             <div class="form-card">
                 <div class="form-group">
                     <label>Inne uwagi (opcjonalnie):</label>
-                    <textarea id="notesLevel1" class="textarea-field" placeholder="Dodatkowe obserwacje..."></textarea>
-                </div>
-            </div>
-        </div>
-
-        <!-- POZIOM 2 -->
-        <div id="level2Content" class="level-content">
-            <div class="form-card">
-                <div class="section-header">Analiza Procesu - Poziom 2</div>
-                <div class="form-group">
-                    <label>Opis procesu i jego przebieg:</label>
-                    <textarea id="processAnalysis2" class="textarea-field" placeholder="Opisz szczegółowo przebieg procesu..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Zidentyfikowane problemy:</label>
-                    <textarea id="processProblems2" class="textarea-field" placeholder="Jakie problemy zauważyłeś w procesie?"></textarea>
-                </div>
-            </div>
-
-            <div class="waste-section">
-                <div class="waste-title">📊 Zaobserwowane straty (7 strat Lean)</div>
-                <div id="wastesContainer2"></div>
-                <button class="btn-add-waste" onclick="addWaste(2)">+ Dodaj stratę</button>
-            </div>
-
-            <div class="form-card">
-                <div class="form-group">
-                    <label>Inne uwagi (opcjonalnie):</label>
-                    <textarea id="notesLevel2" class="textarea-field" placeholder="Dodatkowe obserwacje..."></textarea>
-                </div>
-            </div>
-        </div>
-
-        <!-- POZIOM 3 -->
-        <div id="level3Content" class="level-content">
-            <div class="form-card">
-                <div class="section-header">Analiza Procesu - Poziom 3</div>
-                <div class="form-group">
-                    <label>Opis procesu i jego przebieg:</label>
-                    <textarea id="processAnalysis3" class="textarea-field" placeholder="Opisz szczegółowo przebieg procesu..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Zidentyfikowane problemy:</label>
-                    <textarea id="processProblems3" class="textarea-field" placeholder="Jakie problemy zauważyłeś w procesie?"></textarea>
-                </div>
-            </div>
-
-            <div class="waste-section">
-                <div class="waste-title">📊 Zaobserwowane straty (7 strat Lean)</div>
-                <div id="wastesContainer3"></div>
-                <button class="btn-add-waste" onclick="addWaste(3)">+ Dodaj stratę</button>
-            </div>
-
-            <div class="form-card">
-                <div class="form-group">
-                    <label>Inne uwagi (opcjonalnie):</label>
-                    <textarea id="notesLevel3" class="textarea-field" placeholder="Dodatkowe obserwacje..."></textarea>
+                    <textarea id="notes" class="textarea-field" placeholder="Dodatkowe obserwacje..."></textarea>
                 </div>
             </div>
         </div>
@@ -351,6 +353,16 @@
         <!-- WYNIK -->
         <div id="resultSection" class="result-card">
             <h2 style="color: #667eea; margin-bottom: 20px;">GEMBA Walk zapisany!</h2>
+            
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="color: #333; margin-bottom: 15px;">Podsumowanie:</h3>
+                <div style="text-align: left; line-height: 1.8;">
+                    <p><strong>Poziom:</strong> <span id="resultLevel"></span></p>
+                    <p><strong>Kategoria:</strong> <span id="resultCategory"></span></p>
+                    <p><strong>Liczba uczestników:</strong> <span id="resultParticipantsCount"></span></p>
+                    <div id="resultParticipantsList" style="margin-top: 10px; padding: 10px; background: white; border-radius: 5px; max-height: 150px; overflow-y: auto;"></div>
+                </div>
+            </div>
             
             <div class="sharepoint-section">
                 <h3 style="color: #667eea; margin-bottom: 15px;">📤 Prześlij na SharePoint</h3>
@@ -374,60 +386,35 @@
 
     <script>
         // Poczekaj na załadowanie config
-if (typeof CEVA_CONFIG === 'undefined' || !CEVA_CONFIG.getCurrentBranch) {
-    document.addEventListener('DOMContentLoaded', async function() {
-        CEVA_CONFIG = await CONFIG_LOADER.load();
-        initializePage();
-    });
-} else {
-    document.addEventListener('DOMContentLoaded', initializePage);
-}
+        if (typeof CEVA_CONFIG === 'undefined' || !CEVA_CONFIG.getCurrentBranch) {
+            document.addEventListener('DOMContentLoaded', async function() {
+                CEVA_CONFIG = await CONFIG_LOADER.load();
+                initializePage();
+            });
+        } else {
+            document.addEventListener('DOMContentLoaded', initializePage);
+        }
 
-function initializePage() {
-    const branch = CEVA_CONFIG.getCurrentBranch();
-        
-        const questionsBank = {
-            process: [
-                "Czy proces przebiega zgodnie ze standardem?",
-                "Czy pracownicy znają standard procesu?",
-                "Czy narzędzia i materiały są dostępne w odpowiednim miejscu?",
-                "Czy widoczne są wskaźniki wydajności procesu?",
-                "Czy występują wąskie gardła w procesie?",
-                "Czy komunikacja między stanowiskami jest efektywna?"
-            ],
-            "5s": [
-                "Czy w obszarze są tylko potrzebne przedmioty?",
-                "Czy wszystko ma swoje miejsce i jest oznaczone?",
-                "Czy obszar jest czysty i uporządkowany?",
-                "Czy standardy 5S są widoczne i aktualne?",
-                "Czy zespół przestrzega zasad 5S?",
-                "Czy przeprowadzane są regularne audyty 5S?"
-            ],
-            bhp: [
-                "Czy drogi ewakuacyjne są wolne i oznaczone?",
-                "Czy pracownicy używają wymaganych środków ochrony osobistej?",
-                "Czy maszyny i urządzenia mają zabezpieczenia?",
-                "Czy w obszarze są widoczne instrukcje BHP?",
-                "Czy pracownicy zgłaszają zagrożenia?",
-                "Czy wyposażenie BHP (gaśnice, apteczki) jest dostępne?"
-            ]
-        };
+        function initializePage() {
+            const branch = CEVA_CONFIG.getCurrentBranch();
+            
+            const wasteTypes = [
+                "Nadprodukcja",
+                "Oczekiwanie",
+                "Transport",
+                "Nadmierny proces",
+                "Zapasy",
+                "Ruch",
+                "Wady/Defekty"
+            ];
 
-        const wasteTypes = [
-            "Nadprodukcja",
-            "Oczekiwanie",
-            "Transport",
-            "Nadmierny proces",
-            "Zapasy",
-            "Ruch",
-            "Wady/Defekty"
-        ];
+            let answers = {};
+            let comments = {};
+            let wastes = [];
+            let selectedParticipants = [];
+            let participantsFromList = [];
+            let additionalParticipants = [];
 
-        let answers = {};
-        let comments = {};
-        let wastes = { 1: [], 2: [], 3: [] };
-
-        document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('gembaDate').value = new Date().toISOString().split('T')[0];
             
             const zoneSelect = document.getElementById('gembaZone');
@@ -445,121 +432,222 @@ function initializePage() {
                 option.textContent = auditor;
                 leadSelect.appendChild(option);
             });
-        });
 
-        function switchLevel() {
-            const level = document.getElementById('gembaLevel').value;
-            
-            document.getElementById('level1Content').classList.remove('active');
-            document.getElementById('level2Content').classList.remove('active');
-            document.getElementById('level3Content').classList.remove('active');
-            
-            if (level) {
-                document.getElementById(`level${level}Content`).classList.add('active');
+            window.switchLevel = function() {
+                const level = parseInt(document.getElementById('gembaLevel').value);
+                
+                if (!level) {
+                    document.getElementById('participantsSection').style.display = 'none';
+                    document.getElementById('questionsSection').style.display = 'none';
+                    document.getElementById('saveBtn').style.display = 'none';
+                    return;
+                }
+                
+                // Zaktualizuj tytuł sekcji uczestników
+                let participantInfo = '';
+                if (level === 1) {
+                    participantInfo = '<div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.9em;"><strong>Poziom 1:</strong> Dostępni tylko Brygadziści</div>';
+                } else if (level === 2) {
+                    participantInfo = '<div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.9em;"><strong>Poziom 2:</strong> Dostępni Brygadziści + Kierownicy</div>';
+                } else if (level === 3) {
+                    participantInfo = '<div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.9em;"><strong>Poziom 3:</strong> Dostępni wszyscy uczestnicy (wszystkie poziomy)</div>';
+                }
+                
+                // Wstaw info przed listą uczestników
+                const participantsSection = document.getElementById('participantsSection');
+                const existingInfo = participantsSection.querySelector('.level-info');
+                if (existingInfo) {
+                    existingInfo.remove();
+                }
+                
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'level-info';
+                infoDiv.innerHTML = participantInfo;
+                participantsSection.insertBefore(infoDiv, document.getElementById('participantsList'));
+                
+                // Wyświetl uczestników
+                displayParticipants(level);
+                
+                // Załaduj kategorie pytań
+                loadCategories();
+                
+                document.getElementById('participantsSection').style.display = 'block';
+                document.getElementById('questionsSection').style.display = 'block';
                 document.getElementById('saveBtn').style.display = 'block';
-            } else {
-                document.getElementById('saveBtn').style.display = 'none';
-            }
-        }
+            };
 
-        function renderQuestions() {
-            const category = document.getElementById('category').value;
-            const container = document.getElementById('questionsLevel1');
-            container.innerHTML = '';
-            
-            if (!category) return;
-            
-            const header = document.createElement('div');
-            header.className = 'section-header';
-            header.textContent = `Pytania: ${category === 'process' ? 'Proces' : category === '5s' ? '5S' : 'BHP'}`;
-            container.appendChild(header);
-            
-            questionsBank[category].forEach((q, idx) => {
-                const key = `${category}_${idx}`;
-                const questionDiv = document.createElement('div');
-                questionDiv.className = 'question-item';
-                questionDiv.innerHTML = `
-                    <div class="question-text">${idx + 1}. ${q}</div>
-                    <div class="answer-buttons">
-                        <button class="answer-btn answer-btn-yes" onclick="selectAnswer('${key}', 'yes', this)">✓ Tak</button>
-                        <button class="answer-btn answer-btn-no" onclick="selectAnswer('${key}', 'no', this)">✗ Nie</button>
-                        <button class="answer-btn answer-btn-na" onclick="selectAnswer('${key}', 'na', this)">− N/A</button>
+            window.displayParticipants = function(level) {
+                const participants = CEVA_CONFIG.getGembaParticipants(level);
+                const container = document.getElementById('participantsList');
+                container.innerHTML = '';
+                
+                participants.forEach((p, idx) => {
+                    const checkboxDiv = document.createElement('div');
+                    checkboxDiv.className = 'participant-checkbox';
+                    checkboxDiv.innerHTML = `
+                        <input type="checkbox" id="participant_${idx}" value="${p.name}" onchange="updateParticipantsCounter()">
+                        <label for="participant_${idx}">
+                            ${p.name}
+                            <div style="font-size: 0.85em; color: #666;">${p.email}</div>
+                        </label>
+                    `;
+                    container.appendChild(checkboxDiv);
+                });
+                
+                updateParticipantsCounter();
+            };
+
+            window.updateParticipantsCounter = function() {
+                // Policz zaznaczonych z checkboxów
+                const checkedCount = document.querySelectorAll('#participantsList input[type="checkbox"]:checked').length;
+                
+                // Policz wpisanych ręcznie
+                const additionalText = document.getElementById('additionalParticipants').value.trim();
+                const additionalCount = additionalText ? additionalText.split('\n').filter(line => line.trim().length > 0).length : 0;
+                
+                const totalCount = checkedCount + additionalCount;
+                
+                document.getElementById('participantsCounter').textContent = `(${totalCount} wybranych)`;
+            };
+
+            window.loadCategories = function() {
+                const categories = CEVA_CONFIG.getGembaCategories();
+                const categorySelect = document.getElementById('category');
+                categorySelect.innerHTML = '<option value="">-- Wybierz kategorię --</option>';
+                
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat;
+                    option.textContent = cat;
+                    categorySelect.appendChild(option);
+                });
+            };
+
+            window.renderQuestions = function() {
+                const level = parseInt(document.getElementById('gembaLevel').value);
+                const category = document.getElementById('category').value;
+                const container = document.getElementById('questionsContainer');
+                container.innerHTML = '';
+                
+                if (!category || !level) return;
+                
+                const questions = CEVA_CONFIG.getGembaQuestions(level, category);
+                
+                if (questions.length === 0) {
+                    container.innerHTML = '<div class="form-card"><p style="text-align:center; color:#666;">Brak pytań dla tego poziomu i kategorii.</p></div>';
+                    return;
+                }
+                
+                const header = document.createElement('div');
+                header.className = 'section-header';
+                header.textContent = `Pytania: ${category}`;
+                container.appendChild(header);
+                
+                questions.forEach((q, idx) => {
+                    const key = `${category}_${idx}`;
+                    const questionDiv = document.createElement('div');
+                    questionDiv.className = 'question-item';
+                    questionDiv.innerHTML = `
+                        <div class="question-text">${idx + 1}. ${q.question}</div>
+                        <div class="answer-buttons">
+                            <button class="answer-btn answer-btn-yes" onclick="selectAnswer('${key}', 'yes', this)">✓ Tak</button>
+                            <button class="answer-btn answer-btn-no" onclick="selectAnswer('${key}', 'no', this)">✗ Nie</button>
+                            <button class="answer-btn answer-btn-na" onclick="selectAnswer('${key}', 'na', this)">∅ N/A</button>
+                        </div>
+                        <div class="comment-label" id="label_${key}">
+                            <span class="required-star">*</span> Wymagany komentarz - opisz problem:
+                        </div>
+                        <textarea 
+                            class="comment-area" 
+                            id="comment_${key}" 
+                            placeholder="Opisz szczegółowo problem..."
+                        ></textarea>
+                    `;
+                    container.appendChild(questionDiv);
+                });
+            };
+
+            window.selectAnswer = function(key, value, btn) {
+                const parent = btn.parentElement;
+                parent.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                answers[key] = value;
+                
+                const commentArea = document.getElementById(`comment_${key}`);
+                const commentLabel = document.getElementById(`label_${key}`);
+                
+                if (value === 'no') {
+                    commentArea.classList.add('visible');
+                    commentLabel.classList.add('visible');
+                    commentArea.required = true;
+                } else {
+                    commentArea.classList.remove('visible');
+                    commentLabel.classList.remove('visible');
+                    commentArea.required = false;
+                    commentArea.value = '';
+                    delete comments[key];
+                }
+            };
+
+            window.addWaste = function() {
+                const wasteId = Date.now() + Math.random();
+                const container = document.getElementById('wastesContainer');
+                
+                const wasteDiv = document.createElement('div');
+                wasteDiv.className = 'waste-item';
+                wasteDiv.id = `waste_${wasteId}`;
+                wasteDiv.innerHTML = `
+                    <div class="waste-header">
+                        <select class="form-control" style="width: 70%;" id="type_${wasteId}">
+                            <option value="">-- Wybierz typ straty --</option>
+                            ${wasteTypes.map(w => `<option value="${w}">${w}</option>`).join('')}
+                        </select>
+                        <button class="btn-remove" onclick="removeWaste('${wasteId}')">Usuń</button>
                     </div>
-                    <div class="comment-label" id="label_${key}">
-                        <span class="required-star">*</span> Wymagany komentarz - opisz problem:
-                    </div>
-                    <textarea 
-                        class="comment-area" 
-                        id="comment_${key}" 
-                        placeholder="Opisz szczegółowo problem..."
-                    ></textarea>
+                    <textarea class="textarea-field" id="desc_${wasteId}" placeholder="Opisz zaobserwowaną stratę..." style="min-height: 60px;"></textarea>
                 `;
-                container.appendChild(questionDiv);
-            });
-        }
+                container.appendChild(wasteDiv);
+                
+                wastes.push({ id: wasteId });
+            };
 
-        function selectAnswer(key, value, btn) {
-            const parent = btn.parentElement;
-            parent.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            answers[key] = value;
-            
-            const commentArea = document.getElementById(`comment_${key}`);
-            const commentLabel = document.getElementById(`label_${key}`);
-            
-            if (value === 'no') {
-                commentArea.classList.add('visible');
-                commentLabel.classList.add('visible');
-                commentArea.required = true;
-            } else {
-                commentArea.classList.remove('visible');
-                commentLabel.classList.remove('visible');
-                commentArea.required = false;
-                commentArea.value = '';
-                delete comments[key];
-            }
-        }
+            window.removeWaste = function(wasteId) {
+                document.getElementById(`waste_${wasteId}`).remove();
+                wastes = wastes.filter(w => w.id !== wasteId);
+            };
 
-        function addWaste(level) {
-            const wasteId = Date.now() + Math.random();
-            const container = document.getElementById(`wastesContainer${level}`);
-            
-            const wasteDiv = document.createElement('div');
-            wasteDiv.className = 'waste-item';
-            wasteDiv.id = `waste_${wasteId}`;
-            wasteDiv.innerHTML = `
-                <div class="waste-header">
-                    <select class="form-control" style="width: 70%;" id="type_${wasteId}">
-                        <option value="">-- Wybierz typ straty --</option>
-                        ${wasteTypes.map(w => `<option value="${w}">${w}</option>`).join('')}
-                    </select>
-                    <button class="btn-remove" onclick="removeWaste('${wasteId}', ${level})">Usuń</button>
-                </div>
-                <textarea class="textarea-field" id="desc_${wasteId}" placeholder="Opisz zaobserwowaną stratę..." style="min-height: 60px;"></textarea>
-            `;
-            container.appendChild(wasteDiv);
-            
-            wastes[level].push({ id: wasteId });
-        }
+            window.saveGemba = function() {
+                const date = document.getElementById('gembaDate').value;
+                const zone = document.getElementById('gembaZone').value;
+                const lead = document.getElementById('gembaLead').value;
+                const level = parseInt(document.getElementById('gembaLevel').value);
+                const category = document.getElementById('category').value;
 
-        function removeWaste(wasteId, level) {
-            document.getElementById(`waste_${wasteId}`).remove();
-            wastes[level] = wastes[level].filter(w => w.id !== wasteId);
-        }
+                if (!date || !zone || !lead || !level) {
+                    alert('Wypełnij wszystkie pola podstawowe!');
+                    return;
+                }
 
-        function saveGemba() {
-            const date = document.getElementById('gembaDate').value;
-            const zone = document.getElementById('gembaZone').value;
-            const lead = document.getElementById('gembaLead').value;
-            const level = document.getElementById('gembaLevel').value;
+                // Zbierz zaznaczonych uczestników z checkboxów
+                participantsFromList = [];
+                document.querySelectorAll('#participantsList input[type="checkbox"]:checked').forEach(cb => {
+                    participantsFromList.push(cb.value);
+                });
 
-            if (!date || !zone || !lead || !level) {
-                alert('Wypełnij wszystkie pola podstawowe!');
-                return;
-            }
+                // Dodaj dodatkowych uczestników z pola tekstowego
+                additionalParticipants = [];
+                const additionalText = document.getElementById('additionalParticipants').value.trim();
+                if (additionalText) {
+                    const additionalList = additionalText.split('\n')
+                        .map(name => name.trim())
+                        .filter(name => name.length > 0);
+                    additionalParticipants.push(...additionalList);
+                }
+                
+                // Połącz wszystkich uczestników
+                selectedParticipants = [...participantsFromList, ...additionalParticipants];
 
-            // Walidacja komentarzy dla poziomu 1
-            if (level === '1') {
+                // Walidacja komentarzy
                 for (let key in answers) {
                     if (answers[key] === 'no') {
                         const commentValue = document.getElementById(`comment_${key}`).value.trim();
@@ -570,96 +658,112 @@ function initializePage() {
                         comments[key] = commentValue;
                     }
                 }
-            }
 
-            const allWastes = [];
-            [1, 2, 3].forEach(lvl => {
-                wastes[lvl].forEach(w => {
+                // Zbierz straty
+                const allWastes = [];
+                wastes.forEach(w => {
                     const type = document.getElementById(`type_${w.id}`)?.value;
                     const desc = document.getElementById(`desc_${w.id}`)?.value.trim();
                     if (type && desc) {
                         allWastes.push({
-                            level: lvl,
                             type: type,
                             description: desc,
                             id: w.id
                         });
                     }
                 });
-            });
 
-            const gembaData = {
-                type: 'GEMBA',
-                branch: branch.code,
-                branchName: branch.name,
-                date: date,
-                timestamp: new Date().toISOString(),
-                zone: zone,
-                lead: lead,
-                gembaLevel: parseInt(level),
-                
-                data: {}
-            };
-
-            // Dodaj dane w zależności od poziomu
-            if (level === '1') {
-                const category = document.getElementById('category').value;
-                gembaData.category = category;
-                gembaData.data.level1 = {
+                const gembaData = {
+                    type: 'GEMBA',
+                    branch: branch.code,
+                    branchName: branch.name,
+                    date: date,
+                    timestamp: new Date().toISOString(),
+                    zone: zone,
+                    lead: lead,
+                    gembaLevel: level,
+                    category: category,
+                    participants: {
+                        all: selectedParticipants,
+                        fromList: participantsFromList,
+                        additional: additionalParticipants,
+                        total: selectedParticipants.length
+                    },
                     answers: answers,
                     comments: comments,
-                    notes: document.getElementById('notesLevel1').value.trim()
+                    wastes: allWastes,
+                    wastesCount: allWastes.length,
+                    notes: document.getElementById('notes').value.trim()
                 };
-            } else if (level === '2') {
-                gembaData.data.level2 = {
-                    processAnalysis: document.getElementById('processAnalysis2').value.trim(),
-                    processProblems: document.getElementById('processProblems2').value.trim(),
-                    notes: document.getElementById('notesLevel2').value.trim()
+
+                try {
+                    let localGemba = JSON.parse(localStorage.getItem('gemba_mobile_audits') || '[]');
+                    localGemba.push(gembaData);
+                    localStorage.setItem('gemba_mobile_audits', JSON.stringify(localGemba));
+                } catch (e) {
+                    console.warn('Nie można zapisać do localStorage:', e);
+                }
+
+                const fileName = CEVA_CONFIG.generateFileName('gemba', zone, date);
+
+                const json = JSON.stringify(gembaData, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                showResult(fileName);
+            };
+
+            window.showResult = function(fileName) {
+                document.querySelector('.content').childNodes.forEach(node => {
+                    if (node.id !== 'resultSection' && node.nodeType === 1) {
+                        node.style.display = 'none';
+                    }
+                });
+                
+                const resultSection = document.getElementById('resultSection');
+                resultSection.classList.add('visible');
+                
+                // Wypełnij szczegóły
+                const level = document.getElementById('gembaLevel').value;
+                const category = document.getElementById('category').value;
+                
+                document.getElementById('resultLevel').textContent = `Poziom ${level}`;
+                document.getElementById('resultCategory').textContent = category || 'Nie wybrano';
+                document.getElementById('resultParticipantsCount').textContent = selectedParticipants.length;
+                
+                // Wyświetl listę uczestników
+                const participantsList = document.getElementById('resultParticipantsList');
+                if (selectedParticipants.length > 0) {
+                    let html = '<strong>Uczestnicy:</strong>';
+                    
+                    if (participantsFromList.length > 0) {
+                        html += '<div style="margin-top: 10px;"><em style="color: #4ecdc4;">Z listy predefiniowanej:</em><ul style="margin: 5px 0 0 20px;">' + 
+                            participantsFromList.map(p => `<li>${p}</li>`).join('') + 
+                            '</ul></div>';
+                    }
+                    
+                    if (additionalParticipants.length > 0) {
+                        html += '<div style="margin-top: 10px;"><em style="color: #4ecdc4;">Dodani ręcznie:</em><ul style="margin: 5px 0 0 20px;">' + 
+                            additionalParticipants.map(p => `<li>${p}</li>`).join('') + 
+                            '</ul></div>';
+                    }
+                    
+                    participantsList.innerHTML = html;
+                } else {
+                    participantsList.innerHTML = '<em style="color: #666;">Nie wybrano uczestników</em>';
+                }
+                
+                document.getElementById('fileName').textContent = fileName;
+                
+                const sharePointUrl = CEVA_CONFIG.getSharePointFolderUrl(branch.code, 'gemba');
+                document.getElementById('openSharePoint').onclick = function() {
+                    window.open(sharePointUrl, '_blank');
                 };
-            } else if (level === '3') {
-                gembaData.data.level3 = {
-                    processAnalysis: document.getElementById('processAnalysis3').value.trim(),
-                    processProblems: document.getElementById('processProblems3').value.trim(),
-                    notes: document.getElementById('notesLevel3').value.trim()
-                };
-            }
-
-            gembaData.wastes = allWastes;
-            gembaData.wastesCount = allWastes.length;
-
-            try {
-                let localGemba = JSON.parse(localStorage.getItem('gemba_mobile_audits') || '[]');
-                localGemba.push(gembaData);
-                localStorage.setItem('gemba_mobile_audits', JSON.stringify(localGemba));
-            } catch (e) {
-                console.warn('Nie można zapisać do localStorage:', e);
-            }
-
-            const fileName = CEVA_CONFIG.generateFileName('gemba', zone, date);
-
-            const json = JSON.stringify(gembaData, null, 2);
-            const blob = new Blob([json], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            a.click();
-            URL.revokeObjectURL(url);
-
-            showResult(fileName);
-        }
-
-        function showResult(fileName) {
-            document.querySelector('.content > *:not(#resultSection)').style.display = 'none';
-            
-            const resultSection = document.getElementById('resultSection');
-            resultSection.classList.add('visible');
-            
-            document.getElementById('fileName').textContent = fileName;
-            
-            const sharePointUrl = CEVA_CONFIG.getSharePointFolderUrl(branch.code, 'gemba');
-            document.getElementById('openSharePoint').onclick = function() {
-                window.open(sharePointUrl, '_blank');
             };
         }
     </script>
