@@ -38,7 +38,7 @@
         }
         .content {
             padding: 20px;
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
         }
         .form-card {
@@ -64,6 +64,15 @@
             border-radius: 8px;
             font-size: 1em;
         }
+        .category-header {
+            background: #667eea;
+            color: white;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin: 20px 0 10px 0;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
         .question-item {
             background: #f8f9fa;
             border-radius: 10px;
@@ -75,14 +84,15 @@
             font-weight: 600;
             margin-bottom: 12px;
             color: #333;
+            font-size: 0.95em;
         }
         .answer-buttons {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 8px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
         }
         .answer-btn {
-            padding: 15px 8px;
+            padding: 12px 8px;
             border: 3px solid #e0e0e0;
             border-radius: 8px;
             background: white;
@@ -90,19 +100,17 @@
             font-weight: 600;
             transition: all 0.3s;
             text-align: center;
-            font-size: 0.9em;
+            font-size: 0.95em;
         }
         .answer-btn.selected {
             border-width: 4px;
         }
-        .btn-0 { color: #dc3545; border-color: #dc3545; }
-        .btn-0.selected { background: #dc3545; color: white; }
-        .btn-1 { color: #fd7e14; border-color: #fd7e14; }
-        .btn-1.selected { background: #fd7e14; color: white; }
-        .btn-2 { color: #ffc107; border-color: #ffc107; }
-        .btn-2.selected { background: #ffc107; color: white; }
-        .btn-3 { color: #28a745; border-color: #28a745; }
-        .btn-3.selected { background: #28a745; color: white; }
+        .btn-yes { color: #28a745; border-color: #28a745; }
+        .btn-yes.selected { background: #28a745; color: white; }
+        .btn-no { color: #dc3545; border-color: #dc3545; }
+        .btn-no.selected { background: #dc3545; color: white; }
+        .btn-na { color: #6c757d; border-color: #6c757d; }
+        .btn-na.selected { background: #6c757d; color: white; }
         .comment-area {
             width: 100%;
             padding: 10px;
@@ -128,6 +136,32 @@
         .comment-label.visible {
             display: block;
         }
+        .observations-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .obs-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        .obs-good {
+            color: #28a745;
+        }
+        .obs-improve {
+            color: #dc3545;
+        }
+        .obs-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
         .btn-submit {
             width: 100%;
             padding: 18px;
@@ -140,6 +174,10 @@
             cursor: pointer;
             margin-top: 20px;
         }
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
         .result-card {
             background: white;
             border-radius: 15px;
@@ -150,7 +188,7 @@
         .result-card.visible {
             display: block;
         }
-        .sharepoint-section {
+        .email-section {
             background: #f0f8ff;
             border: 2px solid #667eea;
             border-radius: 10px;
@@ -189,10 +227,22 @@
 
         <div id="questionsContainer"></div>
 
-        <button class="btn-submit" onclick="saveAudit()" id="submitBtn" style="display:none;">Zapisz audyt</button>
+        <div class="observations-section" id="observationsSection" style="display:none;">
+            <div class="obs-title obs-good">✅ Dobre obserwacje (opcjonalnie)</div>
+            <input type="text" class="obs-input" id="good1" placeholder="1. Dobra obserwacja...">
+            <input type="text" class="obs-input" id="good2" placeholder="2. Dobra obserwacja...">
+            <input type="text" class="obs-input" id="good3" placeholder="3. Dobra obserwacja...">
+            
+            <div class="obs-title obs-improve" style="margin-top: 20px;">⚠️ Do poprawy (opcjonalnie)</div>
+            <input type="text" class="obs-input" id="improve1" placeholder="1. Do poprawy...">
+            <input type="text" class="obs-input" id="improve2" placeholder="2. Do poprawy...">
+            <input type="text" class="obs-input" id="improve3" placeholder="3. Do poprawy...">
+        </div>
+
+        <button class="btn-submit" onclick="saveAudit()" id="submitBtn" style="display:none;">Zapisz i wyślij audyt</button>
 
         <div id="resultSection" class="result-card">
-            <h2 style="color: #667eea; margin-bottom: 20px;">Audyt 5S zapisany!</h2>
+            <h2 style="color: #667eea; margin-bottom: 20px;">✅ Audyt 5S zapisany!</h2>
             
             <div style="background: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
                 <h3 style="color: #333; margin-bottom: 15px;">Wyniki audytu:</h3>
@@ -203,19 +253,16 @@
                 </div>
             </div>
             
-            <div class="sharepoint-section">
-                <h3 style="color: #667eea; margin-bottom: 15px;">📤 Prześlij na SharePoint</h3>
-                <ol style="margin-left: 20px; line-height: 1.8;">
-                    <li>Kliknij przycisk "Otwórz SharePoint" poniżej</li>
-                    <li>W folderze kliknij <strong>+ Nowy → Przekaż pliki</strong></li>
-                    <li>Wybierz pobrany plik JSON:</li>
-                </ol>
-                <div style="background: white; padding: 10px; border-radius: 5px; margin: 10px 0; font-family: monospace; font-size: 0.85em;" id="fileName">5s.json</div>
+            <div class="email-section">
+                <h3 style="color: #667eea; margin-bottom: 15px;">📧 Plik został pobrany</h3>
+                <p style="margin-bottom: 15px;">Kliknij przycisk poniżej, aby otworzyć swojego klienta mailowego z przygotowanym mailem:</p>
+                <button class="btn-submit" id="sendEmailBtn" style="background: #28a745;">
+                    📧 Wyślij mailem do Dominika
+                </button>
+                <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
+                    Załącz pobrany plik JSON do maila przed wysłaniem.
+                </p>
             </div>
-
-            <button class="btn-submit" id="openSharePoint" style="margin-top: 15px; background: #28a745;">
-                📁 Otwórz SharePoint - folder 5S
-            </button>
             
             <button class="btn-submit" onclick="location.reload()" style="margin-top: 10px; background: #6c757d;">
                 🔄 Nowy audyt
@@ -224,39 +271,54 @@
     </div>
 
     <script>
+        // Pytania wbudowane na stałe w aplikację
+        const questions = [
+            { id: 'q1', category: '1S', text: 'Tylko przedmioty potrzebne do realizacji procesu (zgodnie z instrukcją pracy oraz określonym standardem)' },
+            { id: 'q2', category: '1S', text: 'Nie ma pozostawionych przedmiotów w alejkach, ścieżce dla pieszych, korytarzach, schodach, kątach' },
+            { id: 'q3', category: '1S', text: 'Wszystkie artykuły zużywalne (karton, biurowe, etykiety, taśmy, etc.) posiadają określone poziomy min i max w miejscach pobrań' },
+            { id: 'q4', category: '1S', text: 'Brak przeszkód stanowiących potencjalne zagrożenie (otwarte szuflady, kable, palety, etc.)' },
+            { id: 'q5', category: '1S', text: 'Gaśnica i hydrant niezastawione' },
+            { id: 'q6', category: '2S', text: 'Przedmioty znajdują się w opisanych/oznaczonych miejscach lub zgodnie z określonym zdjęciem/schematem rozmieszczenia (na biurku, stacji roboczej, obszarze)' },
+            { id: 'q7', category: '2S', text: 'Szafki, stacje robocze, działy i obszary są oznaczone (znaki, oznaczenia poziome, kraty, etc.)' },
+            { id: 'q8', category: '2S', text: 'Uszkodzone materiały i wyposażenie są właściwie odseparowane i oznakowane (palety, produkty, drukarki, narzędzia, środki transportu, etc.)' },
+            { id: 'q9', category: '2S', text: 'Istnieją shadow boards (zgodne ze standardem CEVA) i są one używane zgodnie z zasadami (przedmioty odkładane w odpowiednie miejsce). W biurze, środki czystości trzymane są w zdefiniowanych miejscach.' },
+            { id: 'q10', category: '2S', text: 'Materiały (palety, dokumenty, etc.) są składowane zgodnie z określonym standardem' },
+            { id: 'q11', category: '2S', text: 'Przedmioty są odkładane na swoje miejsce po użyciu (zszywacz, skaner, dokumenty, śr. transportu, narzędzia)' },
+            { id: 'q12', category: '3S', text: 'Stacje robocze (podłoga, stoły, biurka), maszyny (śr. transportu, owijarka, etc.) oraz wyposażenie (telefony, komputery, drukarki, etc.) są czyste' },
+            { id: 'q13', category: '3S', text: 'Obszar jest zabezpieczony przed niebezpieczeństwami wynikającymi z wycieków (wody, benzyny, chemikaliów, etc.)' },
+            { id: 'q14', category: '3S', text: 'Odpady są właściwie posegregowane (papier, plastik, etc.)' },
+            { id: 'q15', category: '3S', text: 'Nie ma odpadów na podłodze (plastik, papier, karton, puszki, kubki po napojach) a w obszarze utrzymywana jest czystość' },
+            { id: 'q16', category: '4S', text: 'Każda zapytana osoba potrafi wyjaśnić swą odpowiedzialność za 5S w danym obszarze oraz na terenie zakładu' },
+            { id: 'q17', category: '4S', text: 'Istnieje określony standard dla każdego obszaru roboczego, stacji roboczej, biurka, etc. (zdjęcie, schemat, oznaczenia wizualne)' },
+            { id: 'q18', category: '4S', text: 'Zdefiniowano czynności dot. sprzątania, zarówno ogólnie dla działu jak i dla konkretnego wyposażenia (listy kontrolne); listy kontrolne są podpisywane z określoną częstotliwością' },
+            { id: 'q19', category: '4S', text: 'Istnieje lista działań korygujących oparta na wynikach audytu 5S' },
+            { id: 'q20', category: '4S', text: 'Obszar istnieje na mapie 5S, znajduje się na harmonogramie audytów 5S oraz jest brany pod uwagę przy wyliczaniu wyniku magazynu' },
+            { id: 'q21', category: '5S', text: 'Wszyscy pracownicy zostali formalnie przeszkoleni z 5S (udokumentowane)' },
+            { id: 'q22', category: '5S', text: 'Audyt 5S przeprowadzany jest przynajmniej raz w miesiącu' },
+            { id: 'q23', category: '5S', text: 'Wyniki obszaru oraz działania korygujące są omawiane z wszystkimi pracownikami podczas spotkań przedzmianowych' },
+            { id: 'q24', category: '5S', text: 'Wyniki obszaru, targety i działania korygujące są aktualizowane na tablicy 5S' },
+            { id: 'q25', category: '5S', text: 'Działania korygujące z poprzednich audytów są zrealizowane lub w trakcie realizacji' },
+            { id: 'q26', category: '5S', text: 'Wyniki ostatniego audytu 5S zostały omówione przez odpowiedzialnego za obszar (1) i kierownika obszaru (2)' },
+            { id: 'q27', category: '5S', text: 'Jeżeli zaobserwowano odstępstwa od standardu podczas audytu, następuje natychmiastowa reakcja ze strony innego pracownika lub nadzorcy' }
+        ];
+
+        let answers = {};
+        let comments = {};
+        let branch = null;
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Sprawdź czy config został załadowany
             if (typeof CEVA_CONFIG === 'undefined') {
                 alert('Błąd: Nie można załadować konfiguracji. Sprawdź czy plik config.js istnieje.');
                 return;
             }
             
-            console.log('Config załadowany:', CEVA_CONFIG);
-            
+            branch = CEVA_CONFIG.getCurrentBranch();
             initializePage();
         });
 
         function initializePage() {
-            const branch = CEVA_CONFIG.getCurrentBranch();
-            
-            console.log('Aktualny oddział:', branch);
-            console.log('Strefy:', branch.zones);
-            console.log('Audytorzy 5S:', branch.auditors5S);
-            
-            const questions = [
-                { id: 's1', text: 'SORTOWANIE - Czy w obszarze znajdują się tylko niezbędne przedmioty?' },
-                { id: 's2', text: 'SYSTEMATYKA - Czy wszystko ma swoje miejsce i jest oznaczone?' },
-                { id: 's3', text: 'SPRZĄTANIE - Czy obszar jest czysty?' },
-                { id: 's4', text: 'STANDARYZACJA - Czy standardy 5S są widoczne i przestrzegane?' },
-                { id: 's5', text: 'SAMODYSCYPLINA - Czy pracownicy utrzymują porządek na bieżąco?' }
-            ];
-
-            let answers = {};
-            let comments = {};
-
             document.getElementById('auditDate').value = new Date().toISOString().split('T')[0];
             
-            // Załaduj strefy
             const zoneSelect = document.getElementById('zone');
             branch.zones.forEach(zone => {
                 const option = document.createElement('option');
@@ -265,7 +327,6 @@
                 zoneSelect.appendChild(option);
             });
 
-            // Załaduj audytorów 5S
             const auditorSelect = document.getElementById('auditor');
             branch.auditors5S.forEach(auditor => {
                 const option = document.createElement('option');
@@ -273,162 +334,191 @@
                 option.textContent = auditor;
                 auditorSelect.appendChild(option);
             });
+        }
 
-            // Sprawdź czy formularz jest gotowy do wyświetlenia pytań
-            window.checkFormReady = function() {
-                const zone = document.getElementById('zone').value;
-                const auditor = document.getElementById('auditor').value;
-                
-                if (zone && auditor) {
-                    renderQuestions();
-                } else {
-                    document.getElementById('questionsContainer').innerHTML = '';
-                    document.getElementById('submitBtn').style.display = 'none';
-                }
-            };
-
-            function renderQuestions() {
-                const container = document.getElementById('questionsContainer');
-                container.innerHTML = '';
-                
-                questions.forEach((q, idx) => {
-                    const questionDiv = document.createElement('div');
-                    questionDiv.className = 'question-item';
-                    questionDiv.innerHTML = `
-                        <div class="question-text">${idx + 1}. ${q.text}</div>
-                        <div class="answer-buttons">
-                            <button class="answer-btn btn-0" onclick="selectAnswer('${q.id}', 0, this)">0</button>
-                            <button class="answer-btn btn-1" onclick="selectAnswer('${q.id}', 1, this)">1</button>
-                            <button class="answer-btn btn-2" onclick="selectAnswer('${q.id}', 2, this)">2</button>
-                            <button class="answer-btn btn-3" onclick="selectAnswer('${q.id}', 3, this)">3</button>
-                        </div>
-                        <div class="comment-label" id="label_${q.id}">
-                            Komentarz (wymagany dla oceny < 3):
-                        </div>
-                        <textarea 
-                            class="comment-area" 
-                            id="comment_${q.id}" 
-                            placeholder="Opisz problem i co należy poprawić..."
-                        ></textarea>
-                    `;
-                    container.appendChild(questionDiv);
-                });
-                
-                document.getElementById('submitBtn').style.display = 'block';
-            }
-
-            window.selectAnswer = function(questionId, value, btn) {
-                const parent = btn.parentElement;
-                parent.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                answers[questionId] = value;
-                
-                const commentArea = document.getElementById(`comment_${questionId}`);
-                const commentLabel = document.getElementById(`label_${questionId}`);
-                
-                if (value < 3) {
-                    commentArea.classList.add('visible');
-                    commentLabel.classList.add('visible');
-                    commentArea.required = true;
-                } else {
-                    commentArea.classList.remove('visible');
-                    commentLabel.classList.remove('visible');
-                    commentArea.required = false;
-                    commentArea.value = '';
-                    delete comments[questionId];
-                }
-            };
-
-            window.saveAudit = function() {
-                const date = document.getElementById('auditDate').value;
-                const zone = document.getElementById('zone').value;
-                const auditor = document.getElementById('auditor').value;
-
-                if (!date || !zone || !auditor) {
-                    alert('Wypełnij wszystkie pola!');
-                    return;
-                }
-
-                if (Object.keys(answers).length !== questions.length) {
-                    alert('Odpowiedz na wszystkie pytania!');
-                    return;
-                }
-
-                // Walidacja komentarzy
-                for (let qId in answers) {
-                    if (answers[qId] < 3) {
-                        const commentValue = document.getElementById(`comment_${qId}`).value.trim();
-                        if (!commentValue) {
-                            alert('Wszystkie oceny poniżej 3 wymagają komentarza!');
-                            return;
-                        }
-                        comments[qId] = commentValue;
-                    }
-                }
-
-                // Oblicz wynik
-                let total = 0;
-                for (let qId in answers) {
-                    total += answers[qId];
-                }
-                const maxScore = questions.length * 3;
-                const score = Math.round((total / maxScore) * 100);
-
-                const auditData = {
-                    type: '5S',
-                    branch: branch.code,
-                    branchName: branch.name,
-                    date: date,
-                    timestamp: new Date().toISOString(),
-                    zone: zone,
-                    auditor: auditor,
-                    answers: answers,
-                    comments: comments,
-                    score: score,
-                    totalPoints: total,
-                    maxPoints: maxScore
-                };
-
-                try {
-                    let local5S = JSON.parse(localStorage.getItem('5s_mobile_audits') || '[]');
-                    local5S.push(auditData);
-                    localStorage.setItem('5s_mobile_audits', JSON.stringify(local5S));
-                } catch (e) {
-                    console.warn('Nie można zapisać do localStorage:', e);
-                }
-
-                const fileName = CEVA_CONFIG.generateFileName('5s', zone, date);
-
-                const json = JSON.stringify(auditData, null, 2);
-                const blob = new Blob([json], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                a.click();
-                URL.revokeObjectURL(url);
-
-                showResult(fileName, score, zone, auditor);
-            };
-
-            function showResult(fileName, score, zone, auditor) {
-                document.getElementById('questionsContainer').style.display = 'none';
-                document.querySelector('.form-card').style.display = 'none';
+        function checkFormReady() {
+            const zone = document.getElementById('zone').value;
+            const auditor = document.getElementById('auditor').value;
+            
+            if (zone && auditor) {
+                renderQuestions();
+            } else {
+                document.getElementById('questionsContainer').innerHTML = '';
                 document.getElementById('submitBtn').style.display = 'none';
-                
-                const resultSection = document.getElementById('resultSection');
-                resultSection.classList.add('visible');
-                
-                document.getElementById('resultScore').textContent = score + '%';
-                document.getElementById('resultZone').textContent = zone;
-                document.getElementById('resultAuditor').textContent = auditor;
-                document.getElementById('fileName').textContent = fileName;
-                
-                const sharePointUrl = CEVA_CONFIG.getSharePointFolderUrl(branch.code, 'fiveS');
-                document.getElementById('openSharePoint').onclick = function() {
-                    window.open(sharePointUrl, '_blank');
-                };
+                document.getElementById('observationsSection').style.display = 'none';
             }
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            
+            let currentCategory = '';
+            
+            questions.forEach((q, idx) => {
+                if (q.category !== currentCategory) {
+                    currentCategory = q.category;
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.className = 'category-header';
+                    categoryDiv.textContent = currentCategory;
+                    container.appendChild(categoryDiv);
+                }
+                
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-item';
+                questionDiv.innerHTML = `
+                    <div class="question-text">${idx + 1}. ${q.text}</div>
+                    <div class="answer-buttons">
+                        <button class="answer-btn btn-yes" onclick="selectAnswer('${q.id}', 'TAK', this)">TAK</button>
+                        <button class="answer-btn btn-no" onclick="selectAnswer('${q.id}', 'NIE', this)">NIE</button>
+                        <button class="answer-btn btn-na" onclick="selectAnswer('${q.id}', 'N/A', this)">N/A</button>
+                    </div>
+                    <div class="comment-label" id="label_${q.id}">
+                        Komentarz (wymagany dla odpowiedzi NIE):
+                    </div>
+                    <textarea 
+                        class="comment-area" 
+                        id="comment_${q.id}" 
+                        placeholder="Opisz problem i co należy poprawić..."
+                    ></textarea>
+                `;
+                container.appendChild(questionDiv);
+            });
+            
+            document.getElementById('submitBtn').style.display = 'block';
+            document.getElementById('observationsSection').style.display = 'block';
+        }
+
+        function selectAnswer(questionId, value, btn) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            answers[questionId] = value;
+            
+            const commentArea = document.getElementById(`comment_${questionId}`);
+            const commentLabel = document.getElementById(`label_${questionId}`);
+            
+            if (value === 'NIE') {
+                commentArea.classList.add('visible');
+                commentLabel.classList.add('visible');
+                commentArea.required = true;
+            } else {
+                commentArea.classList.remove('visible');
+                commentLabel.classList.remove('visible');
+                commentArea.required = false;
+                commentArea.value = '';
+                delete comments[questionId];
+            }
+        }
+
+        function saveAudit() {
+            const date = document.getElementById('auditDate').value;
+            const zone = document.getElementById('zone').value;
+            const auditor = document.getElementById('auditor').value;
+
+            if (!date || !zone || !auditor) {
+                alert('Wypełnij wszystkie pola!');
+                return;
+            }
+
+            if (Object.keys(answers).length !== questions.length) {
+                alert('Odpowiedz na wszystkie pytania!');
+                return;
+            }
+
+            for (let qId in answers) {
+                if (answers[qId] === 'NIE') {
+                    const commentValue = document.getElementById(`comment_${qId}`).value.trim();
+                    if (!commentValue) {
+                        alert('Wszystkie odpowiedzi NIE wymagają komentarza!');
+                        return;
+                    }
+                    comments[qId] = commentValue;
+                }
+            }
+
+            const goodObservations = [
+                document.getElementById('good1').value.trim(),
+                document.getElementById('good2').value.trim(),
+                document.getElementById('good3').value.trim()
+            ].filter(x => x);
+
+            const improvementAreas = [
+                document.getElementById('improve1').value.trim(),
+                document.getElementById('improve2').value.trim(),
+                document.getElementById('improve3').value.trim()
+            ].filter(x => x);
+
+            let yesCount = 0;
+            let totalAnswered = 0;
+            for (let qId in answers) {
+                if (answers[qId] !== 'N/A') {
+                    totalAnswered++;
+                    if (answers[qId] === 'TAK') yesCount++;
+                }
+            }
+            
+            const score = totalAnswered > 0 ? Math.round((yesCount / totalAnswered) * 100) : 0;
+
+            const auditData = {
+                type: '5S',
+                branch: branch.code,
+                branchName: branch.name,
+                date: date,
+                timestamp: new Date().toISOString(),
+                zone: zone,
+                auditor: auditor,
+                questions: questions,
+                answers: answers,
+                comments: comments,
+                goodObservations: goodObservations,
+                improvementAreas: improvementAreas,
+                score: score,
+                yesCount: yesCount,
+                totalAnswered: totalAnswered
+            };
+
+            try {
+                let local5S = JSON.parse(localStorage.getItem('5s_mobile_audits') || '[]');
+                local5S.push(auditData);
+                localStorage.setItem('5s_mobile_audits', JSON.stringify(local5S));
+            } catch (e) {
+                console.warn('Nie można zapisać do localStorage:', e);
+            }
+
+            const fileName = CEVA_CONFIG.generateFileName('5s', zone, date);
+
+            const json = JSON.stringify(auditData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showResult(fileName, score, zone, auditor);
+        }
+
+        function showResult(fileName, score, zone, auditor) {
+            document.getElementById('questionsContainer').style.display = 'none';
+            document.querySelector('.form-card').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('observationsSection').style.display = 'none';
+            
+            const resultSection = document.getElementById('resultSection');
+            resultSection.classList.add('visible');
+            
+            document.getElementById('resultScore').textContent = score + '%';
+            document.getElementById('resultZone').textContent = zone;
+            document.getElementById('resultAuditor').textContent = auditor;
+            
+            const mailSubject = encodeURIComponent(`Audyt 5S - ${zone} - ${date}`);
+            const mailBody = encodeURIComponent(`Witaj,\n\nPrzesyłam wyniki audytu 5S:\n\nStrefa: ${zone}\nAudytor: ${auditor}\nWynik: ${score}%\nData: ${date}\n\nPlik JSON znajduje się w załączniku.\n\nPozdrawiam`);
+            
+            document.getElementById('sendEmailBtn').onclick = function() {
+                window.location.href = `mailto:dominik.harezlak@cevalogistics.com?subject=${mailSubject}&body=${mailBody}`;
+            };
         }
     </script>
 </body>
