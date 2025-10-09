@@ -279,46 +279,17 @@
                 <label>Poziom GEMBA:</label>
                 <select id="gembaLevel" class="form-control" onchange="switchLevel()">
                     <option value="">-- Wybierz poziom --</option>
-                    <option value="1">Poziom 1 - Obserwacje podstawowe (Brygadziści)</option>
-                    <option value="2">Poziom 2 - Analiza procesu (Brygadziści + Kierownicy)</option>
-                    <option value="3">Poziom 3 - Głęboka analiza (Wszyscy uczestnicy)</option>
+                    <option value="1">Poziom 1 - Obserwacje podstawowe</option>
+                    <option value="2">Poziom 2 - Analiza procesu</option>
+                    <option value="3">Poziom 3 - Głęboka analiza (Root Cause)</option>
                 </select>
             </div>
         </div>
 
         <!-- SEKCJA UCZESTNIKÓW -->
         <div id="participantsSection" class="participants-section" style="display:none;">
-            <div class="participants-title">
-                👥 Uczestnicy GEMBA Walk 
-                <span id="participantsCounter" style="float: right; font-size: 0.9em; color: #2c7a7b;">(0 wybranych)</span>
-            </div>
-            
-            <div style="background: #fff3e0; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.9em; color: #e65100;">
-                💡 <strong>Wskazówka:</strong> Zaznacz uczestników z listy predefiniowanej LUB wpisz dodatkowych w polu poniżej
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <div style="font-weight: 600; color: #2c7a7b; margin-bottom: 10px; font-size: 1.05em;">
-                    📋 Lista predefiniowana (zaznacz uczestników):
-                </div>
-                <div id="participantsList"></div>
-            </div>
-            
-            <div>
-                <label style="font-weight: 600; color: #2c7a7b; margin-bottom: 8px; display: block; font-size: 1.05em;">
-                    ➕ Dodatkowi uczestnicy (wpisz ręcznie):
-                </label>
-                <textarea 
-                    id="additionalParticipants" 
-                    class="textarea-field" 
-                    placeholder="Wpisz imiona i nazwiska dodatkowych uczestników, każde w nowej linii...&#10;&#10;Przykład:&#10;Jan Kowalski&#10;Anna Nowak&#10;Piotr Wiśniewski"
-                    style="min-height: 100px;"
-                    oninput="updateParticipantsCounter()"
-                ></textarea>
-                <div style="font-size: 0.85em; color: #666; margin-top: 5px;">
-                    Każdy uczestnik w nowej linii
-                </div>
-            </div>
+            <div class="participants-title">👥 Uczestnicy GEMBA Walk</div>
+            <div id="participantsList"></div>
         </div>
 
         <!-- SEKCJA PYTAŃ -->
@@ -353,16 +324,6 @@
         <!-- WYNIK -->
         <div id="resultSection" class="result-card">
             <h2 style="color: #667eea; margin-bottom: 20px;">GEMBA Walk zapisany!</h2>
-            
-            <div style="background: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
-                <h3 style="color: #333; margin-bottom: 15px;">Podsumowanie:</h3>
-                <div style="text-align: left; line-height: 1.8;">
-                    <p><strong>Poziom:</strong> <span id="resultLevel"></span></p>
-                    <p><strong>Kategoria:</strong> <span id="resultCategory"></span></p>
-                    <p><strong>Liczba uczestników:</strong> <span id="resultParticipantsCount"></span></p>
-                    <div id="resultParticipantsList" style="margin-top: 10px; padding: 10px; background: white; border-radius: 5px; max-height: 150px; overflow-y: auto;"></div>
-                </div>
-            </div>
             
             <div class="sharepoint-section">
                 <h3 style="color: #667eea; margin-bottom: 15px;">📤 Prześlij na SharePoint</h3>
@@ -412,8 +373,6 @@
             let comments = {};
             let wastes = [];
             let selectedParticipants = [];
-            let participantsFromList = [];
-            let additionalParticipants = [];
 
             document.getElementById('gembaDate').value = new Date().toISOString().split('T')[0];
             
@@ -443,28 +402,6 @@
                     return;
                 }
                 
-                // Zaktualizuj tytuł sekcji uczestników
-                let participantInfo = '';
-                if (level === 1) {
-                    participantInfo = '<div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.9em;"><strong>Poziom 1:</strong> Dostępni tylko Brygadziści</div>';
-                } else if (level === 2) {
-                    participantInfo = '<div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.9em;"><strong>Poziom 2:</strong> Dostępni Brygadziści + Kierownicy</div>';
-                } else if (level === 3) {
-                    participantInfo = '<div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.9em;"><strong>Poziom 3:</strong> Dostępni wszyscy uczestnicy (wszystkie poziomy)</div>';
-                }
-                
-                // Wstaw info przed listą uczestników
-                const participantsSection = document.getElementById('participantsSection');
-                const existingInfo = participantsSection.querySelector('.level-info');
-                if (existingInfo) {
-                    existingInfo.remove();
-                }
-                
-                const infoDiv = document.createElement('div');
-                infoDiv.className = 'level-info';
-                infoDiv.innerHTML = participantInfo;
-                participantsSection.insertBefore(infoDiv, document.getElementById('participantsList'));
-                
                 // Wyświetl uczestników
                 displayParticipants(level);
                 
@@ -485,7 +422,7 @@
                     const checkboxDiv = document.createElement('div');
                     checkboxDiv.className = 'participant-checkbox';
                     checkboxDiv.innerHTML = `
-                        <input type="checkbox" id="participant_${idx}" value="${p.name}" onchange="updateParticipantsCounter()">
+                        <input type="checkbox" id="participant_${idx}" value="${p.name}">
                         <label for="participant_${idx}">
                             ${p.name}
                             <div style="font-size: 0.85em; color: #666;">${p.email}</div>
@@ -493,21 +430,6 @@
                     `;
                     container.appendChild(checkboxDiv);
                 });
-                
-                updateParticipantsCounter();
-            };
-
-            window.updateParticipantsCounter = function() {
-                // Policz zaznaczonych z checkboxów
-                const checkedCount = document.querySelectorAll('#participantsList input[type="checkbox"]:checked').length;
-                
-                // Policz wpisanych ręcznie
-                const additionalText = document.getElementById('additionalParticipants').value.trim();
-                const additionalCount = additionalText ? additionalText.split('\n').filter(line => line.trim().length > 0).length : 0;
-                
-                const totalCount = checkedCount + additionalCount;
-                
-                document.getElementById('participantsCounter').textContent = `(${totalCount} wybranych)`;
             };
 
             window.loadCategories = function() {
@@ -628,24 +550,11 @@
                     return;
                 }
 
-                // Zbierz zaznaczonych uczestników z checkboxów
-                participantsFromList = [];
+                // Zbierz zaznaczonych uczestników
+                selectedParticipants = [];
                 document.querySelectorAll('#participantsList input[type="checkbox"]:checked').forEach(cb => {
-                    participantsFromList.push(cb.value);
+                    selectedParticipants.push(cb.value);
                 });
-
-                // Dodaj dodatkowych uczestników z pola tekstowego
-                additionalParticipants = [];
-                const additionalText = document.getElementById('additionalParticipants').value.trim();
-                if (additionalText) {
-                    const additionalList = additionalText.split('\n')
-                        .map(name => name.trim())
-                        .filter(name => name.length > 0);
-                    additionalParticipants.push(...additionalList);
-                }
-                
-                // Połącz wszystkich uczestników
-                selectedParticipants = [...participantsFromList, ...additionalParticipants];
 
                 // Walidacja komentarzy
                 for (let key in answers) {
@@ -683,12 +592,7 @@
                     lead: lead,
                     gembaLevel: level,
                     category: category,
-                    participants: {
-                        all: selectedParticipants,
-                        fromList: participantsFromList,
-                        additional: additionalParticipants,
-                        total: selectedParticipants.length
-                    },
+                    participants: selectedParticipants,
                     answers: answers,
                     comments: comments,
                     wastes: allWastes,
@@ -727,36 +631,6 @@
                 
                 const resultSection = document.getElementById('resultSection');
                 resultSection.classList.add('visible');
-                
-                // Wypełnij szczegóły
-                const level = document.getElementById('gembaLevel').value;
-                const category = document.getElementById('category').value;
-                
-                document.getElementById('resultLevel').textContent = `Poziom ${level}`;
-                document.getElementById('resultCategory').textContent = category || 'Nie wybrano';
-                document.getElementById('resultParticipantsCount').textContent = selectedParticipants.length;
-                
-                // Wyświetl listę uczestników
-                const participantsList = document.getElementById('resultParticipantsList');
-                if (selectedParticipants.length > 0) {
-                    let html = '<strong>Uczestnicy:</strong>';
-                    
-                    if (participantsFromList.length > 0) {
-                        html += '<div style="margin-top: 10px;"><em style="color: #4ecdc4;">Z listy predefiniowanej:</em><ul style="margin: 5px 0 0 20px;">' + 
-                            participantsFromList.map(p => `<li>${p}</li>`).join('') + 
-                            '</ul></div>';
-                    }
-                    
-                    if (additionalParticipants.length > 0) {
-                        html += '<div style="margin-top: 10px;"><em style="color: #4ecdc4;">Dodani ręcznie:</em><ul style="margin: 5px 0 0 20px;">' + 
-                            additionalParticipants.map(p => `<li>${p}</li>`).join('') + 
-                            '</ul></div>';
-                    }
-                    
-                    participantsList.innerHTML = html;
-                } else {
-                    participantsList.innerHTML = '<em style="color: #666;">Nie wybrano uczestników</em>';
-                }
                 
                 document.getElementById('fileName').textContent = fileName;
                 
