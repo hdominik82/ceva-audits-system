@@ -219,13 +219,6 @@
                     <label>Kategoria problemu:</label>
                     <select id="problemCategory" class="form-control">
                         <option value="">-- Wybierz kategorię --</option>
-                        <option value="5S">5S</option>
-                        <option value="Bezpieczeństwo">Bezpieczeństwo (BHP)</option>
-                        <option value="Jakość">Jakość</option>
-                        <option value="Produktywność">Produktywność</option>
-                        <option value="Proces">Proces</option>
-                        <option value="Wyposażenie">Wyposażenie/Maszyny</option>
-                        <option value="Inne">Inne</option>
                     </select>
                 </div>
             </div>
@@ -294,10 +287,16 @@
     </div>
 
     <script>
-        const branch = CEVA_CONFIG.getCurrentBranch();
-        let selectedPriority = null;
-
         document.addEventListener('DOMContentLoaded', function() {
+            // Sprawdź czy config został załadowany
+            if (typeof CEVA_CONFIG === 'undefined') {
+                alert('Błąd: Nie można załadować konfiguracji. Sprawdź czy plik config.js istnieje.');
+                return;
+            }
+
+            const branch = CEVA_CONFIG.getCurrentBranch();
+            let selectedPriority = null;
+
             document.getElementById('problemDate').value = new Date().toISOString().split('T')[0];
             
             const zoneSelect = document.getElementById('problemZone');
@@ -316,111 +315,110 @@
                 option.textContent = auditor;
                 reporterSelect.appendChild(option);
             });
+
+            const categorySelect = document.getElementById('problemCategory');
+            branch.problemCategories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                categorySelect.appendChild(option);
+            });
+
+            window.selectPriority = function(priority, btn) {
+                document.querySelectorAll('.priority-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedPriority = priority;
+            };
+
+            window.submitProblem = function() {
+                const date = document.getElementById('problemDate').value;
+                const zone = document.getElementById('problemZone').value;
+                const reporter = document.getElementById('problemReporter').value;
+                const category = document.getElementById('problemCategory').value;
+                const description = document.getElementById('problemDescription').value.trim();
+                const impact = document.getElementById('problemImpact').value.trim();
+                const solution = document.getElementById('problemSolution').value.trim();
+
+                if (!date || !zone || !reporter || !category) {
+                    alert('Wypełnij wszystkie wymagane pola podstawowe!');
+                    return;
+                }
+
+                if (!description) {
+                    alert('Opis problemu jest wymagany!');
+                    return;
+                }
+
+                if (!selectedPriority) {
+                    alert('Wybierz priorytet problemu!');
+                    return;
+                }
+
+                const zoneSelect = document.getElementById('problemZone');
+                const selectedOption = zoneSelect.options[zoneSelect.selectedIndex];
+                const responsible = selectedOption.dataset.responsible;
+
+                const dueDays = selectedPriority === 'high' ? 3 : selectedPriority === 'medium' ? 7 : 14;
+                const dueDate = new Date(new Date(date).getTime() + dueDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+                const problemData = {
+                    type: 'PROBLEM',
+                    branch: branch.code,
+                    branchName: branch.name,
+                    date: date,
+                    timestamp: new Date().toISOString(),
+                    zone: zone,
+                    reporter: reporter,
+                    category: category,
+                    description: description,
+                    impact: impact,
+                    proposedSolution: solution,
+                    priority: selectedPriority,
+                    status: 'Otwarte',
+                    responsible: responsible,
+                    dueDate: dueDate,
+                    id: Date.now() + Math.random(),
+                    source: 'Problem Report',
+                    actions: solution || description,
+                    createdDate: date
+                };
+
+                try {
+                    let localProblems = JSON.parse(localStorage.getItem('problem_reports') || '[]');
+                    localProblems.push(problemData);
+                    localStorage.setItem('problem_reports', JSON.stringify(localProblems));
+                } catch (e) {
+                    console.warn('Nie można zapisać do localStorage:', e);
+                }
+
+                const fileName = CEVA_CONFIG.generateFileName('problem', zone, date);
+
+                const json = JSON.stringify(problemData, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                showResult(fileName);
+            };
+
+            function showResult(fileName) {
+                document.getElementById('formSection').style.display = 'none';
+                
+                const resultSection = document.getElementById('resultSection');
+                resultSection.classList.add('visible');
+                
+                document.getElementById('fileName').textContent = fileName;
+                
+                const sharePointUrl = CEVA_CONFIG.getSharePointFolderUrl(branch.code, 'problems');
+                document.getElementById('openSharePoint').onclick = function() {
+                    window.open(sharePointUrl, '_blank');
+                };
+            }
         });
-
-        function selectPriority(priority, btn) {
-            document.querySelectorAll('.priority-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            selectedPriority = priority;
-        }
-
-        function submitProblem() {
-            const date = document.getElementById('problemDate').value;
-            const zone = document.getElementById('problemZone').value;
-            const reporter = document.getElementById('problemReporter').value;
-            const category = document.getElementById('problemCategory').value;
-            const description = document.getElementById('problemDescription').value.trim();
-            const impact = document.getElementById('problemImpact').value.trim();
-            const solution = document.getElementById('problemSolution').value.trim();
-
-            // Walidacja
-            if (!date || !zone || !reporter || !category) {
-                alert('Wypełnij wszystkie wymagane pola podstawowe!');
-                return;
-            }
-
-            if (!description) {
-                alert('Opis problemu jest wymagany!');
-                return;
-            }
-
-            if (!selectedPriority) {
-                alert('Wybierz priorytet problemu!');
-                return;
-            }
-
-            // Pobierz osobę odpowiedzialną za strefę
-            const zoneSelect = document.getElementById('problemZone');
-            const selectedOption = zoneSelect.options[zoneSelect.selectedIndex];
-            const responsible = selectedOption.dataset.responsible;
-
-            // Oblicz termin (w zależności od priorytetu)
-            const dueDays = selectedPriority === 'high' ? 3 : selectedPriority === 'medium' ? 7 : 14;
-            const dueDate = new Date(new Date(date).getTime() + dueDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-
-            // Przygotuj dane
-            const problemData = {
-                type: 'PROBLEM',
-                branch: branch.code,
-                branchName: branch.name,
-                date: date,
-                timestamp: new Date().toISOString(),
-                zone: zone,
-                reporter: reporter,
-                category: category,
-                description: description,
-                impact: impact,
-                proposedSolution: solution,
-                priority: selectedPriority,
-                status: 'Otwarte',
-                responsible: responsible,
-                dueDate: dueDate,
-                // Format kompatybilny z Action Plan
-                id: Date.now() + Math.random(),
-                source: 'Problem Report',
-                actions: solution || description,
-                createdDate: date
-            };
-
-            // Zapisz lokalnie
-            try {
-                let localProblems = JSON.parse(localStorage.getItem('problem_reports') || '[]');
-                localProblems.push(problemData);
-                localStorage.setItem('problem_reports', JSON.stringify(localProblems));
-            } catch (e) {
-                console.warn('Nie można zapisać do localStorage:', e);
-            }
-
-            // Wygeneruj nazwę pliku
-            const fileName = CEVA_CONFIG.generateFileName('problem', zone, date);
-
-            // Pobierz JSON
-            const json = JSON.stringify(problemData, null, 2);
-            const blob = new Blob([json], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            a.click();
-            URL.revokeObjectURL(url);
-
-            // Pokaż wynik
-            showResult(fileName);
-        }
-
-        function showResult(fileName) {
-            document.getElementById('formSection').style.display = 'none';
-            
-            const resultSection = document.getElementById('resultSection');
-            resultSection.classList.add('visible');
-            
-            document.getElementById('fileName').textContent = fileName;
-            
-            const sharePointUrl = CEVA_CONFIG.getSharePointFolderUrl(branch.code, 'problems');
-            document.getElementById('openSharePoint').onclick = function() {
-                window.open(sharePointUrl, '_blank');
-            };
-        }
     </script>
 </body>
 </html>
