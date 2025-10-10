@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audyt Procesu - CEVA Mobile</title>
-    <script src="mobile-config-loader.js"></script>
+    <script src="config.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -79,10 +79,6 @@
         }
         .timer-btn-stop {
             background: #dc3545;
-            color: white;
-        }
-        .timer-btn-reset {
-            background: rgba(255,255,255,0.2);
             color: white;
         }
         .timer-btn:disabled {
@@ -231,7 +227,7 @@
             display: none;
         }
         .result-card.visible { display: block; }
-        .sharepoint-section {
+        .email-section {
             background: #e8f5f1;
             border: 2px solid #4ecdc4;
             border-radius: 10px;
@@ -250,7 +246,6 @@
     </div>
 
     <div class="content">
-        <!-- TIMER CYKLU -->
         <div class="timer-card">
             <div style="text-align: center; font-size: 0.9em; opacity: 0.9; margin-bottom: 5px;">
                 Pomiar czasu cyklu (opcjonalny)
@@ -304,7 +299,7 @@
         </div>
 
         <div id="resultSection" class="result-card">
-            <h2 style="color: #4ecdc4; margin-bottom: 20px;">Audyt procesu zapisany!</h2>
+            <h2 style="color: #4ecdc4; margin-bottom: 20px;">✅ Audyt procesu zapisany!</h2>
             
             <div style="background: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
                 <h3 style="color: #333; margin-bottom: 15px;">Podsumowanie audytu:</h3>
@@ -320,72 +315,72 @@
                 </div>
             </div>
             
-            <div class="sharepoint-section">
-                <h3 style="color: #4ecdc4; margin-bottom: 15px;">📤 Prześlij na SharePoint</h3>
-                <ol style="margin-left: 20px; line-height: 1.8;">
-                    <li>Kliknij przycisk "Otwórz SharePoint" poniżej</li>
-                    <li>W folderze kliknij <strong>+ Nowy → Przekaż pliki</strong></li>
-                    <li>Wybierz pobrany plik JSON:</li>
-                </ol>
-                <div style="background: white; padding: 10px; border-radius: 5px; margin: 10px 0; font-family: monospace; font-size: 0.85em;" id="fileName">process.json</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <button class="btn-submit" id="downloadFileBtn" style="background: #4ecdc4; padding: 15px; font-size: 1em;">
+                    💾 Pobierz plik
+                </button>
+                <button class="btn-submit" id="sendEmailBtn" style="background: #28a745; padding: 15px; font-size: 1em;">
+                    📧 Wyślij emailem
+                </button>
             </div>
-
-            <button class="btn-submit" id="openSharePoint" style="margin-top: 15px; background: #28a745;">
-                📁 Otwórz SharePoint - folder Process
-            </button>
             
-            <button class="btn-submit" onclick="location.reload()" style="margin-top: 10px; background: #6c757d;">
+            <div class="email-section">
+                <h3 style="color: #4ecdc4; margin-bottom: 10px;">ℹ️ Informacje</h3>
+                <p style="font-size: 0.9em; color: #666; line-height: 1.6;">
+                    <strong>Pobierz plik:</strong> Zapisuje plik JSON na urządzeniu<br>
+                    <strong>Wyślij emailem:</strong> Otwiera email z załącznikiem do dominik.harezlak@cevalogistics.com<br>
+                    <br>
+                    <strong>📁 SharePoint:</strong> Plik należy przesłać do folderu <strong>Process</strong>
+                </p>
+            </div>
+            
+            <button class="btn-submit" onclick="location.reload()" style="margin-top: 15px; background: #6c757d;">
                 🔄 Nowy audyt
             </button>
         </div>
     </div>
 
     <script>
-        // Poczekaj na załadowanie config
-if (typeof CEVA_CONFIG === 'undefined' || !CEVA_CONFIG.getCurrentBranch) {
-    document.addEventListener('DOMContentLoaded', async function() {
-        CEVA_CONFIG = await CONFIG_LOADER.load();
-        initializePage();
-    });
-} else {
-    document.addEventListener('DOMContentLoaded', initializePage);
-}
+        if (typeof CEVA_CONFIG === 'undefined' || !CEVA_CONFIG.getCurrentBranch) {
+            document.addEventListener('DOMContentLoaded', async function() {
+                CEVA_CONFIG = await CONFIG_LOADER.load();
+                initializePage();
+            });
+        } else {
+            document.addEventListener('DOMContentLoaded', initializePage);
+        }
 
-function initializePage() {
-    const branch = CEVA_CONFIG.getCurrentBranch();
+        function initializePage() {
+            const branch = CEVA_CONFIG.getCurrentBranch();
+            
+            const processes = {
+                'Przyjęcie towaru': ['INS-001 Rozładunek', 'INS-002 Kontrola jakości', 'INS-003 Rejestracja w systemie'],
+                'Kompletacja': ['INS-010 Picking listy', 'INS-011 Pakowanie', 'INS-012 Etykietowanie'],
+                'Wysyłka': ['INS-020 Przygotowanie dokumentów', 'INS-021 Załadunek', 'INS-022 Kontrola przed wysyłką'],
+                'Zwroty': ['INS-030 Przyjęcie zwrotu', 'INS-031 Ocena stanu', 'INS-032 Księgowanie'],
+                'Inwentaryzacja': ['INS-040 Przygotowanie', 'INS-041 Liczenie', 'INS-042 Rozliczenie różnic']
+            };
 
-        
-        // PRZYKŁADOWE PROCESY I INSTRUKCJE (do aktualizacji według potrzeb)
-        const processes = {
-            'Przyjęcie towaru': ['INS-001 Rozładunek', 'INS-002 Kontrola jakości', 'INS-003 Rejestracja w systemie'],
-            'Kompletacja': ['INS-010 Picking listy', 'INS-011 Pakowanie', 'INS-012 Etykietowanie'],
-            'Wysyłka': ['INS-020 Przygotowanie dokumentów', 'INS-021 Załadunek', 'INS-022 Kontrola przed wysyłką'],
-            'Zwroty': ['INS-030 Przyjęcie zwrotu', 'INS-031 Ocena stanu', 'INS-032 Księgowanie'],
-            'Inwentaryzacja': ['INS-040 Przygotowanie', 'INS-041 Liczenie', 'INS-042 Rozliczenie różnic']
-        };
+            const allInstructions = Object.values(processes).flat();
 
-        // Wszystkie instrukcje do wyboru pojedynczego
-        const allInstructions = Object.values(processes).flat();
+            const auditQuestions = [
+                "Czy instrukcja jest dostępna i aktualna?",
+                "Czy pracownik zna i rozumie instrukcję?",
+                "Czy proces jest wykonywany zgodnie z instrukcją?",
+                "Czy stanowisko pracy jest przygotowane zgodnie z wymaganiami?",
+                "Czy używane są właściwe narzędzia i materiały?",
+                "Czy przestrzegane są zasady BHP?",
+                "Czy występują problemy lub wąskie gardła?"
+            ];
 
-        // 7 pytań ogólnych do audytu
-        const auditQuestions = [
-            "Czy instrukcja jest dostępna i aktualna?",
-            "Czy pracownik zna i rozumie instrukcję?",
-            "Czy proces jest wykonywany zgodnie z instrukcją?",
-            "Czy stanowisko pracy jest przygotowane zgodnie z wymaganiami?",
-            "Czy używane są właściwe narzędzia i materiały?",
-            "Czy przestrzegane są zasady BHP?",
-            "Czy występują problemy lub wąskie gardła?"
-        ];
+            let timerInterval = null;
+            let timerSeconds = 0;
+            let isTimerRunning = false;
+            let answers = {};
+            let comments = {};
+            let instructionsToAudit = [];
+            let savedAuditData = null;
 
-        let timerInterval = null;
-        let timerSeconds = 0;
-        let isTimerRunning = false;
-        let answers = {};
-        let comments = {};
-        let instructionsToAudit = [];
-
-        document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('auditDate').value = new Date().toISOString().split('T')[0];
             
             const zoneSelect = document.getElementById('processZone');
@@ -404,304 +399,341 @@ function initializePage() {
                 auditorSelect.appendChild(option);
             });
 
-            // Aktualizuj czas cyklu przy zmianie ilości zadań
             document.getElementById('cycleCount').addEventListener('input', calculateCycleTime);
-        });
 
-        // TIMER
-        function startTimer() {
-            if (isTimerRunning) return;
-            isTimerRunning = true;
-            document.getElementById('startBtn').disabled = true;
-            document.getElementById('stopBtn').disabled = false;
-            
-            timerInterval = setInterval(() => {
-                timerSeconds++;
-                updateTimerDisplay();
+            window.startTimer = function() {
+                if (isTimerRunning) return;
+                isTimerRunning = true;
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+                
+                timerInterval = setInterval(() => {
+                    timerSeconds++;
+                    updateTimerDisplay();
+                    calculateCycleTime();
+                }, 1000);
+            };
+
+            window.stopTimer = function() {
+                if (!isTimerRunning) return;
+                isTimerRunning = false;
+                clearInterval(timerInterval);
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
                 calculateCycleTime();
-            }, 1000);
-        }
+            };
 
-        function stopTimer() {
-            if (!isTimerRunning) return;
-            isTimerRunning = false;
-            clearInterval(timerInterval);
-            document.getElementById('startBtn').disabled = false;
-            document.getElementById('stopBtn').disabled = true;
-            calculateCycleTime();
-        }
-
-        function updateTimerDisplay() {
-            const hours = Math.floor(timerSeconds / 3600);
-            const minutes = Math.floor((timerSeconds % 3600) / 60);
-            const seconds = timerSeconds % 60;
-            document.getElementById('timerDisplay').textContent = 
-                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        }
-
-        function calculateCycleTime() {
-            const count = parseInt(document.getElementById('cycleCount').value);
-            const resultDiv = document.getElementById('cycleResult');
-            
-            if (timerSeconds > 0 && count > 0) {
-                const cycleTime = timerSeconds / count;
-                const minutes = Math.floor(cycleTime / 60);
-                const seconds = Math.floor(cycleTime % 60);
-                resultDiv.textContent = `Czas cyklu: ${minutes}m ${seconds}s / zadanie`;
-            } else {
-                resultDiv.textContent = '';
+            function updateTimerDisplay() {
+                const hours = Math.floor(timerSeconds / 3600);
+                const minutes = Math.floor((timerSeconds % 3600) / 60);
+                const seconds = timerSeconds % 60;
+                document.getElementById('timerDisplay').textContent = 
+                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
             }
-        }
 
-        // ŁADOWANIE OPCJI AUDYTU
-        function loadAuditOptions() {
-            const type = document.getElementById('auditType').value;
-            const selectionGroup = document.getElementById('selectionGroup');
-            const selectionLabel = document.getElementById('selectionLabel');
-            const selection = document.getElementById('selection');
-            
-            selection.innerHTML = '<option value="">-- Wybierz --</option>';
-            
-            if (!type) {
-                selectionGroup.style.display = 'none';
-                return;
+            function calculateCycleTime() {
+                const count = parseInt(document.getElementById('cycleCount').value);
+                const resultDiv = document.getElementById('cycleResult');
+                
+                if (timerSeconds > 0 && count > 0) {
+                    const cycleTime = timerSeconds / count;
+                    const minutes = Math.floor(cycleTime / 60);
+                    const seconds = Math.floor(cycleTime % 60);
+                    resultDiv.textContent = `Czas cyklu: ${minutes}m ${seconds}s / zadanie`;
+                } else {
+                    resultDiv.textContent = '';
+                }
             }
-            
-            selectionGroup.style.display = 'block';
-            
-            if (type === 'process') {
-                selectionLabel.textContent = 'Wybierz proces:';
-                Object.keys(processes).forEach(proc => {
-                    const option = document.createElement('option');
-                    option.value = proc;
-                    option.textContent = proc;
-                    selection.appendChild(option);
-                });
-            } else {
-                selectionLabel.textContent = 'Wybierz instrukcję:';
-                allInstructions.forEach(instr => {
-                    const option = document.createElement('option');
-                    option.value = instr;
-                    option.textContent = instr;
-                    selection.appendChild(option);
-                });
-            }
-        }
 
-        function loadInstructions() {
-            const type = document.getElementById('auditType').value;
-            const selected = document.getElementById('selection').value;
-            const container = document.getElementById('instructionsContainer');
-            
-            if (!selected) {
+            window.loadAuditOptions = function() {
+                const type = document.getElementById('auditType').value;
+                const selectionGroup = document.getElementById('selectionGroup');
+                const selectionLabel = document.getElementById('selectionLabel');
+                const selection = document.getElementById('selection');
+                
+                selection.innerHTML = '<option value="">-- Wybierz --</option>';
+                
+                if (!type) {
+                    selectionGroup.style.display = 'none';
+                    return;
+                }
+                
+                selectionGroup.style.display = 'block';
+                
+                if (type === 'process') {
+                    selectionLabel.textContent = 'Wybierz proces:';
+                    Object.keys(processes).forEach(proc => {
+                        const option = document.createElement('option');
+                        option.value = proc;
+                        option.textContent = proc;
+                        selection.appendChild(option);
+                    });
+                } else {
+                    selectionLabel.textContent = 'Wybierz instrukcję:';
+                    allInstructions.forEach(instr => {
+                        const option = document.createElement('option');
+                        option.value = instr;
+                        option.textContent = instr;
+                        selection.appendChild(option);
+                    });
+                }
+            };
+
+            window.loadInstructions = function() {
+                const type = document.getElementById('auditType').value;
+                const selected = document.getElementById('selection').value;
+                const container = document.getElementById('instructionsContainer');
+                
+                if (!selected) {
+                    container.innerHTML = '';
+                    document.getElementById('submitBtn').style.display = 'none';
+                    return;
+                }
+                
                 container.innerHTML = '';
-                document.getElementById('submitBtn').style.display = 'none';
-                return;
-            }
-            
-            container.innerHTML = '';
-            instructionsToAudit = [];
-            
-            if (type === 'process') {
-                instructionsToAudit = processes[selected];
-            } else {
-                instructionsToAudit = [selected];
-            }
-            
-            // Pokaż listę instrukcji
-            const instrListCard = document.createElement('div');
-            instrListCard.className = 'instruction-card';
-            instrListCard.innerHTML = `
-                <div class="instruction-title">📋 Instrukcje objęte audytem:</div>
-                <ul style="margin-left: 20px; line-height: 1.8;">
-                    ${instructionsToAudit.map(i => `<li><strong>${i}</strong></li>`).join('')}
-                </ul>
-            `;
-            container.appendChild(instrListCard);
-            
-            // Sekcja z pytaniami (RAZ dla wszystkich instrukcji)
-            const header = document.createElement('div');
-            header.className = 'section-header';
-            header.textContent = 'Pytania audytu (dla wszystkich instrukcji)';
-            container.appendChild(header);
-            
-            // Renderuj pytania RAZ
-            auditQuestions.forEach((q, qIdx) => {
-                const key = `q_${qIdx}`;
-                const questionDiv = document.createElement('div');
-                questionDiv.className = 'question-item';
-                questionDiv.innerHTML = `
-                    <div class="question-text">${qIdx + 1}. ${q}</div>
-                    <div class="answer-buttons">
-                        <button class="answer-btn answer-btn-yes" onclick="selectAnswer('${key}', 'yes', this)">✓ Tak</button>
-                        <button class="answer-btn answer-btn-no" onclick="selectAnswer('${key}', 'no', this)">✗ Nie</button>
-                        <button class="answer-btn answer-btn-na" onclick="selectAnswer('${key}', 'na', this)">− N/A</button>
-                    </div>
-                    <div class="comment-label" id="label_${key}">
-                        <span class="required-star">*</span> Wymagany komentarz - wskaż instrukcję i opisz problem:
-                    </div>
-                    <textarea 
-                        class="comment-area" 
-                        id="comment_${key}" 
-                        placeholder="Wskaż której instrukcji dotyczy problem i opisz szczegółowo..."
-                    ></textarea>
+                instructionsToAudit = [];
+                
+                if (type === 'process') {
+                    instructionsToAudit = processes[selected];
+                } else {
+                    instructionsToAudit = [selected];
+                }
+                
+                const instrListCard = document.createElement('div');
+                instrListCard.className = 'instruction-card';
+                instrListCard.innerHTML = `
+                    <div class="instruction-title">📋 Instrukcje objęte audytem:</div>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        ${instructionsToAudit.map(i => `<li><strong>${i}</strong></li>`).join('')}
+                    </ul>
                 `;
-                container.appendChild(questionDiv);
-            });
-            
-            document.getElementById('submitBtn').style.display = 'block';
-        }
+                container.appendChild(instrListCard);
+                
+                const header = document.createElement('div');
+                header.className = 'section-header';
+                header.textContent = 'Pytania audytu (dla wszystkich instrukcji)';
+                container.appendChild(header);
+                
+                auditQuestions.forEach((q, qIdx) => {
+                    const key = `q_${qIdx}`;
+                    const questionDiv = document.createElement('div');
+                    questionDiv.className = 'question-item';
+                    questionDiv.innerHTML = `
+                        <div class="question-text">${qIdx + 1}. ${q}</div>
+                        <div class="answer-buttons">
+                            <button class="answer-btn answer-btn-yes" onclick="selectAnswer('${key}', 'yes', this)">✓ Tak</button>
+                            <button class="answer-btn answer-btn-no" onclick="selectAnswer('${key}', 'no', this)">✗ Nie</button>
+                            <button class="answer-btn answer-btn-na" onclick="selectAnswer('${key}', 'na', this)">− N/A</button>
+                        </div>
+                        <div class="comment-label" id="label_${key}">
+                            <span class="required-star">*</span> Wymagany komentarz - wskaż instrukcję i opisz problem:
+                        </div>
+                        <textarea 
+                            class="comment-area" 
+                            id="comment_${key}" 
+                            placeholder="Wskaż której instrukcji dotyczy problem i opisz szczegółowo..."
+                        ></textarea>
+                    `;
+                    container.appendChild(questionDiv);
+                });
+                
+                document.getElementById('submitBtn').style.display = 'block';
+            };
 
-        function selectAnswer(key, value, btn) {
-            const parent = btn.parentElement;
-            parent.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            answers[key] = value;
-            
-            const commentArea = document.getElementById(`comment_${key}`);
-            const commentLabel = document.getElementById(`label_${key}`);
-            
-            if (value === 'no') {
-                commentArea.classList.add('visible');
-                commentLabel.classList.add('visible');
-                commentArea.required = true;
-            } else {
-                commentArea.classList.remove('visible');
-                commentLabel.classList.remove('visible');
-                commentArea.required = false;
-                commentArea.value = '';
-                delete comments[key];
-            }
-        }
+            window.selectAnswer = function(key, value, btn) {
+                const parent = btn.parentElement;
+                parent.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                answers[key] = value;
+                
+                const commentArea = document.getElementById(`comment_${key}`);
+                const commentLabel = document.getElementById(`label_${key}`);
+                
+                if (value === 'no') {
+                    commentArea.classList.add('visible');
+                    commentLabel.classList.add('visible');
+                    commentArea.required = true;
+                } else {
+                    commentArea.classList.remove('visible');
+                    commentLabel.classList.remove('visible');
+                    commentArea.required = false;
+                    commentArea.value = '';
+                    delete comments[key];
+                }
+            };
 
-        function saveAudit() {
-            const date = document.getElementById('auditDate').value;
-            const zone = document.getElementById('processZone').value;
-            const auditor = document.getElementById('processAuditor').value;
-            const type = document.getElementById('auditType').value;
-            const selected = document.getElementById('selection').value;
+            window.saveAudit = function() {
+                const date = document.getElementById('auditDate').value;
+                const zone = document.getElementById('processZone').value;
+                const auditor = document.getElementById('processAuditor').value;
+                const type = document.getElementById('auditType').value;
+                const selected = document.getElementById('selection').value;
 
-            if (!date || !zone || !auditor || !type || !selected) {
-                alert('Wypełnij wszystkie pola podstawowe!');
-                return;
-            }
+                if (!date || !zone || !auditor || !type || !selected) {
+                    alert('Wypełnij wszystkie pola podstawowe!');
+                    return;
+                }
 
-            // Walidacja odpowiedzi - tylko 7 pytań (nie × ilość instrukcji)
-            if (Object.keys(answers).length < auditQuestions.length) {
-                alert('Odpowiedz na wszystkie pytania!');
-                return;
-            }
+                if (Object.keys(answers).length < auditQuestions.length) {
+                    alert('Odpowiedz na wszystkie pytania!');
+                    return;
+                }
 
-            // Walidacja komentarzy
-            for (let key in answers) {
-                if (answers[key] === 'no') {
-                    const commentValue = document.getElementById(`comment_${key}`).value.trim();
-                    if (!commentValue) {
-                        alert('Wszystkie odpowiedzi "Nie" wymagają komentarza ze wskazaniem instrukcji!');
-                        return;
+                for (let key in answers) {
+                    if (answers[key] === 'no') {
+                        const commentValue = document.getElementById(`comment_${key}`).value.trim();
+                        if (!commentValue) {
+                            alert('Wszystkie odpowiedzi "Nie" wymagają komentarza ze wskazaniem instrukcji!');
+                            return;
+                        }
+                        comments[key] = commentValue;
                     }
-                    comments[key] = commentValue;
                 }
-            }
 
-            // Oblicz wyniki
-            let total = 0, correct = 0;
-            for (let key in answers) {
-                total++;
-                if (answers[key] === 'yes' || answers[key] === 'na') correct++;
-            }
-            const score = Math.round((correct / total) * 100);
+                let total = 0, correct = 0;
+                for (let key in answers) {
+                    total++;
+                    if (answers[key] === 'yes' || answers[key] === 'na') correct++;
+                }
+                const score = Math.round((correct / total) * 100);
 
-            // Timer
-            const cycleCount = parseInt(document.getElementById('cycleCount').value) || 0;
-            const cycleTime = cycleCount > 0 ? timerSeconds / cycleCount : 0;
+                const cycleCount = parseInt(document.getElementById('cycleCount').value) || 0;
+                const cycleTime = cycleCount > 0 ? timerSeconds / cycleCount : 0;
 
-            // Dane audytu
-            const auditData = {
-                type: 'PROCESS',
-                branch: branch.code,
-                branchName: branch.name,
-                date: date,
-                timestamp: new Date().toISOString(),
-                zone: zone,
-                auditor: auditor,
-                auditType: type,
-                selectedItem: selected,
-                instructions: instructionsToAudit, // Lista zaudytowanych instrukcji dla dashboardu
-                instructionsCount: instructionsToAudit.length, // Łatwe zliczanie
-                answers: answers,
-                comments: comments,
-                score: score,
-                cycleTime: {
-                    totalSeconds: timerSeconds,
-                    tasksCount: cycleCount,
-                    cycleTimeSeconds: cycleTime > 0 ? Math.round(cycleTime) : null
+                const auditData = {
+                    type: 'PROCESS',
+                    branch: branch.code,
+                    branchName: branch.name,
+                    date: date,
+                    timestamp: new Date().toISOString(),
+                    zone: zone,
+                    auditor: auditor,
+                    auditType: type,
+                    selectedItem: selected,
+                    instructions: instructionsToAudit,
+                    instructionsCount: instructionsToAudit.length,
+                    answers: answers,
+                    comments: comments,
+                    score: score,
+                    cycleTime: {
+                        totalSeconds: timerSeconds,
+                        tasksCount: cycleCount,
+                        cycleTimeSeconds: cycleTime > 0 ? Math.round(cycleTime) : null
+                    }
+                };
+
+                try {
+                    let localAudits = JSON.parse(localStorage.getItem('process_audits') || '[]');
+                    localAudits.push(auditData);
+                    localStorage.setItem('process_audits', JSON.stringify(localAudits));
+                } catch (e) {
+                    console.warn('Nie można zapisać do localStorage:', e);
+                }
+
+                const fileName = CEVA_CONFIG.generateFileName('process', zone, date);
+                savedAuditData = { auditData, fileName, score, zone, auditor, date, instructionsCount: instructionsToAudit.length, cycleData: auditData.cycleTime };
+
+                showResult(fileName, score, instructionsToAudit.length, auditData.cycleTime);
+            };
+
+            window.downloadFile = function() {
+                if (!savedAuditData) {
+                    alert('Brak danych audytu!');
+                    return;
+                }
+
+                const { auditData, fileName } = savedAuditData;
+                const json = JSON.stringify(auditData, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                alert('Plik został pobrany: ' + fileName);
+            };
+
+            window.sendEmailWithAttachment = async function() {
+                if (!savedAuditData) {
+                    alert('Brak danych audytu!');
+                    return;
+                }
+
+                const { auditData, fileName, score, zone, auditor, date } = savedAuditData;
+                const json = JSON.stringify(auditData, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const file = new File([blob], fileName, { type: 'application/json' });
+
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: `Audyt Procesu - ${zone}`,
+                            text: `Audyt Procesu\n\nStrefa: ${zone}\nAudytor: ${auditor}\nWynik: ${score}%\nData: ${date}\n\nWyślij do: dominik.harezlak@cevalogistics.com`
+                        });
+                        console.log('Udostępniono pomyślnie');
+                    } catch (err) {
+                        if (err.name !== 'AbortError') {
+                            console.error('Błąd udostępniania:', err);
+                            fallbackEmailMethod(fileName, score, zone, auditor, date, file);
+                        }
+                    }
+                } else {
+                    fallbackEmailMethod(fileName, score, zone, auditor, date, file);
                 }
             };
 
-            try {
-                let localAudits = JSON.parse(localStorage.getItem('process_audits') || '[]');
-                localAudits.push(auditData);
-                localStorage.setItem('process_audits', JSON.stringify(localAudits));
-            } catch (e) {
-                console.warn('Nie można zapisać do localStorage:', e);
-            }
+            window.fallbackEmailMethod = function(fileName, score, zone, auditor, date, file) {
+                const url = URL.createObjectURL(file);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                a.click();
+                URL.revokeObjectURL(url);
 
-            const fileName = CEVA_CONFIG.generateFileName('process', zone, date);
+                setTimeout(() => {
+                    const mailSubject = encodeURIComponent(`Audyt Procesu - ${zone} - ${date}`);
+                    const mailBody = encodeURIComponent(`Witaj,\n\nPrzesyłam wyniki audytu procesu:\n\nStrefa: ${zone}\nAudytor: ${auditor}\nWynik: ${score}%\nData: ${date}\n\nPlik JSON został pobrany - dołącz go do tego maila.\n\nPozdrawiam`);
+                    window.location.href = `mailto:dominik.harezlak@cevalogistics.com?subject=${mailSubject}&body=${mailBody}`;
+                }, 500);
 
-            const json = JSON.stringify(auditData, null, 2);
-            const blob = new Blob([json], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            a.click();
-            URL.revokeObjectURL(url);
-
-            showResult(fileName, score, instructionsToAudit.length, auditData.cycleTime);
-        }
-
-        function showResult(fileName, score, instructionsCount, cycleData) {
-            document.getElementById('formSection').style.display = 'none';
-            document.querySelector('.timer-card').style.display = 'none';
-            
-            const resultSection = document.getElementById('resultSection');
-            resultSection.classList.add('visible');
-            
-            // Wypełnij podsumowanie
-            document.getElementById('resultScore').textContent = score + '%';
-            document.getElementById('resultInstructionsCount').textContent = instructionsCount;
-            
-            // Pokaż czas cyklu jeśli był mierzony
-            if (cycleData.totalSeconds > 0 && cycleData.tasksCount > 0) {
-                const cycleResult = document.getElementById('cycleTimeResult');
-                cycleResult.style.display = 'block';
-                
-                // Formatuj czas całkowity
-                const totalHours = Math.floor(cycleData.totalSeconds / 3600);
-                const totalMinutes = Math.floor((cycleData.totalSeconds % 3600) / 60);
-                const totalSeconds = cycleData.totalSeconds % 60;
-                document.getElementById('resultTotalTime').textContent = 
-                    `${totalHours}h ${totalMinutes}m ${totalSeconds}s`;
-                
-                document.getElementById('resultTaskCount').textContent = cycleData.tasksCount;
-                
-                // Formatuj czas cyklu
-                const cycleMinutes = Math.floor(cycleData.cycleTimeSeconds / 60);
-                const cycleSeconds = cycleData.cycleTimeSeconds % 60;
-                document.getElementById('resultCycleTime').textContent = 
-                    `${cycleMinutes}m ${cycleSeconds}s / zadanie`;
-            }
-            
-            document.getElementById('fileName').textContent = fileName;
-            
-            const sharePointUrl = CEVA_CONFIG.getSharePointFolderUrl(branch.code, 'process');
-            document.getElementById('openSharePoint').onclick = function() {
-                window.open(sharePointUrl, '_blank');
+                alert('Plik został pobrany. Za chwilę otworzy się klient email - pamiętaj o dołączeniu pobranego pliku!');
             };
+
+            function showResult(fileName, score, instructionsCount, cycleData) {
+                document.getElementById('formSection').style.display = 'none';
+                document.querySelector('.timer-card').style.display = 'none';
+                
+                const resultSection = document.getElementById('resultSection');
+                resultSection.classList.add('visible');
+                
+                document.getElementById('resultScore').textContent = score + '%';
+                document.getElementById('resultInstructionsCount').textContent = instructionsCount;
+                
+                if (cycleData.totalSeconds > 0 && cycleData.tasksCount > 0) {
+                    const cycleResult = document.getElementById('cycleTimeResult');
+                    cycleResult.style.display = 'block';
+                    
+                    const totalHours = Math.floor(cycleData.totalSeconds / 3600);
+                    const totalMinutes = Math.floor((cycleData.totalSeconds % 3600) / 60);
+                    const totalSeconds = cycleData.totalSeconds % 60;
+                    document.getElementById('resultTotalTime').textContent = 
+                        `${totalHours}h ${totalMinutes}m ${totalSeconds}s`;
+                    
+                    document.getElementById('resultTaskCount').textContent = cycleData.tasksCount;
+                    
+                    const cycleMinutes = Math.floor(cycleData.cycleTimeSeconds / 60);
+                    const cycleSeconds = cycleData.cycleTimeSeconds % 60;
+                    document.getElementById('resultCycleTime').textContent = 
+                        `${cycleMinutes}m ${cycleSeconds}s / zadanie`;
+                }
+                
+                document.getElementById('downloadFileBtn').onclick = downloadFile;
+                document.getElementById('sendEmailBtn').onclick = sendEmailWithAttachment;
+            }
         }
     </script>
 </body>
 </html>
-
-
