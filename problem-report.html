@@ -121,7 +121,7 @@
             font-size: 4em;
             margin-bottom: 20px;
         }
-        .sharepoint-section {
+        .email-section {
             background: #fff5f5;
             border: 2px solid #ff6b6b;
             border-radius: 10px;
@@ -129,46 +129,9 @@
             margin-top: 20px;
             text-align: left;
         }
-        .sharepoint-section h3 {
+        .email-section h3 {
             color: #ff6b6b;
             margin-bottom: 15px;
-        }
-        .sharepoint-section ol {
-            margin-left: 20px;
-            line-height: 1.8;
-        }
-        .file-name {
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            font-family: monospace;
-            font-size: 0.85em;
-            word-break: break-all;
-        }
-        .btn-sharepoint {
-            width: 100%;
-            padding: 15px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 15px;
-        }
-        .btn-new {
-            width: 100%;
-            padding: 15px;
-            background: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
         }
         .required-star { color: #dc3545; }
         .info-box {
@@ -263,24 +226,36 @@
             <h2 style="color: #ff6b6b; margin-bottom: 10px;">Problem zgłoszony!</h2>
             <p style="color: #666; margin-bottom: 20px;">Zostanie przekazany do odpowiedzialnej osoby.</p>
             
-            <div class="sharepoint-section">
-                <h3>📤 Prześlij na SharePoint</h3>
-                <ol>
-                    <li>Kliknij przycisk "Otwórz SharePoint" poniżej</li>
-                    <li>W folderze kliknij <strong>+ Nowy → Przekaż pliki</strong></li>
-                    <li>Wybierz pobrany plik JSON:</li>
-                </ol>
-                <div class="file-name" id="fileName">problem.json</div>
-                <p style="margin-top: 15px; color: #666; font-size: 0.9em;">
-                    Problem zostanie automatycznie dodany do Action Plan w wersji desktop.
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="color: #333; margin-bottom: 15px;">Szczegóły zgłoszenia:</h3>
+                <div style="text-align: left; line-height: 1.8;">
+                    <p><strong>Obszar:</strong> <span id="resultZone"></span></p>
+                    <p><strong>Priorytet:</strong> <span id="resultPriority"></span></p>
+                    <p><strong>Zgłaszający:</strong> <span id="resultReporter"></span></p>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <button class="btn-submit" id="downloadFileBtn" style="background: #ff6b6b; padding: 15px; font-size: 1em;">
+                    💾 Pobierz plik
+                </button>
+                <button class="btn-submit" id="sendEmailBtn" style="background: #28a745; padding: 15px; font-size: 1em;">
+                    📧 Wyślij emailem
+                </button>
+            </div>
+            
+            <div class="email-section">
+                <h3>ℹ️ Informacje</h3>
+                <p style="font-size: 0.9em; color: #666; line-height: 1.6;">
+                    <strong>Pobierz plik:</strong> Zapisuje plik JSON na urządzeniu<br>
+                    <strong>Wyślij emailem:</strong> Otwiera email z załącznikiem do dominik.harezlak@cevalogistics.com<br>
+                    <br>
+                    <strong>📁 SharePoint:</strong> Plik należy przesłać do folderu <strong>Other</strong><br>
+                    <em>Problem zostanie automatycznie dodany do Action Plan w wersji desktop.</em>
                 </p>
             </div>
-
-            <button class="btn-sharepoint" id="openSharePoint">
-                📁 Otwórz SharePoint - folder Problems
-            </button>
             
-            <button class="btn-new" onclick="location.reload()">
+            <button class="btn-submit" onclick="location.reload()" style="margin-top: 15px; background: #6c757d;">
                 🔄 Zgłoś kolejny problem
             </button>
         </div>
@@ -288,7 +263,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Sprawdź czy config został załadowany
             if (typeof CEVA_CONFIG === 'undefined') {
                 alert('Błąd: Nie można załadować konfiguracji. Sprawdź czy plik config.js istnieje.');
                 return;
@@ -296,6 +270,7 @@
 
             const branch = CEVA_CONFIG.getCurrentBranch();
             let selectedPriority = null;
+            let savedProblemData = null;
 
             document.getElementById('problemDate').value = new Date().toISOString().split('T')[0];
             
@@ -392,7 +367,33 @@
                 }
 
                 const fileName = CEVA_CONFIG.generateFileName('problem', zone, date);
+                
+                const priorityLabels = {
+                    'low': 'Niski',
+                    'medium': 'Średni',
+                    'high': 'Wysoki'
+                };
 
+                savedProblemData = { 
+                    problemData, 
+                    fileName, 
+                    zone, 
+                    reporter, 
+                    priority: priorityLabels[selectedPriority],
+                    priorityRaw: selectedPriority,
+                    date 
+                };
+
+                showResult(fileName, zone, reporter, priorityLabels[selectedPriority]);
+            };
+
+            window.downloadFile = function() {
+                if (!savedProblemData) {
+                    alert('Brak danych zgłoszenia!');
+                    return;
+                }
+
+                const { problemData, fileName } = savedProblemData;
                 const json = JSON.stringify(problemData, null, 2);
                 const blob = new Blob([json], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
@@ -401,22 +402,69 @@
                 a.download = fileName;
                 a.click();
                 URL.revokeObjectURL(url);
-
-                showResult(fileName);
+                
+                alert('Plik został pobrany: ' + fileName);
             };
 
-            function showResult(fileName) {
+            window.sendEmailWithAttachment = async function() {
+                if (!savedProblemData) {
+                    alert('Brak danych zgłoszenia!');
+                    return;
+                }
+
+                const { problemData, fileName, zone, reporter, priority, date } = savedProblemData;
+                const json = JSON.stringify(problemData, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const file = new File([blob], fileName, { type: 'application/json' });
+
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: `Zgłoszenie Problemu - ${zone}`,
+                            text: `Zgłoszenie Problemu\n\nObszar: ${zone}\nZgłaszający: ${reporter}\nPriorytet: ${priority}\nData: ${date}\n\nWyślij do: dominik.harezlak@cevalogistics.com`
+                        });
+                        console.log('Udostępniono pomyślnie');
+                    } catch (err) {
+                        if (err.name !== 'AbortError') {
+                            console.error('Błąd udostępniania:', err);
+                            fallbackEmailMethod(fileName, zone, reporter, priority, date, file);
+                        }
+                    }
+                } else {
+                    fallbackEmailMethod(fileName, zone, reporter, priority, date, file);
+                }
+            };
+
+            window.fallbackEmailMethod = function(fileName, zone, reporter, priority, date, file) {
+                const url = URL.createObjectURL(file);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                setTimeout(() => {
+                    const mailSubject = encodeURIComponent(`Zgłoszenie Problemu - ${zone} - ${date}`);
+                    const mailBody = encodeURIComponent(`Witaj,\n\nPrzesyłam zgłoszenie problemu:\n\nObszar: ${zone}\nZgłaszający: ${reporter}\nPriorytet: ${priority}\nData: ${date}\n\nPlik JSON został pobrany - dołącz go do tego maila.\n\nPozdrawiam`);
+                    window.location.href = `mailto:dominik.harezlak@cevalogistics.com?subject=${mailSubject}&body=${mailBody}`;
+                }, 500);
+
+                alert('Plik został pobrany. Za chwilę otworzy się klient email - pamiętaj o dołączeniu pobranego pliku!');
+            };
+
+            function showResult(fileName, zone, reporter, priority) {
                 document.getElementById('formSection').style.display = 'none';
                 
                 const resultSection = document.getElementById('resultSection');
                 resultSection.classList.add('visible');
                 
-                document.getElementById('fileName').textContent = fileName;
+                document.getElementById('resultZone').textContent = zone;
+                document.getElementById('resultReporter').textContent = reporter;
+                document.getElementById('resultPriority').textContent = priority;
                 
-                const sharePointUrl = CEVA_CONFIG.getSharePointFolderUrl(branch.code, 'problems');
-                document.getElementById('openSharePoint').onclick = function() {
-                    window.open(sharePointUrl, '_blank');
-                };
+                document.getElementById('downloadFileBtn').onclick = downloadFile;
+                document.getElementById('sendEmailBtn').onclick = sendEmailWithAttachment;
             }
         });
     </script>
