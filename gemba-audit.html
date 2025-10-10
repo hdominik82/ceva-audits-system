@@ -207,7 +207,7 @@
             display: none;
         }
         .result-card.visible { display: block; }
-        .sharepoint-section {
+        .email-section {
             background: #f0f8ff;
             border: 2px solid #667eea;
             border-radius: 10px;
@@ -286,13 +286,11 @@
             </div>
         </div>
 
-        <!-- SEKCJA UCZESTNIKÓW -->
         <div id="participantsSection" class="participants-section" style="display:none;">
             <div class="participants-title">👥 Uczestnicy GEMBA Walk</div>
             <div id="participantsList"></div>
         </div>
 
-        <!-- SEKCJA PYTAŃ -->
         <div id="questionsSection" style="display:none;">
             <div class="form-card">
                 <div class="form-group">
@@ -321,32 +319,44 @@
 
         <button class="btn-success" onclick="saveGemba()" id="saveBtn" style="display:none;">Zapisz GEMBA Walk</button>
 
-        <!-- WYNIK -->
         <div id="resultSection" class="result-card">
-            <h2 style="color: #667eea; margin-bottom: 20px;">GEMBA Walk zapisany!</h2>
+            <h2 style="color: #667eea; margin-bottom: 20px;">✅ GEMBA Walk zapisany!</h2>
             
-            <div class="sharepoint-section">
-                <h3 style="color: #667eea; margin-bottom: 15px;">📤 Prześlij na SharePoint</h3>
-                <ol style="margin-left: 20px; line-height: 1.8;">
-                    <li>Kliknij przycisk "Otwórz SharePoint" poniżej</li>
-                    <li>W folderze kliknij <strong>+ Nowy → Przekaż pliki</strong></li>
-                    <li>Wybierz pobrany plik JSON:</li>
-                </ol>
-                <div style="background: white; padding: 10px; border-radius: 5px; margin: 10px 0; font-family: monospace; font-size: 0.85em;" id="fileName">gemba.json</div>
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="color: #333; margin-bottom: 15px;">Podsumowanie:</h3>
+                <div style="text-align: left; line-height: 1.8;">
+                    <p><strong>Obszar:</strong> <span id="resultZone"></span></p>
+                    <p><strong>Poziom:</strong> <span id="resultLevel"></span></p>
+                    <p><strong>Prowadzący:</strong> <span id="resultLead"></span></p>
+                </div>
             </div>
-
-            <button class="btn-success" id="openSharePoint" style="margin-top: 15px;">
-                📁 Otwórz SharePoint - folder Gemba
-            </button>
             
-            <button class="btn-success" onclick="location.reload()" style="margin-top: 10px; background: #6c757d;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <button class="btn-success" id="downloadFileBtn" style="background: #667eea; padding: 15px; font-size: 1em;">
+                    💾 Pobierz plik
+                </button>
+                <button class="btn-success" id="sendEmailBtn" style="background: #28a745; padding: 15px; font-size: 1em;">
+                    📧 Wyślij emailem
+                </button>
+            </div>
+            
+            <div class="email-section">
+                <h3 style="color: #667eea; margin-bottom: 10px;">ℹ️ Informacje</h3>
+                <p style="font-size: 0.9em; color: #666; line-height: 1.6;">
+                    <strong>Pobierz plik:</strong> Zapisuje plik JSON na urządzeniu<br>
+                    <strong>Wyślij emailem:</strong> Otwiera email z załącznikiem do dominik.harezlak@cevalogistics.com<br>
+                    <br>
+                    <strong>📁 SharePoint:</strong> Plik należy przesłać do folderu <strong>Gemba</strong>
+                </p>
+            </div>
+            
+            <button class="btn-success" onclick="location.reload()" style="margin-top: 15px; background: #6c757d;">
                 🔄 Nowy GEMBA Walk
             </button>
         </div>
     </div>
 
     <script>
-        // Poczekaj na załadowanie config
         if (typeof CEVA_CONFIG === 'undefined' || !CEVA_CONFIG.getCurrentBranch) {
             document.addEventListener('DOMContentLoaded', async function() {
                 CEVA_CONFIG = await CONFIG_LOADER.load();
@@ -373,6 +383,7 @@
             let comments = {};
             let wastes = [];
             let selectedParticipants = [];
+            let savedGembaData = null;
 
             document.getElementById('gembaDate').value = new Date().toISOString().split('T')[0];
             
@@ -402,10 +413,7 @@
                     return;
                 }
                 
-                // Wyświetl uczestników
                 displayParticipants(level);
-                
-                // Załaduj kategorie pytań
                 loadCategories();
                 
                 document.getElementById('participantsSection').style.display = 'block';
@@ -550,13 +558,11 @@
                     return;
                 }
 
-                // Zbierz zaznaczonych uczestników
                 selectedParticipants = [];
                 document.querySelectorAll('#participantsList input[type="checkbox"]:checked').forEach(cb => {
                     selectedParticipants.push(cb.value);
                 });
 
-                // Walidacja komentarzy
                 for (let key in answers) {
                     if (answers[key] === 'no') {
                         const commentValue = document.getElementById(`comment_${key}`).value.trim();
@@ -568,7 +574,6 @@
                     }
                 }
 
-                // Zbierz straty
                 const allWastes = [];
                 wastes.forEach(w => {
                     const type = document.getElementById(`type_${w.id}`)?.value;
@@ -609,7 +614,19 @@
                 }
 
                 const fileName = CEVA_CONFIG.generateFileName('gemba', zone, date);
+                const levelText = `Poziom ${level}`;
+                
+                savedGembaData = { gembaData, fileName, zone, lead, levelText, date };
+                showResult(fileName, zone, lead, levelText);
+            };
 
+            window.downloadFile = function() {
+                if (!savedGembaData) {
+                    alert('Brak danych GEMBA!');
+                    return;
+                }
+
+                const { gembaData, fileName } = savedGembaData;
                 const json = JSON.stringify(gembaData, null, 2);
                 const blob = new Blob([json], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
@@ -618,11 +635,58 @@
                 a.download = fileName;
                 a.click();
                 URL.revokeObjectURL(url);
-
-                showResult(fileName);
+                
+                alert('Plik został pobrany: ' + fileName);
             };
 
-            window.showResult = function(fileName) {
+            window.sendEmailWithAttachment = async function() {
+                if (!savedGembaData) {
+                    alert('Brak danych GEMBA!');
+                    return;
+                }
+
+                const { gembaData, fileName, zone, lead, levelText, date } = savedGembaData;
+                const json = JSON.stringify(gembaData, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const file = new File([blob], fileName, { type: 'application/json' });
+
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: `GEMBA Walk - ${zone}`,
+                            text: `GEMBA Walk\n\nObszar: ${zone}\nProwadzący: ${lead}\n${levelText}\nData: ${date}\n\nWyślij do: dominik.harezlak@cevalogistics.com`
+                        });
+                        console.log('Udostępniono pomyślnie');
+                    } catch (err) {
+                        if (err.name !== 'AbortError') {
+                            console.error('Błąd udostępniania:', err);
+                            fallbackEmailMethod(fileName, zone, lead, levelText, date, file);
+                        }
+                    }
+                } else {
+                    fallbackEmailMethod(fileName, zone, lead, levelText, date, file);
+                }
+            };
+
+            window.fallbackEmailMethod = function(fileName, zone, lead, levelText, date, file) {
+                const url = URL.createObjectURL(file);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                setTimeout(() => {
+                    const mailSubject = encodeURIComponent(`GEMBA Walk - ${zone} - ${date}`);
+                    const mailBody = encodeURIComponent(`Witaj,\n\nPrzesyłam wyniki GEMBA Walk:\n\nObszar: ${zone}\nProwadzący: ${lead}\n${levelText}\nData: ${date}\n\nPlik JSON został pobrany - dołącz go do tego maila.\n\nPozdrawiam`);
+                    window.location.href = `mailto:dominik.harezlak@cevalogistics.com?subject=${mailSubject}&body=${mailBody}`;
+                }, 500);
+
+                alert('Plik został pobrany. Za chwilę otworzy się klient email - pamiętaj o dołączeniu pobranego pliku!');
+            };
+
+            function showResult(fileName, zone, lead, levelText) {
                 document.querySelector('.content').childNodes.forEach(node => {
                     if (node.id !== 'resultSection' && node.nodeType === 1) {
                         node.style.display = 'none';
@@ -632,13 +696,13 @@
                 const resultSection = document.getElementById('resultSection');
                 resultSection.classList.add('visible');
                 
-                document.getElementById('fileName').textContent = fileName;
+                document.getElementById('resultZone').textContent = zone;
+                document.getElementById('resultLead').textContent = lead;
+                document.getElementById('resultLevel').textContent = levelText;
                 
-                const sharePointUrl = CEVA_CONFIG.getSharePointFolderUrl(branch.code, 'gemba');
-                document.getElementById('openSharePoint').onclick = function() {
-                    window.open(sharePointUrl, '_blank');
-                };
-            };
+                document.getElementById('downloadFileBtn').onclick = downloadFile;
+                document.getElementById('sendEmailBtn').onclick = sendEmailWithAttachment;
+            }
         }
     </script>
 </body>
