@@ -64,33 +64,58 @@
             border-radius: 8px;
             font-size: 1em;
         }
-        .section-header {
+        .category-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        .category-title {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 1.15em;
+        }
+        .btn-add-observation {
             background: #667eea;
             color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0 15px;
-            text-align: center;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
             font-weight: 600;
-            font-size: 1.1em;
+            cursor: pointer;
+            font-size: 0.9em;
         }
-        .question-item {
+        .observation-item {
             background: #f8f9fa;
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 15px;
             border-left: 4px solid #667eea;
         }
-        .question-text {
-            font-weight: 600;
+        .observation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 15px;
+        }
+        .observation-number {
+            font-weight: 600;
             color: #333;
-            line-height: 1.4;
         }
         .answer-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
+            margin-bottom: 10px;
         }
         .answer-btn {
             padding: 15px 10px;
@@ -131,6 +156,15 @@
         }
         .comment-label.visible { display: block; }
         .required-star { color: #dc3545; }
+        .btn-remove {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            cursor: pointer;
+        }
         .waste-section {
             background: #fff3cd;
             border: 2px solid #ffc107;
@@ -156,15 +190,6 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
-        }
-        .btn-remove {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.85em;
-            cursor: pointer;
         }
         .btn-add-waste {
             width: 100%;
@@ -215,7 +240,6 @@
             margin-top: 20px;
             text-align: left;
         }
-        .hidden { display: none; }
         .participants-section {
             background: #e8f5f1;
             border: 2px solid #4ecdc4;
@@ -247,6 +271,12 @@
             flex: 1;
             font-weight: normal;
             color: #333;
+        }
+        .no-observations {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-style: italic;
         }
     </style>
 </head>
@@ -291,17 +321,8 @@
             <div id="participantsList"></div>
         </div>
 
-        <div id="questionsSection" style="display:none;">
-            <div class="form-card">
-                <div class="form-group">
-                    <label>Kategoria obserwacji:</label>
-                    <select id="category" class="form-control" onchange="renderQuestions()">
-                        <option value="">-- Wybierz kategorię --</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="questionsContainer"></div>
+        <div id="categoriesSection" style="display:none;">
+            <div id="categoriesContainer"></div>
 
             <div class="waste-section">
                 <div class="waste-title">📊 Zaobserwowane straty (7 strat Lean)</div>
@@ -379,8 +400,7 @@
                 "Wady/Defekty"
             ];
 
-            let answers = {};
-            let comments = {};
+            let categoryObservations = {};
             let wastes = [];
             let selectedParticipants = [];
             let savedGembaData = null;
@@ -408,16 +428,16 @@
                 
                 if (!level) {
                     document.getElementById('participantsSection').style.display = 'none';
-                    document.getElementById('questionsSection').style.display = 'none';
+                    document.getElementById('categoriesSection').style.display = 'none';
                     document.getElementById('saveBtn').style.display = 'none';
                     return;
                 }
                 
                 displayParticipants(level);
-                loadCategories();
+                renderCategories(level);
                 
                 document.getElementById('participantsSection').style.display = 'block';
-                document.getElementById('questionsSection').style.display = 'block';
+                document.getElementById('categoriesSection').style.display = 'block';
                 document.getElementById('saveBtn').style.display = 'block';
             };
 
@@ -440,71 +460,101 @@
                 });
             };
 
-            window.loadCategories = function() {
+            window.renderCategories = function(level) {
                 const categories = CEVA_CONFIG.getGembaCategories();
-                const categorySelect = document.getElementById('category');
-                categorySelect.innerHTML = '<option value="">-- Wybierz kategorię --</option>';
-                
-                categories.forEach(cat => {
-                    const option = document.createElement('option');
-                    option.value = cat;
-                    option.textContent = cat;
-                    categorySelect.appendChild(option);
-                });
-            };
-
-            window.renderQuestions = function() {
-                const level = parseInt(document.getElementById('gembaLevel').value);
-                const category = document.getElementById('category').value;
-                const container = document.getElementById('questionsContainer');
+                const container = document.getElementById('categoriesContainer');
                 container.innerHTML = '';
                 
-                if (!category || !level) return;
+                categoryObservations = {};
                 
-                const questions = CEVA_CONFIG.getGembaQuestions(level, category);
-                
-                if (questions.length === 0) {
-                    container.innerHTML = '<div class="form-card"><p style="text-align:center; color:#666;">Brak pytań dla tego poziomu i kategorii.</p></div>';
-                    return;
-                }
-                
-                const header = document.createElement('div');
-                header.className = 'section-header';
-                header.textContent = `Pytania: ${category}`;
-                container.appendChild(header);
-                
-                questions.forEach((q, idx) => {
-                    const key = `${category}_${idx}`;
-                    const questionDiv = document.createElement('div');
-                    questionDiv.className = 'question-item';
-                    questionDiv.innerHTML = `
-                        <div class="question-text">${idx + 1}. ${q.question}</div>
-                        <div class="answer-buttons">
-                            <button class="answer-btn answer-btn-yes" onclick="selectAnswer('${key}', 'yes', this)">✓ Tak</button>
-                            <button class="answer-btn answer-btn-no" onclick="selectAnswer('${key}', 'no', this)">✗ Nie</button>
-                            <button class="answer-btn answer-btn-na" onclick="selectAnswer('${key}', 'na', this)">∅ N/A</button>
+                categories.forEach(category => {
+                    categoryObservations[category] = [];
+                    
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.className = 'category-section';
+                    categoryDiv.id = `category_${category.replace(/\s+/g, '_')}`;
+                    categoryDiv.innerHTML = `
+                        <div class="category-header">
+                            <div class="category-title">📋 ${category}</div>
+                            <button class="btn-add-observation" onclick="addObservation('${category}')">+ Dodaj obserwację</button>
                         </div>
-                        <div class="comment-label" id="label_${key}">
-                            <span class="required-star">*</span> Wymagany komentarz - opisz problem:
+                        <div id="observations_${category.replace(/\s+/g, '_')}">
+                            <div class="no-observations">Brak obserwacji - kliknij "Dodaj obserwację"</div>
                         </div>
-                        <textarea 
-                            class="comment-area" 
-                            id="comment_${key}" 
-                            placeholder="Opisz szczegółowo problem..."
-                        ></textarea>
                     `;
-                    container.appendChild(questionDiv);
+                    container.appendChild(categoryDiv);
                 });
             };
 
-            window.selectAnswer = function(key, value, btn) {
+            window.addObservation = function(category) {
+                const observationId = Date.now() + Math.random();
+                const container = document.getElementById(`observations_${category.replace(/\s+/g, '_')}`);
+                
+                const noObsMsg = container.querySelector('.no-observations');
+                if (noObsMsg) noObsMsg.remove();
+                
+                const observationCount = categoryObservations[category].length + 1;
+                
+                const observationDiv = document.createElement('div');
+                observationDiv.className = 'observation-item';
+                observationDiv.id = `obs_${observationId}`;
+                observationDiv.innerHTML = `
+                    <div class="observation-header">
+                        <div class="observation-number">Obserwacja #${observationCount}</div>
+                        <button class="btn-remove" onclick="removeObservation('${category}', '${observationId}')">Usuń</button>
+                    </div>
+                    <div class="answer-buttons">
+                        <button class="answer-btn answer-btn-yes" onclick="selectAnswer('${observationId}', 'yes', this)">✓ Tak</button>
+                        <button class="answer-btn answer-btn-no" onclick="selectAnswer('${observationId}', 'no', this)">✗ Nie</button>
+                        <button class="answer-btn answer-btn-na" onclick="selectAnswer('${observationId}', 'na', this)">∅ N/A</button>
+                    </div>
+                    <div class="comment-label" id="label_${observationId}">
+                        <span class="required-star">*</span> Wymagany komentarz - opisz problem:
+                    </div>
+                    <textarea 
+                        class="comment-area" 
+                        id="comment_${observationId}" 
+                        placeholder="Opisz szczegółowo obserwację..."
+                    ></textarea>
+                `;
+                container.appendChild(observationDiv);
+                
+                categoryObservations[category].push({
+                    id: observationId,
+                    answer: null,
+                    comment: ''
+                });
+            };
+
+            window.removeObservation = function(category, observationId) {
+                document.getElementById(`obs_${observationId}`).remove();
+                categoryObservations[category] = categoryObservations[category].filter(o => o.id !== observationId);
+                
+                const container = document.getElementById(`observations_${category.replace(/\s+/g, '_')}`);
+                if (container.children.length === 0) {
+                    container.innerHTML = '<div class="no-observations">Brak obserwacji - kliknij "Dodaj obserwację"</div>';
+                } else {
+                    container.querySelectorAll('.observation-number').forEach((el, idx) => {
+                        el.textContent = `Obserwacja #${idx + 1}`;
+                    });
+                }
+            };
+
+            window.selectAnswer = function(observationId, value, btn) {
                 const parent = btn.parentElement;
                 parent.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
                 btn.classList.add('selected');
-                answers[key] = value;
                 
-                const commentArea = document.getElementById(`comment_${key}`);
-                const commentLabel = document.getElementById(`label_${key}`);
+                for (let category in categoryObservations) {
+                    const obs = categoryObservations[category].find(o => o.id == observationId);
+                    if (obs) {
+                        obs.answer = value;
+                        break;
+                    }
+                }
+                
+                const commentArea = document.getElementById(`comment_${observationId}`);
+                const commentLabel = document.getElementById(`label_${observationId}`);
                 
                 if (value === 'no') {
                     commentArea.classList.add('visible');
@@ -515,7 +565,6 @@
                     commentLabel.classList.remove('visible');
                     commentArea.required = false;
                     commentArea.value = '';
-                    delete comments[key];
                 }
             };
 
@@ -551,7 +600,6 @@
                 const zone = document.getElementById('gembaZone').value;
                 const lead = document.getElementById('gembaLead').value;
                 const level = parseInt(document.getElementById('gembaLevel').value);
-                const category = document.getElementById('category').value;
 
                 if (!date || !zone || !lead || !level) {
                     alert('Wypełnij wszystkie pola podstawowe!');
@@ -563,14 +611,23 @@
                     selectedParticipants.push(cb.value);
                 });
 
-                for (let key in answers) {
-                    if (answers[key] === 'no') {
-                        const commentValue = document.getElementById(`comment_${key}`).value.trim();
-                        if (!commentValue) {
-                            alert('Wszystkie odpowiedzi "Nie" wymagają komentarza opisującego problem!');
+                for (let category in categoryObservations) {
+                    for (let obs of categoryObservations[category]) {
+                        if (!obs.answer) {
+                            alert(`Wybierz odpowiedź dla wszystkich obserwacji w kategorii: ${category}`);
                             return;
                         }
-                        comments[key] = commentValue;
+                        
+                        if (obs.answer === 'no') {
+                            const commentValue = document.getElementById(`comment_${obs.id}`).value.trim();
+                            if (!commentValue) {
+                                alert(`Wszystkie odpowiedzi "Nie" wymagają komentarza! Kategoria: ${category}`);
+                                return;
+                            }
+                            obs.comment = commentValue;
+                        } else {
+                            obs.comment = document.getElementById(`comment_${obs.id}`).value.trim();
+                        }
                     }
                 }
 
@@ -596,10 +653,8 @@
                     zone: zone,
                     lead: lead,
                     gembaLevel: level,
-                    category: category,
                     participants: selectedParticipants,
-                    answers: answers,
-                    comments: comments,
+                    categoryObservations: categoryObservations,
                     wastes: allWastes,
                     wastesCount: allWastes.length,
                     notes: document.getElementById('notes').value.trim()
