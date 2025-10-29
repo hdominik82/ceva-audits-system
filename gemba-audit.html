@@ -137,24 +137,32 @@
         .comment-area {
             width: 100%;
             padding: 12px;
-            border: 2px solid #dc3545;
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 0.9em;
             resize: vertical;
             min-height: 70px;
             margin-top: 10px;
             display: none;
-            background: #fff5f5;
         }
         .comment-area.visible { display: block; }
+        .comment-area.required { 
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+        .comment-area.optional {
+            border-color: #28a745;
+            background: #f0fff4;
+        }
         .comment-label {
-            color: #dc3545;
             font-weight: 600;
             font-size: 0.85em;
             margin-top: 10px;
             display: none;
         }
         .comment-label.visible { display: block; }
+        .comment-label.required { color: #dc3545; }
+        .comment-label.optional { color: #28a745; }
         .required-star { color: #dc3545; }
         .btn-remove {
             background: #dc3545;
@@ -165,42 +173,37 @@
             font-size: 0.85em;
             cursor: pointer;
         }
-        .waste-section {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
+        .participants-section {
+            background: #e8f5f1;
+            border: 2px solid #4ecdc4;
             border-radius: 10px;
             padding: 15px;
-            margin: 20px 0;
+            margin-top: 20px;
         }
-        .waste-title {
+        .participants-title {
             font-weight: 600;
-            color: #856404;
+            color: #2c7a7b;
             margin-bottom: 15px;
             font-size: 1.1em;
         }
-        .waste-item {
+        .participant-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 10px;
             background: white;
             border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-left: 4px solid #ffc107;
+            margin-bottom: 8px;
         }
-        .waste-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+        .participant-checkbox input {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
         }
-        .btn-add-waste {
-            width: 100%;
-            padding: 12px;
-            background: #ffc107;
+        .participant-checkbox label {
+            margin: 0;
+            flex: 1;
+            font-weight: normal;
             color: #333;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
         }
         .textarea-field {
             width: 100%;
@@ -240,38 +243,6 @@
             margin-top: 20px;
             text-align: left;
         }
-        .participants-section {
-            background: #e8f5f1;
-            border: 2px solid #4ecdc4;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
-        }
-        .participants-title {
-            font-weight: 600;
-            color: #2c7a7b;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-        }
-        .participant-checkbox {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            background: white;
-            border-radius: 8px;
-            margin-bottom: 8px;
-        }
-        .participant-checkbox input {
-            margin-right: 10px;
-            width: 18px;
-            height: 18px;
-        }
-        .participant-checkbox label {
-            margin: 0;
-            flex: 1;
-            font-weight: normal;
-            color: #333;
-        }
         .no-observations {
             text-align: center;
             color: #999;
@@ -300,12 +271,6 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>Osoba przeprowadzająca:</label>
-                <select id="gembaLead" class="form-control">
-                    <option value="">-- Wybierz --</option>
-                </select>
-            </div>
-            <div class="form-group">
                 <label>Poziom GEMBA:</label>
                 <select id="gembaLevel" class="form-control" onchange="switchLevel()">
                     <option value="">-- Wybierz poziom --</option>
@@ -323,12 +288,6 @@
 
         <div id="categoriesSection" style="display:none;">
             <div id="categoriesContainer"></div>
-
-            <div class="waste-section">
-                <div class="waste-title">📊 Zaobserwowane straty (7 strat Lean)</div>
-                <div id="wastesContainer"></div>
-                <button class="btn-add-waste" onclick="addWaste()">+ Dodaj stratę</button>
-            </div>
 
             <div class="form-card">
                 <div class="form-group">
@@ -348,7 +307,6 @@
                 <div style="text-align: left; line-height: 1.8;">
                     <p><strong>Obszar:</strong> <span id="resultZone"></span></p>
                     <p><strong>Poziom:</strong> <span id="resultLevel"></span></p>
-                    <p><strong>Prowadzący:</strong> <span id="resultLead"></span></p>
                 </div>
             </div>
             
@@ -390,18 +348,7 @@
         function initializePage() {
             const branch = CEVA_CONFIG.getCurrentBranch();
             
-            const wasteTypes = [
-                "Nadprodukcja",
-                "Oczekiwanie",
-                "Transport",
-                "Nadmierny proces",
-                "Zapasy",
-                "Ruch",
-                "Wady/Defekty"
-            ];
-
             let categoryObservations = {};
-            let wastes = [];
             let selectedParticipants = [];
             let savedGembaData = null;
 
@@ -413,14 +360,6 @@
                 option.value = zone.name;
                 option.textContent = zone.name;
                 zoneSelect.appendChild(option);
-            });
-            
-            const leadSelect = document.getElementById('gembaLead');
-            branch.auditors.forEach(auditor => {
-                const option = document.createElement('option');
-                option.value = auditor;
-                option.textContent = auditor;
-                leadSelect.appendChild(option);
             });
 
             window.switchLevel = function() {
@@ -508,13 +447,11 @@
                         <button class="answer-btn answer-btn-no" onclick="selectAnswer('${observationId}', 'no', this)">✗ Nie</button>
                         <button class="answer-btn answer-btn-na" onclick="selectAnswer('${observationId}', 'na', this)">∅ N/A</button>
                     </div>
-                    <div class="comment-label" id="label_${observationId}">
-                        <span class="required-star">*</span> Wymagany komentarz - opisz problem:
-                    </div>
+                    <div class="comment-label" id="label_${observationId}"></div>
                     <textarea 
                         class="comment-area" 
                         id="comment_${observationId}" 
-                        placeholder="Opisz szczegółowo obserwację..."
+                        placeholder="Dodaj komentarz..."
                     ></textarea>
                 `;
                 container.appendChild(observationDiv);
@@ -556,10 +493,21 @@
                 const commentArea = document.getElementById(`comment_${observationId}`);
                 const commentLabel = document.getElementById(`label_${observationId}`);
                 
+                commentArea.classList.remove('required', 'optional');
+                commentLabel.classList.remove('required', 'optional');
+                
                 if (value === 'no') {
-                    commentArea.classList.add('visible');
-                    commentLabel.classList.add('visible');
+                    commentArea.classList.add('visible', 'required');
+                    commentLabel.classList.add('visible', 'required');
+                    commentLabel.innerHTML = '<span class="required-star">*</span> Wymagany komentarz - opisz problem:';
+                    commentArea.placeholder = 'Opisz szczegółowo problem...';
                     commentArea.required = true;
+                } else if (value === 'yes') {
+                    commentArea.classList.add('visible', 'optional');
+                    commentLabel.classList.add('visible', 'optional');
+                    commentLabel.innerHTML = '💡 Komentarz opcjonalny - dobry przykład:';
+                    commentArea.placeholder = 'Opcjonalnie: opisz dobry przykład...';
+                    commentArea.required = false;
                 } else {
                     commentArea.classList.remove('visible');
                     commentLabel.classList.remove('visible');
@@ -568,40 +516,12 @@
                 }
             };
 
-            window.addWaste = function() {
-                const wasteId = Date.now() + Math.random();
-                const container = document.getElementById('wastesContainer');
-                
-                const wasteDiv = document.createElement('div');
-                wasteDiv.className = 'waste-item';
-                wasteDiv.id = `waste_${wasteId}`;
-                wasteDiv.innerHTML = `
-                    <div class="waste-header">
-                        <select class="form-control" style="width: 70%;" id="type_${wasteId}">
-                            <option value="">-- Wybierz typ straty --</option>
-                            ${wasteTypes.map(w => `<option value="${w}">${w}</option>`).join('')}
-                        </select>
-                        <button class="btn-remove" onclick="removeWaste('${wasteId}')">Usuń</button>
-                    </div>
-                    <textarea class="textarea-field" id="desc_${wasteId}" placeholder="Opisz zaobserwowaną stratę..." style="min-height: 60px;"></textarea>
-                `;
-                container.appendChild(wasteDiv);
-                
-                wastes.push({ id: wasteId });
-            };
-
-            window.removeWaste = function(wasteId) {
-                document.getElementById(`waste_${wasteId}`).remove();
-                wastes = wastes.filter(w => w.id !== wasteId);
-            };
-
             window.saveGemba = function() {
                 const date = document.getElementById('gembaDate').value;
                 const zone = document.getElementById('gembaZone').value;
-                const lead = document.getElementById('gembaLead').value;
                 const level = parseInt(document.getElementById('gembaLevel').value);
 
-                if (!date || !zone || !lead || !level) {
+                if (!date || !zone || !level) {
                     alert('Wypełnij wszystkie pola podstawowe!');
                     return;
                 }
@@ -625,24 +545,14 @@
                                 return;
                             }
                             obs.comment = commentValue;
-                        } else {
+                        } else if (obs.answer === 'yes') {
                             obs.comment = document.getElementById(`comment_${obs.id}`).value.trim();
+                            obs.isGoodExample = obs.comment ? true : false;
+                        } else {
+                            obs.comment = '';
                         }
                     }
                 }
-
-                const allWastes = [];
-                wastes.forEach(w => {
-                    const type = document.getElementById(`type_${w.id}`)?.value;
-                    const desc = document.getElementById(`desc_${w.id}`)?.value.trim();
-                    if (type && desc) {
-                        allWastes.push({
-                            type: type,
-                            description: desc,
-                            id: w.id
-                        });
-                    }
-                });
 
                 const gembaData = {
                     type: 'GEMBA',
@@ -651,12 +561,9 @@
                     date: date,
                     timestamp: new Date().toISOString(),
                     zone: zone,
-                    lead: lead,
                     gembaLevel: level,
                     participants: selectedParticipants,
                     categoryObservations: categoryObservations,
-                    wastes: allWastes,
-                    wastesCount: allWastes.length,
                     notes: document.getElementById('notes').value.trim()
                 };
 
@@ -671,8 +578,8 @@
                 const fileName = CEVA_CONFIG.generateFileName('gemba', zone, date);
                 const levelText = `Poziom ${level}`;
                 
-                savedGembaData = { gembaData, fileName, zone, lead, levelText, date };
-                showResult(fileName, zone, lead, levelText);
+                savedGembaData = { gembaData, fileName, zone, levelText, date };
+                showResult(fileName, zone, levelText);
             };
 
             window.downloadFile = function() {
@@ -700,7 +607,7 @@
                     return;
                 }
 
-                const { gembaData, fileName, zone, lead, levelText, date } = savedGembaData;
+                const { gembaData, fileName, zone, levelText, date } = savedGembaData;
                 const json = JSON.stringify(gembaData, null, 2);
                 const blob = new Blob([json], { type: 'application/json' });
                 const file = new File([blob], fileName, { type: 'application/json' });
@@ -710,21 +617,21 @@
                         await navigator.share({
                             files: [file],
                             title: `GEMBA Walk - ${zone}`,
-                            text: `GEMBA Walk\n\nObszar: ${zone}\nProwadzący: ${lead}\n${levelText}\nData: ${date}\n\nWyślij do: dominik.harezlak@cevalogistics.com`
+                            text: `GEMBA Walk\n\nObszar: ${zone}\n${levelText}\nData: ${date}\n\nWyślij do: dominik.harezlak@cevalogistics.com`
                         });
                         console.log('Udostępniono pomyślnie');
                     } catch (err) {
                         if (err.name !== 'AbortError') {
                             console.error('Błąd udostępniania:', err);
-                            fallbackEmailMethod(fileName, zone, lead, levelText, date, file);
+                            fallbackEmailMethod(fileName, zone, levelText, date, file);
                         }
                     }
                 } else {
-                    fallbackEmailMethod(fileName, zone, lead, levelText, date, file);
+                    fallbackEmailMethod(fileName, zone, levelText, date, file);
                 }
             };
 
-            window.fallbackEmailMethod = function(fileName, zone, lead, levelText, date, file) {
+            window.fallbackEmailMethod = function(fileName, zone, levelText, date, file) {
                 const url = URL.createObjectURL(file);
                 const a = document.createElement('a');
                 a.href = url;
@@ -734,14 +641,14 @@
 
                 setTimeout(() => {
                     const mailSubject = encodeURIComponent(`GEMBA Walk - ${zone} - ${date}`);
-                    const mailBody = encodeURIComponent(`Witaj,\n\nPrzesyłam wyniki GEMBA Walk:\n\nObszar: ${zone}\nProwadzący: ${lead}\n${levelText}\nData: ${date}\n\nPlik JSON został pobrany - dołącz go do tego maila.\n\nPozdrawiam`);
+                    const mailBody = encodeURIComponent(`Witaj,\n\nPrzesyłam wyniki GEMBA Walk:\n\nObszar: ${zone}\n${levelText}\nData: ${date}\n\nPlik JSON został pobrany - dołącz go do tego maila.\n\nPozdrawiam`);
                     window.location.href = `mailto:dominik.harezlak@cevalogistics.com?subject=${mailSubject}&body=${mailBody}`;
                 }, 500);
 
                 alert('Plik został pobrany. Za chwilę otworzy się klient email - pamiętaj o dołączeniu pobranego pliku!');
             };
 
-            function showResult(fileName, zone, lead, levelText) {
+            function showResult(fileName, zone, levelText) {
                 document.querySelector('.content').childNodes.forEach(node => {
                     if (node.id !== 'resultSection' && node.nodeType === 1) {
                         node.style.display = 'none';
@@ -752,7 +659,6 @@
                 resultSection.classList.add('visible');
                 
                 document.getElementById('resultZone').textContent = zone;
-                document.getElementById('resultLead').textContent = lead;
                 document.getElementById('resultLevel').textContent = levelText;
                 
                 document.getElementById('downloadFileBtn').onclick = downloadFile;
