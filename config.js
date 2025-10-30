@@ -75,8 +75,9 @@ const CEVA_CONFIG = {
                     {name: 'Brygadzista Odnowy', email: 'marcin.borysiak@cevalogistics.com'}
                 ],
                 level2: [
+                    {name: 'Kasiński Konrad', email: 'konrad.kasinski@cevalogistics.com'},
+                    {name: 'Maciąg Mariusz', email: 'mariusz.maciag@cevalogistics.com'},
                     {name: 'Zegarek Renata', email: 'renata.zegarek@cevalogistics.com'},
-                    {name: 'Rozenfeld - Kiedrowska Angelika', email: 'angelika.rozenfeld@cevalogistics.com'},
                     {name: 'Jan Surwiło', email: 'jan.surwilo@cevalogistics.com'},
                     {name: 'Mandes Janusz', email: 'janusz.mandes@cevalogistics.com'},
                     {name: 'Domański Jarosław', email: 'jaroslaw.domanski@cevalogistics.com'},
@@ -84,15 +85,13 @@ const CEVA_CONFIG = {
                     {name: 'Kałuża Iwona', email: 'iwona.kaluza@cevalogistics.com'},
                     {name: 'Grzegorz Oniszczuk', email: 'Grzegorz.Oniszczuk@Cevalogistics.com'},
                     {name: 'Nowak Rafał', email: 'Rafal.Nowak@Cevalogistics.com'},
-                    {name: 'Piotr Żebrowski', email: 'Piotr.Zebrowski@Cevalogistics.com'}
+                    {name: 'Piotr Żebrowski', email: 'Piotr.Zebrowski@Cevalogistics.com'},
+                    {name: 'Kawałek Tomasz', email: 'Tomasz.Kawalek@cevalogistics.com'}
                 ],
                 level3: [
                     {name: 'Wichrowski Piotr', email: 'krzysztof.wilczynski@cevalogistics.com'},
-                    {name: 'Kawałek Tomasz', email: 'Tomasz.Kawalek@cevalogistics.com'},
                     {name: 'Wilczyński Krzysztof', email: 'krzysztof.wilczynski@cevalogistics.com'},
                     {name: 'Dominik Haręźlak', email: 'dominik.harezlak@cevalogistics.com'},
-                    {name: 'Kasiński Konrad', email: 'konrad.kasinski@cevalogistics.com'},
-                    {name: 'Maciąg Mariusz', email: 'mariusz.maciag@cevalogistics.com'},
                     {name: 'Marta Jęznach', email: 'marta.jeznach@cevalogistics.com'}
                 ]
             },
