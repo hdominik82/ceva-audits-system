@@ -1,6 +1,6 @@
 // KONFIGURACJA SYSTEMU AUDYTÓW CEVA
-// Wersja: 2.1 - Multi-branch z danymi z Excel
-// Ostatnia aktualizacja: 2025-10-09
+// Wersja: 2.2 - Multi-branch z danymi z Excel + Instrukcje
+// Ostatnia aktualizacja: 2025-11-06
 
 const CEVA_CONFIG = {
     // SharePoint URLs
@@ -63,6 +63,108 @@ const CEVA_CONFIG = {
                 'ANNA KAPLER',
                 'PIOTR ŻEBROWSKI',
                 'JAN SURWIŁO'
+            ],
+            
+            // INSTRUKCJE - struktura z danych Excel
+            instructions: [
+                {code: 'PL-WI-CL-OPL-046', name: 'Putaway systemowy', department: 'Inbound', process: 'Przyjecie IN', assigned: true},
+                {code: 'PL-WI-CL-OPL-046', name: 'Putaway systemowy', department: 'REFURBISHMENT', process: 'Admin REF', assigned: true},
+                {code: 'PL-WI-CL-OPL-046', name: 'Putaway systemowy', department: 'RETURNS', process: 'Przyjęcie RET', assigned: true},
+                {code: 'PL-WI-CL-OPL-026', name: 'Testing', department: 'Inbound', process: 'KJ', assigned: true},
+                {code: 'PL-WI-CL-OPL-027', name: 'Sposób postępowania z produktem niezgodnym - dział INBOUND', department: 'Inbound', process: 'PN', assigned: true},
+                {code: 'PL-WI-CL-OPL-028', name: 'Rozładunek i załadunek dostawy', department: 'Inbound', process: 'Relokacja IN', assigned: true},
+                {code: 'PL-WI-CL-OPL-029', name: 'Relokacja za pomocą skanera', department: 'Inbound', process: 'Relokacja IN', assigned: true},
+                {code: 'PL-WI-CL-OPL-029', name: 'Relokacja za pomocą skanera', department: 'B2B', process: 'Relokacja B2B', assigned: true},
+                {code: 'PL-WI-CL-OPL-029', name: 'Relokacja za pomocą skanera', department: 'REFURBISHMENT', process: 'Relokacja REF', assigned: true},
+                {code: 'PL-WI-CL-OPL-029', name: 'Relokacja za pomocą skanera', department: 'RETURNS', process: 'Relokacja RET', assigned: true},
+                {code: 'PL-WI-CL-OPL-030', name: 'Przyjęcie podstawowe', department: 'Inbound', process: 'Przyjecie IN', assigned: true},
+                {code: 'PL-WI-CL-OPL-030', name: 'Przyjęcie podstawowe', department: 'REFURBISHMENT', process: 'Admin REF', assigned: true},
+                {code: 'PL-WI-CL-OPL-030', name: 'Przyjęcie podstawowe', department: 'RETURNS', process: 'Przyjęcie RET', assigned: true},
+                {code: 'PL-WI-CL-OPL-032', name: 'Opisywanie i relokacja towaru z B2C-ZW', department: 'Inbound', process: 'Przyjecie IN', assigned: true},
+                {code: 'PL-WI-CL-OPL-031', name: 'Proces SHELB VAS', department: 'VAS', process: 'VAS', assigned: true},
+                {code: 'PL-WI-CL-OPL-033', name: 'Oklejanie asortymentu na VAS', department: 'VAS', process: 'VAS', assigned: true},
+                {code: 'PL-WI-CL-OPL-040', name: 'Alokacja towaru do zleceń', department: 'B2B', process: 'Admin B2B', assigned: true},
+                {code: 'PL-WI-CL-OPL-040', name: 'Alokacja towaru do zleceń', department: 'B2C', process: 'Admin B2C', assigned: true},
+                {code: 'PL-WI-CL-OPL-040', name: 'Alokacja towaru do zleceń', department: 'RETURNS', process: 'Admin RET', assigned: true},
+                {code: 'PL-WI-CL-OPL-052', name: 'Ręczna alokacja zamówień w WMS', department: 'B2B', process: 'Admin B2B', assigned: true},
+                {code: 'PL-WI-CL-OPL-052', name: 'Ręczna alokacja zamówień w WMS', department: 'REFURBISHMENT', process: 'Admin REF', assigned: true},
+                {code: 'PL-WI-CL-OPL-052', name: 'Ręczna alokacja zamówień w WMS', department: 'RETURNS', process: 'Admin RET', assigned: true},
+                {code: 'PL-WI-CL-OPL-047', name: 'Pick Face', department: 'B2B', process: 'Admin B2B', assigned: true},
+                {code: 'PL-WI-CL-OPL-002', name: 'Repack zamówień B2B', department: 'B2B', process: 'Pakowanie B2B', assigned: true},
+                {code: 'PL-WI-CL-OPL-002', name: 'Repack zamówień B2B', department: 'REFURBISHMENT', process: 'Admin REF', assigned: true},
+                {code: 'PL-WI-CL-OPL-005', name: 'Sposób postępowania z produktem niezgodnym dział B2B Internal', department: 'B2B', process: 'PN', assigned: true},
+                {code: 'PL-WI-CL-OPL-006', name: 'Wymiana pokryw w pojemnikach transportowych', department: 'B2B', process: 'Wymiana Pokryw', assigned: true},
+                {code: 'PL-WI-CL-OPL-001', name: 'Pobranie towaru z lokalizacji - Automatyka', department: 'B2B', process: 'Pobranie B2B', assigned: true},
+                {code: 'PL-WI-CL-OPL-007', name: 'Przypisanie kontenera do zamówienia', department: 'B2B', process: 'Pobranie B2B', assigned: true},
+                {code: 'PL-WI-CL-OPL-008', name: 'Pobranie towaru z lokalizacji', department: 'B2B', process: 'Pobranie B2B', assigned: true},
+                {code: 'PL-WI-CL-OPL-008', name: 'Pobranie towaru z lokalizacji', department: 'REFURBISHMENT', process: 'Relokacja REF', assigned: true},
+                {code: 'PL-WI-CL-OPL-042', name: 'Replenishment', department: 'B2B', process: 'Relokacja B2B', assigned: true},
+                {code: 'PL-WI-CL-OPL-061-EXT', name: 'Instrukcja wymiany obudowy i pasty termoprzewodzącej dla urządzenia IWU200', department: 'REFURBISHMENT', process: 'Czyszczenie', assigned: true},
+                {code: 'PL-WI-CL-OPL-058-EXT', name: 'Instrukcja testowania dla urządzenia ICU 100', department: 'REFURBISHMENT', process: 'Testowanie', assigned: true},
+                {code: 'PL-WI-CL-OPL-063-EXT', name: 'Instrukcja czyszczenia dla urządzenia ICU 100', department: 'REFURBISHMENT', process: 'Czyszczenie', assigned: true},
+                {code: 'PL-WI-CL-OPL-065-EXT', name: 'Instrukcja pakowania dla urządzenia ICU 100', department: 'REFURBISHMENT', process: 'Pakowanie REF', assigned: true},
+                {code: 'PL-WI-CL-OPL-057-EXT', name: 'Instrukcja testowania dla urządzenia Funbox 3', department: 'REFURBISHMENT', process: 'Testowanie', assigned: true},
+                {code: 'PL-WI-CL-OPL-064-EXT', name: 'Instrukcja czyszczenia dla urządzenie Funbox 3', department: 'REFURBISHMENT', process: 'Czyszczenie', assigned: true},
+                {code: 'PL-WI-CL-OPL-068-EXT', name: 'Instrukcja pakowania dla urządzenia Funbox 3', department: 'REFURBISHMENT', process: 'Pakowanie REF', assigned: true},
+                {code: 'PL-WI-CL-OPL-056-EXT', name: 'Instrukcja testowania dla urządzenia IWU200', department: 'REFURBISHMENT', process: 'Testowanie', assigned: true},
+                {code: 'PL-WI-CL-OPL-062-EXT', name: 'Instrukcja czyszczenia dla urządzenia IWU200', department: 'REFURBISHMENT', process: 'Czyszczenie', assigned: true},
+                {code: 'PL-WI-CL-OPL-070-EXT', name: 'Instrukcja pakowania dla urządzenia IWU200', department: 'REFURBISHMENT', process: 'Pakowanie REF', assigned: true},
+                {code: 'PL-WI-CL-OPL-069-EXT', name: 'Instrukcja pakowania dla urządzenia WHD 80', department: 'REFURBISHMENT', process: 'Pakowanie REF', assigned: true},
+                {code: 'PL-WI-CL-OPL-066-EXT', name: 'Instrukcja czyszczenia dla urządzenia WHD 80', department: 'REFURBISHMENT', process: 'Czyszczenie', assigned: true},
+                {code: 'PL-WI-CL-OPL-060-EXT', name: 'Instrukcja testowania dla urządzenia WHD 80', department: 'REFURBISHMENT', process: 'Testowanie', assigned: true},
+                {code: 'PL-WI-CL-OPL-067-EXT', name: 'Instrukcja czyszczenia dla urządzenia Funbox 2', department: 'REFURBISHMENT', process: 'Czyszczenie', assigned: true},
+                {code: 'PL-WI-CL-OPL-072-EXT', name: 'Instrukcja pakowania dla urządzenia FUNBOX', department: 'REFURBISHMENT', process: 'Pakowanie REF', assigned: true},
+                {code: 'PL-WI-CL-OPL-059-EXT', name: 'Instrukcja testowania dla urządzenia FUNBOX', department: 'REFURBISHMENT', process: 'Testowanie', assigned: true},
+                {code: 'PL-WI-CL-OPL-015', name: 'Realizacja zamówień dokumentowych B2C', department: 'B2C', process: 'Pakowanie B2C', assigned: true},
+                {code: 'PL-WI-CL-OPL-016', name: 'Realizacja zamówień NJU MOBILE', department: 'B2C', process: 'Pakowanie B2C', assigned: true},
+                {code: 'PL-WI-CL-OPL-017', name: 'Realizacja zamówień z produktem', department: 'B2C', process: 'Pakowanie B2C', assigned: true},
+                {code: 'PL-WI-CL-OPL-018', name: 'Rozpisywanie dokumentów', department: 'B2C', process: 'Pakowanie B2C', assigned: true},
+                {code: 'PL-WI-CL-OPL-019', name: 'Relokacja za pomocą skanera na linię B2C', department: 'B2C', process: 'Relokacja B2C', assigned: true},
+                {code: 'PL-WI-CL-OPL-035', name: 'Transport paczek do strefy wysyłki', department: 'B2B', process: 'Pakowanie B2B', assigned: true},
+                {code: 'PL-WI-CL-OPL-035', name: 'Transport paczek do strefy wysyłki', department: 'B2C', process: 'Pakowanie B2C', assigned: true},
+                {code: 'PL-WI-CL-OPL-024', name: 'Odbiory własne SBE Broker Utylizacja', department: 'RETURNS', process: 'Admin RET', assigned: true},
+                {code: 'PL-WI-CL-OPL-025-EXT', name: 'Przyjęcie paczek od kuriera', department: 'RETURNS', process: 'Odbiór kurier', assigned: true},
+                {code: 'PL-WI-CL-OPL-043-EXT', name: 'Rejestracja zwrotów i odbić z kanału B2C oraz B2B', department: 'RETURNS', process: 'Przyjęcie B2C', assigned: true},
+                {code: 'PL-WI-CL-OPL-074-EXT', name: 'Opiniowanie zwrotów oczekujących na decyzję', department: 'RETURNS', process: 'Opiniowanie', assigned: true},
+                {code: 'PL-WI-CL-OPL-073-EXT', name: 'Rejestracja i przyjęcie zwrotów z POS', department: 'RETURNS', process: 'Przyjęcie POS', assigned: true},
+                {code: 'PL-WI-CL-OPL-075', name: 'Reklamacje zwroty z POS', department: 'RETURNS', process: 'Reklamacja POS', assigned: true},
+                {code: 'PL-WI-CL-OPL-045', name: 'Produktywność B2C', department: 'B2C', process: 'Admin B2C', assigned: true},
+                {code: 'PL-WI-CL-OPL-020', name: 'Porównanie stanów magazynowych', department: 'INVENTORY', process: 'Admin INV', assigned: true},
+                {code: 'PL-WI-CL-OPL-021', name: 'Stock Check', department: 'INVENTORY', process: 'Inwetaryzacja', assigned: true},
+                {code: 'PL-WI-CL-OPL-022', name: 'Zgłaszanie braków do Ochrony', department: 'INVENTORY', process: 'Admin INV', assigned: true},
+                {code: 'PL-WI-CL-OPL-023', name: 'Tworzenie raportu zgodności pustych lokalizacji', department: 'INVENTORY', process: 'Admin INV', assigned: true},
+                {code: 'PL-WI-CL-OPL-011', name: 'Przygotowanie WZ oraz FV do reklamacji do przewoźnika', department: 'QUALITY', process: 'Reklamacja MC', assigned: true},
+                {code: 'PL-WI-CL-OPL-004', name: 'Organizacja pracy z użyciem systemu atlas', department: 'MAGAZYN', process: 'Operator wózka', assigned: true},
+                {code: 'PL-WI-CL-OPL-009', name: 'Obsługa bazy reklamacji CEVA', department: 'QUALITY', process: 'Reklamacja MC', assigned: true},
+                {code: 'PL-WI-CL-OPL-010', name: 'Historia transakcji magazynowych w systemie WMS', department: 'QUALITY', process: 'Reklamacja MC', assigned: true},
+                {code: 'PL-WI-CL-OPL-012', name: 'Składanie reklamacji DPD', department: 'QUALITY', process: 'Reklamacja MC', assigned: true},
+                {code: 'PL-WI-CL-OPL-013', name: 'Wydruk danych z systemu WMS', department: 'QUALITY', process: 'Reklamacja MC', assigned: true},
+                {code: 'PL-WI-CL-OPL-014', name: 'Zarządzanie systemem bezpieczeństwa', department: 'QUALITY', process: 'Ochrona', assigned: true},
+                {code: 'PL-WI-CL-OPL-034', name: 'Rejestracja czasu pracy', department: 'HR', process: 'HR', assigned: true},
+                {code: 'PL-WI-CL-OPL-036', name: 'Uzupełnianie wody demineralizowanej w akumulatorze wózka jezdniowego', department: 'MAGAZYN', process: 'Operator wózka', assigned: true},
+                {code: 'PL-WI-CL-OPL-037', name: 'Oragnizacja pracy operatorów wózków jezdniowych', department: 'MAGAZYN', process: 'Operator wózka', assigned: true},
+                {code: 'PL-WI-CL-OPL-038', name: 'Zestaw awaryjny - oznaczenie uszkodzonego narzędzia i miejsca', department: 'MAGAZYN', process: 'MAGAZYN', assigned: true},
+                {code: 'PL-WI-CL-OPL-039', name: 'Czynności wykonywane przed przystąpieniem do pracy z użyciem wózka jezdniowego', department: 'MAGAZYN', process: 'Operator wózka', assigned: true},
+                {code: 'PL-WI-CL-OPL-041', name: 'Kontrola Wagi', department: 'B2B', process: 'Pobranie B2B', assigned: true},
+                {code: 'PL-WI-CL-OPL-044', name: 'Sposób postępowania z produktem niezgodnym - Dział B2C', department: 'B2C', process: 'PN', assigned: true},
+                {code: 'PL-WI-CL-OPL-048', name: 'Kompletacja zestawów- kitting', department: 'VAS', process: 'VAS', assigned: true},
+                {code: 'PL-WI-CL-OPL-049', name: 'Pick Bundli - Kitting', department: 'VAS', process: 'VAS', assigned: true},
+                {code: 'PL-WI-CL-OPL-050', name: 'Putaway', department: 'Inbound', process: 'Relokacja IN', assigned: true},
+                {code: 'PL-WI-CL-OPL-071-EXT', name: 'Instrukcja Kontroli Jakości działu Odnowa', department: 'REFURBISHMENT', process: 'KJ', assigned: true},
+                {code: 'PL-WI-CL-OPL-076', name: 'Uzupełnianie SCHEDULING TOOL', department: 'Admin', process: 'Admin', assigned: true},
+                {code: 'PL-WI-CL-OPL-077', name: 'Uzupełnianie raportu QS', department: 'REPORTING', process: 'Raport QS', assigned: true},
+                {code: 'PL-WI-CL-OPL-078', name: 'Użytkowanie prasy stacjonarnej oraz wywrotnicy', department: 'MAGAZYN', process: 'MAGAZYN', assigned: true},
+                {code: 'PL-WI-CL-OPL-079', name: 'Kontrola w zakresie Ochrony Środowiska i stanu czystości', department: 'QUALITY', process: 'Środowisko', assigned: true},
+                {code: 'PL-WI-CL-OPL-080', name: 'Kontrolowanie stanu zapasów materiałów pomocniczych', department: 'MAGAZYN', process: 'Opakowania', assigned: true},
+                {code: 'PL-WI-CL-OPL-081', name: 'Produktywność B2B', department: 'B2B', process: 'Admin B2B', assigned: true},
+                {code: 'PL-WI-CL-OPL-082', name: 'Wysyłka paczek do klienta', department: 'RETURNS', process: 'Odsyłka', assigned: true},
+                {code: 'PL-WI-CL-OPL-053-EXT', name: 'Instrukcja testowania dla Funbox 6', department: 'REFURBISHMENT', process: 'Testowanie', assigned: true},
+                {code: 'PL-WI-CL-OPL-054-EXT', name: 'Instrukcja pakowania dla Funbox 6', department: 'REFURBISHMENT', process: 'Pakowanie REF', assigned: true},
+                {code: 'PL-WI-CL-OPL-055-EXT', name: 'Instrukcja czyszczenia dla Funbox 6', department: 'REFURBISHMENT', process: 'Czyszczenie', assigned: true},
+                {code: 'PL-WI-CL-OPL-003', name: 'Roliczenie Finansowe', department: 'REPORTING', process: 'Rozliczenie', assigned: true},
+                {code: 'PL-WI-CL-OPL-051', name: 'Relokacja systemowa', department: 'B2B', process: 'Admin B2B', assigned: true},
+                {code: 'PL-WI-CL-OPL-051', name: 'Relokacja systemowa', department: 'REFURBISHMENT', process: 'Admin REF', assigned: true},
+                {code: 'PL-WI-CL-OPL-051', name: 'Relokacja systemowa', department: 'RETURNS', process: 'Przyjęcie RET', assigned: true}
             ],
             
             // Uczestnicy GEMBA Walk według poziomów
@@ -234,6 +336,77 @@ const CEVA_CONFIG = {
     getGembaCategories: function() {
         const branch = this.getCurrentBranch();
         return Object.keys(branch.gembaQuestions);
+    },
+    
+    // ========== NOWE FUNKCJE DLA INSTRUKCJI ==========
+    
+    // Pobierz wszystkie unikalne działy
+    getDepartments: function() {
+        const branch = this.getCurrentBranch();
+        const departments = [...new Set(branch.instructions.map(i => i.department))];
+        return departments.sort();
+    },
+    
+    // Pobierz procesy dla wybranego działu
+    getProcessesByDepartment: function(department) {
+        const branch = this.getCurrentBranch();
+        const processes = branch.instructions
+            .filter(i => i.department === department && i.assigned)
+            .map(i => i.process);
+        return [...new Set(processes)].sort();
+    },
+    
+    // Pobierz instrukcje dla wybranego działu i procesu
+    getInstructionsByDepartmentAndProcess: function(department, process) {
+        const branch = this.getCurrentBranch();
+        const instructions = branch.instructions
+            .filter(i => i.department === department && i.process === process && i.assigned);
+        
+        // Zwróć unikalne instrukcje (po kodzie)
+        const uniqueInstructions = [];
+        const seen = new Set();
+        
+        instructions.forEach(instr => {
+            if (!seen.has(instr.code)) {
+                seen.add(instr.code);
+                uniqueInstructions.push({
+                    code: instr.code,
+                    name: instr.name,
+                    fullName: `${instr.code} - ${instr.name}`
+                });
+            }
+        });
+        
+        return uniqueInstructions;
+    },
+    
+    // Pobierz wszystkie instrukcje (bez filtrów)
+    getAllInstructions: function() {
+        const branch = this.getCurrentBranch();
+        const instructions = branch.instructions.filter(i => i.assigned);
+        
+        // Zwróć unikalne instrukcje (po kodzie)
+        const uniqueInstructions = [];
+        const seen = new Set();
+        
+        instructions.forEach(instr => {
+            if (!seen.has(instr.code)) {
+                seen.add(instr.code);
+                uniqueInstructions.push({
+                    code: instr.code,
+                    name: instr.name,
+                    fullName: `${instr.code} - ${instr.name}`
+                });
+            }
+        });
+        
+        return uniqueInstructions.sort((a, b) => a.code.localeCompare(b.code));
+    },
+    
+    // Pobierz szczegóły instrukcji po kodzie
+    getInstructionDetails: function(code) {
+        const branch = this.getCurrentBranch();
+        return branch.instructions.filter(i => i.code === code && i.assigned);
     }
 };
 
