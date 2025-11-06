@@ -64,6 +64,39 @@
             border-radius: 8px;
             font-size: 1em;
         }
+        .shift-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .shift-btn {
+            padding: 15px;
+            border: 3px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+            color: #333;
+        }
+        .shift-btn:hover {
+            border-color: #667eea;
+        }
+        .shift-btn.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .shift-icon {
+            font-size: 1.5em;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .shift-label {
+            font-size: 0.9em;
+        }
         .category-section {
             background: white;
             border-radius: 15px;
@@ -271,6 +304,23 @@
                 </select>
             </div>
             <div class="form-group">
+                <label>Zmiana:</label>
+                <div class="shift-selector">
+                    <button type="button" class="shift-btn" onclick="selectShift(1, this)">
+                        <span class="shift-icon">🌅</span>
+                        <span class="shift-label">Zmiana 1</span>
+                    </button>
+                    <button type="button" class="shift-btn" onclick="selectShift(2, this)">
+                        <span class="shift-icon">☀️</span>
+                        <span class="shift-label">Zmiana 2</span>
+                    </button>
+                    <button type="button" class="shift-btn" onclick="selectShift(3, this)">
+                        <span class="shift-icon">🌙</span>
+                        <span class="shift-label">Zmiana 3</span>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
                 <label>Poziom GEMBA:</label>
                 <select id="gembaLevel" class="form-control" onchange="switchLevel()">
                     <option value="">-- Wybierz poziom --</option>
@@ -306,6 +356,7 @@
                 <h3 style="color: #333; margin-bottom: 15px;">Podsumowanie:</h3>
                 <div style="text-align: left; line-height: 1.8;">
                     <p><strong>Obszar:</strong> <span id="resultZone"></span></p>
+                    <p><strong>Zmiana:</strong> <span id="resultShift"></span></p>
                     <p><strong>Poziom:</strong> <span id="resultLevel"></span></p>
                 </div>
             </div>
@@ -351,6 +402,7 @@
             let categoryObservations = {};
             let selectedParticipants = [];
             let savedGembaData = null;
+            let selectedShift = null;
 
             document.getElementById('gembaDate').value = new Date().toISOString().split('T')[0];
             
@@ -361,6 +413,14 @@
                 option.textContent = zone.name;
                 zoneSelect.appendChild(option);
             });
+
+            window.selectShift = function(shiftNumber, btn) {
+                // Usuń zaznaczenie ze wszystkich przycisków
+                document.querySelectorAll('.shift-btn').forEach(b => b.classList.remove('selected'));
+                // Zaznacz wybrany przycisk
+                btn.classList.add('selected');
+                selectedShift = shiftNumber;
+            };
 
             window.switchLevel = function() {
                 const level = parseInt(document.getElementById('gembaLevel').value);
@@ -526,6 +586,11 @@
                     return;
                 }
 
+                if (selectedShift === null) {
+                    alert('Wybierz zmianę!');
+                    return;
+                }
+
                 selectedParticipants = [];
                 document.querySelectorAll('#participantsList input[type="checkbox"]:checked').forEach(cb => {
                     selectedParticipants.push(cb.value);
@@ -561,6 +626,7 @@
                     date: date,
                     timestamp: new Date().toISOString(),
                     zone: zone,
+                    shift: selectedShift,
                     gembaLevel: level,
                     participants: selectedParticipants,
                     categoryObservations: categoryObservations,
@@ -575,11 +641,13 @@
                     console.warn('Nie można zapisać do localStorage:', e);
                 }
 
-                const fileName = CEVA_CONFIG.generateFileName('gemba', zone, date);
+                // Zmodyfikowana nazwa pliku z uwzględnieniem zmiany
+                const fileName = `gemba_${branch.code}_${zone.replace(/\s+/g, '')}_Zmiana${selectedShift}_${date}.json`;
                 const levelText = `Poziom ${level}`;
+                const shiftText = `Zmiana ${selectedShift}`;
                 
-                savedGembaData = { gembaData, fileName, zone, levelText, date };
-                showResult(fileName, zone, levelText);
+                savedGembaData = { gembaData, fileName, zone, levelText, shiftText, date };
+                showResult(fileName, zone, shiftText, levelText);
             };
 
             window.downloadFile = function() {
@@ -607,7 +675,7 @@
                     return;
                 }
 
-                const { gembaData, fileName, zone, levelText, date } = savedGembaData;
+                const { gembaData, fileName, zone, levelText, shiftText, date } = savedGembaData;
                 const json = JSON.stringify(gembaData, null, 2);
                 const blob = new Blob([json], { type: 'application/json' });
                 const file = new File([blob], fileName, { type: 'application/json' });
@@ -617,21 +685,21 @@
                         await navigator.share({
                             files: [file],
                             title: `GEMBA Walk - ${zone}`,
-                            text: `GEMBA Walk\n\nObszar: ${zone}\n${levelText}\nData: ${date}\n\nWyślij do: dominik.harezlak@cevalogistics.com`
+                            text: `GEMBA Walk\n\nObszar: ${zone}\n${shiftText}\n${levelText}\nData: ${date}\n\nWyślij do: dominik.harezlak@cevalogistics.com`
                         });
                         console.log('Udostępniono pomyślnie');
                     } catch (err) {
                         if (err.name !== 'AbortError') {
                             console.error('Błąd udostępniania:', err);
-                            fallbackEmailMethod(fileName, zone, levelText, date, file);
+                            fallbackEmailMethod(fileName, zone, shiftText, levelText, date, file);
                         }
                     }
                 } else {
-                    fallbackEmailMethod(fileName, zone, levelText, date, file);
+                    fallbackEmailMethod(fileName, zone, shiftText, levelText, date, file);
                 }
             };
 
-            window.fallbackEmailMethod = function(fileName, zone, levelText, date, file) {
+            window.fallbackEmailMethod = function(fileName, zone, shiftText, levelText, date, file) {
                 const url = URL.createObjectURL(file);
                 const a = document.createElement('a');
                 a.href = url;
@@ -640,15 +708,15 @@
                 URL.revokeObjectURL(url);
 
                 setTimeout(() => {
-                    const mailSubject = encodeURIComponent(`GEMBA Walk - ${zone} - ${date}`);
-                    const mailBody = encodeURIComponent(`Witaj,\n\nPrzesyłam wyniki GEMBA Walk:\n\nObszar: ${zone}\n${levelText}\nData: ${date}\n\nPlik JSON został pobrany - dołącz go do tego maila.\n\nPozdrawiam`);
+                    const mailSubject = encodeURIComponent(`GEMBA Walk - ${zone} - ${shiftText} - ${date}`);
+                    const mailBody = encodeURIComponent(`Witaj,\n\nPrzesyłam wyniki GEMBA Walk:\n\nObszar: ${zone}\n${shiftText}\n${levelText}\nData: ${date}\n\nPlik JSON został pobrany - dołącz go do tego maila.\n\nPozdrawiam`);
                     window.location.href = `mailto:dominik.harezlak@cevalogistics.com?subject=${mailSubject}&body=${mailBody}`;
                 }, 500);
 
                 alert('Plik został pobrany. Za chwilę otworzy się klient email - pamiętaj o dołączeniu pobranego pliku!');
             };
 
-            function showResult(fileName, zone, levelText) {
+            function showResult(fileName, zone, shiftText, levelText) {
                 document.querySelector('.content').childNodes.forEach(node => {
                     if (node.id !== 'resultSection' && node.nodeType === 1) {
                         node.style.display = 'none';
@@ -659,6 +727,7 @@
                 resultSection.classList.add('visible');
                 
                 document.getElementById('resultZone').textContent = zone;
+                document.getElementById('resultShift').textContent = shiftText;
                 document.getElementById('resultLevel').textContent = levelText;
                 
                 document.getElementById('downloadFileBtn').onclick = downloadFile;
