@@ -150,6 +150,22 @@
             margin-bottom: 15px;
             font-size: 1.1em;
         }
+        .instruction-item {
+            background: white;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            border-left: 3px solid #4ecdc4;
+        }
+        .instruction-code {
+            font-weight: 600;
+            color: #333;
+        }
+        .instruction-name {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 3px;
+        }
         .question-item {
             background: #f8f9fa;
             border-radius: 10px;
@@ -281,14 +297,32 @@
                     <label>Typ audytu:</label>
                     <select id="auditType" class="form-control" onchange="loadAuditOptions()">
                         <option value="">-- Wybierz typ --</option>
-                        <option value="process">Audyt procesu (wszystkie instrukcje)</option>
+                        <option value="department-process">Audyt według działu i procesu</option>
                         <option value="instruction">Audyt pojedynczej instrukcji</option>
                     </select>
                 </div>
-                <div class="form-group" id="selectionGroup" style="display:none;">
-                    <label id="selectionLabel">Wybierz:</label>
-                    <select id="selection" class="form-control" onchange="loadInstructions()">
-                        <option value="">-- Wybierz --</option>
+                
+                <!-- Sekcja dla wyboru działu -->
+                <div class="form-group" id="departmentGroup" style="display:none;">
+                    <label>Dział:</label>
+                    <select id="departmentSelect" class="form-control" onchange="loadProcesses()">
+                        <option value="">-- Wybierz dział --</option>
+                    </select>
+                </div>
+                
+                <!-- Sekcja dla wyboru procesu -->
+                <div class="form-group" id="processGroup" style="display:none;">
+                    <label>Proces:</label>
+                    <select id="processSelect" class="form-control" onchange="loadInstructions()">
+                        <option value="">-- Wybierz proces --</option>
+                    </select>
+                </div>
+                
+                <!-- Sekcja dla wyboru pojedynczej instrukcji -->
+                <div class="form-group" id="instructionGroup" style="display:none;">
+                    <label>Instrukcja:</label>
+                    <select id="instructionSelect" class="form-control" onchange="loadSingleInstruction()">
+                        <option value="">-- Wybierz instrukcję --</option>
                     </select>
                 </div>
             </div>
@@ -352,16 +386,6 @@
 
         function initializePage() {
             const branch = CEVA_CONFIG.getCurrentBranch();
-            
-            const processes = {
-                'Przyjęcie towaru': ['INS-001 Rozładunek', 'INS-002 Kontrola jakości', 'INS-003 Rejestracja w systemie'],
-                'Kompletacja': ['INS-010 Picking listy', 'INS-011 Pakowanie', 'INS-012 Etykietowanie'],
-                'Wysyłka': ['INS-020 Przygotowanie dokumentów', 'INS-021 Załadunek', 'INS-022 Kontrola przed wysyłką'],
-                'Zwroty': ['INS-030 Przyjęcie zwrotu', 'INS-031 Ocena stanu', 'INS-032 Księgowanie'],
-                'Inwentaryzacja': ['INS-040 Przygotowanie', 'INS-041 Liczenie', 'INS-042 Rozliczenie różnic']
-            };
-
-            const allInstructions = Object.values(processes).flat();
 
             const auditQuestions = [
                 "Czy instrukcja jest dostępna i aktualna?",
@@ -380,6 +404,9 @@
             let comments = {};
             let instructionsToAudit = [];
             let savedAuditData = null;
+            let currentAuditType = '';
+            let currentDepartment = '';
+            let currentProcess = '';
 
             document.getElementById('auditDate').value = new Date().toISOString().split('T')[0];
             
@@ -447,68 +474,166 @@
 
             window.loadAuditOptions = function() {
                 const type = document.getElementById('auditType').value;
-                const selectionGroup = document.getElementById('selectionGroup');
-                const selectionLabel = document.getElementById('selectionLabel');
-                const selection = document.getElementById('selection');
+                currentAuditType = type;
                 
-                selection.innerHTML = '<option value="">-- Wybierz --</option>';
+                // Ukryj wszystkie grupy wyboru
+                document.getElementById('departmentGroup').style.display = 'none';
+                document.getElementById('processGroup').style.display = 'none';
+                document.getElementById('instructionGroup').style.display = 'none';
+                document.getElementById('instructionsContainer').innerHTML = '';
+                document.getElementById('submitBtn').style.display = 'none';
                 
-                if (!type) {
-                    selectionGroup.style.display = 'none';
-                    return;
-                }
+                if (!type) return;
                 
-                selectionGroup.style.display = 'block';
-                
-                if (type === 'process') {
-                    selectionLabel.textContent = 'Wybierz proces:';
-                    Object.keys(processes).forEach(proc => {
+                if (type === 'department-process') {
+                    // Pokaż wybór działu
+                    document.getElementById('departmentGroup').style.display = 'block';
+                    
+                    // Załaduj działy
+                    const departmentSelect = document.getElementById('departmentSelect');
+                    departmentSelect.innerHTML = '<option value="">-- Wybierz dział --</option>';
+                    
+                    const departments = CEVA_CONFIG.getDepartments();
+                    departments.forEach(dept => {
                         const option = document.createElement('option');
-                        option.value = proc;
-                        option.textContent = proc;
-                        selection.appendChild(option);
+                        option.value = dept;
+                        option.textContent = dept;
+                        departmentSelect.appendChild(option);
                     });
-                } else {
-                    selectionLabel.textContent = 'Wybierz instrukcję:';
+                    
+                } else if (type === 'instruction') {
+                    // Pokaż wybór pojedynczej instrukcji
+                    document.getElementById('instructionGroup').style.display = 'block';
+                    
+                    // Załaduj wszystkie instrukcje
+                    const instructionSelect = document.getElementById('instructionSelect');
+                    instructionSelect.innerHTML = '<option value="">-- Wybierz instrukcję --</option>';
+                    
+                    const allInstructions = CEVA_CONFIG.getAllInstructions();
                     allInstructions.forEach(instr => {
                         const option = document.createElement('option');
-                        option.value = instr;
-                        option.textContent = instr;
-                        selection.appendChild(option);
+                        option.value = instr.code;
+                        option.textContent = instr.fullName;
+                        instructionSelect.appendChild(option);
                     });
                 }
             };
 
-            window.loadInstructions = function() {
-                const type = document.getElementById('auditType').value;
-                const selected = document.getElementById('selection').value;
-                const container = document.getElementById('instructionsContainer');
+            window.loadProcesses = function() {
+                const department = document.getElementById('departmentSelect').value;
+                currentDepartment = department;
                 
-                if (!selected) {
-                    container.innerHTML = '';
+                document.getElementById('processGroup').style.display = 'none';
+                document.getElementById('instructionsContainer').innerHTML = '';
+                document.getElementById('submitBtn').style.display = 'none';
+                
+                if (!department) return;
+                
+                // Pokaż wybór procesu
+                document.getElementById('processGroup').style.display = 'block';
+                
+                // Załaduj procesy dla wybranego działu
+                const processSelect = document.getElementById('processSelect');
+                processSelect.innerHTML = '<option value="">-- Wybierz proces --</option>';
+                
+                const processes = CEVA_CONFIG.getProcessesByDepartment(department);
+                processes.forEach(proc => {
+                    const option = document.createElement('option');
+                    option.value = proc;
+                    option.textContent = proc;
+                    processSelect.appendChild(option);
+                });
+            };
+
+            window.loadInstructions = function() {
+                const department = document.getElementById('departmentSelect').value;
+                const process = document.getElementById('processSelect').value;
+                currentProcess = process;
+                
+                const container = document.getElementById('instructionsContainer');
+                container.innerHTML = '';
+                instructionsToAudit = [];
+                
+                if (!department || !process) {
                     document.getElementById('submitBtn').style.display = 'none';
                     return;
                 }
                 
-                container.innerHTML = '';
-                instructionsToAudit = [];
+                // Pobierz instrukcje dla wybranego działu i procesu
+                const instructions = CEVA_CONFIG.getInstructionsByDepartmentAndProcess(department, process);
                 
-                if (type === 'process') {
-                    instructionsToAudit = processes[selected];
-                } else {
-                    instructionsToAudit = [selected];
+                if (instructions.length === 0) {
+                    container.innerHTML = '<div class="instruction-card"><p style="color: #dc3545;">Brak instrukcji dla wybranego działu i procesu.</p></div>';
+                    document.getElementById('submitBtn').style.display = 'none';
+                    return;
                 }
                 
+                instructionsToAudit = instructions;
+                
+                // Wyświetl listę instrukcji
                 const instrListCard = document.createElement('div');
                 instrListCard.className = 'instruction-card';
                 instrListCard.innerHTML = `
-                    <div class="instruction-title">📋 Instrukcje objęte audytem:</div>
-                    <ul style="margin-left: 20px; line-height: 1.8;">
-                        ${instructionsToAudit.map(i => `<li><strong>${i}</strong></li>`).join('')}
-                    </ul>
+                    <div class="instruction-title">📋 Instrukcje objęte audytem (${instructions.length}):</div>
+                    <div style="margin-top: 10px;">
+                        ${instructions.map(i => `
+                            <div class="instruction-item">
+                                <div class="instruction-code">${i.code}</div>
+                                <div class="instruction-name">${i.name}</div>
+                            </div>
+                        `).join('')}
+                    </div>
                 `;
                 container.appendChild(instrListCard);
                 
+                // Wyświetl pytania audytu
+                displayAuditQuestions(container);
+                
+                document.getElementById('submitBtn').style.display = 'block';
+            };
+
+            window.loadSingleInstruction = function() {
+                const instructionCode = document.getElementById('instructionSelect').value;
+                const container = document.getElementById('instructionsContainer');
+                container.innerHTML = '';
+                instructionsToAudit = [];
+                
+                if (!instructionCode) {
+                    document.getElementById('submitBtn').style.display = 'none';
+                    return;
+                }
+                
+                // Pobierz szczegóły instrukcji
+                const allInstructions = CEVA_CONFIG.getAllInstructions();
+                const instruction = allInstructions.find(i => i.code === instructionCode);
+                
+                if (!instruction) {
+                    container.innerHTML = '<div class="instruction-card"><p style="color: #dc3545;">Nie znaleziono instrukcji.</p></div>';
+                    document.getElementById('submitBtn').style.display = 'none';
+                    return;
+                }
+                
+                instructionsToAudit = [instruction];
+                
+                // Wyświetl informacje o instrukcji
+                const instrListCard = document.createElement('div');
+                instrListCard.className = 'instruction-card';
+                instrListCard.innerHTML = `
+                    <div class="instruction-title">📋 Audytowana instrukcja:</div>
+                    <div class="instruction-item" style="margin-top: 10px;">
+                        <div class="instruction-code">${instruction.code}</div>
+                        <div class="instruction-name">${instruction.name}</div>
+                    </div>
+                `;
+                container.appendChild(instrListCard);
+                
+                // Wyświetl pytania audytu
+                displayAuditQuestions(container);
+                
+                document.getElementById('submitBtn').style.display = 'block';
+            };
+
+            function displayAuditQuestions(container) {
                 const header = document.createElement('div');
                 header.className = 'section-header';
                 header.textContent = 'Pytania audytu (dla wszystkich instrukcji)';
@@ -536,9 +661,7 @@
                     `;
                     container.appendChild(questionDiv);
                 });
-                
-                document.getElementById('submitBtn').style.display = 'block';
-            };
+            }
 
             window.selectAnswer = function(key, value, btn) {
                 const parent = btn.parentElement;
@@ -567,10 +690,14 @@
                 const zone = document.getElementById('processZone').value;
                 const auditor = document.getElementById('processAuditor').value;
                 const type = document.getElementById('auditType').value;
-                const selected = document.getElementById('selection').value;
 
-                if (!date || !zone || !auditor || !type || !selected) {
+                if (!date || !zone || !auditor || !type) {
                     alert('Wypełnij wszystkie pola podstawowe!');
+                    return;
+                }
+
+                if (instructionsToAudit.length === 0) {
+                    alert('Nie wybrano instrukcji do audytu!');
                     return;
                 }
 
@@ -579,6 +706,7 @@
                     return;
                 }
 
+                // Sprawdź komentarze dla odpowiedzi "Nie"
                 for (let key in answers) {
                     if (answers[key] === 'no') {
                         const commentValue = document.getElementById(`comment_${key}`).value.trim();
@@ -590,6 +718,7 @@
                     }
                 }
 
+                // Oblicz wynik
                 let total = 0, correct = 0;
                 for (let key in answers) {
                     total++;
@@ -597,9 +726,11 @@
                 }
                 const score = Math.round((correct / total) * 100);
 
+                // Dane o czasie cyklu
                 const cycleCount = parseInt(document.getElementById('cycleCount').value) || 0;
                 const cycleTime = cycleCount > 0 ? timerSeconds / cycleCount : 0;
 
+                // Przygotuj dane audytu
                 const auditData = {
                     type: 'PROCESS',
                     branch: branch.code,
@@ -609,8 +740,12 @@
                     zone: zone,
                     auditor: auditor,
                     auditType: type,
-                    selectedItem: selected,
-                    instructions: instructionsToAudit,
+                    department: currentDepartment || null,
+                    process: currentProcess || null,
+                    instructions: instructionsToAudit.map(i => ({
+                        code: i.code,
+                        name: i.name
+                    })),
                     instructionsCount: instructionsToAudit.length,
                     answers: answers,
                     comments: comments,
@@ -622,6 +757,7 @@
                     }
                 };
 
+                // Zapisz do localStorage
                 try {
                     let localAudits = JSON.parse(localStorage.getItem('process_audits') || '[]');
                     localAudits.push(auditData);
@@ -630,8 +766,18 @@
                     console.warn('Nie można zapisać do localStorage:', e);
                 }
 
+                // Przygotuj nazwę pliku
                 const fileName = CEVA_CONFIG.generateFileName('process', zone, date);
-                savedAuditData = { auditData, fileName, score, zone, auditor, date, instructionsCount: instructionsToAudit.length, cycleData: auditData.cycleTime };
+                savedAuditData = { 
+                    auditData, 
+                    fileName, 
+                    score, 
+                    zone, 
+                    auditor, 
+                    date, 
+                    instructionsCount: instructionsToAudit.length, 
+                    cycleData: auditData.cycleTime 
+                };
 
                 showResult(fileName, score, instructionsToAudit.length, auditData.cycleTime);
             };
