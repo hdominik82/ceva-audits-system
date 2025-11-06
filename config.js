@@ -196,6 +196,7 @@ const CEVA_CONFIG = {
                     {name: 'Wichrowski Piotr', email: 'krzysztof.wilczynski@cevalogistics.com'},
                     {name: 'Wilczyński Krzysztof', email: 'krzysztof.wilczynski@cevalogistics.com'},
                     {name: 'Dominik Haręźlak', email: 'dominik.harezlak@cevalogistics.com'},
+                    {name: 'Maciej Wesolowski', email: 'maciej.wesolowski@cevalogistics.com'},
                     {name: 'Marta Jęznach', email: 'marta.jeznach@cevalogistics.com'}
                 ]
             },
