@@ -47,11 +47,13 @@ const CEVA_CONFIG = {
             // Lista audytorów (do audytów Process i problemów)
             auditors: [
                 'Jan Surwilo',
-                'Konrad Kasinski',
-                'Mariusz Maciąg',
-                'Dominik Harezlak',
-                'Patryk Krzeminski',
-                'Piotr Żebrowski'
+                'Renata Zegarek',
+                'Janusz Mandes',
+                'Jaroslaw Domanski',
+                'Rober Zach',
+                'Iwona Kaluza',
+                'Grzegorz Oniszczuk',
+                'Rafal Nowak'
             ],
             
             // Lista audytorów 5S
