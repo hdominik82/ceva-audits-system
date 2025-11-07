@@ -1014,19 +1014,22 @@
                     console.warn('Nie można zapisać do localStorage:', e);
                 }
 
-                // Przygotuj nazwę pliku
-                const fileName = CEVA_CONFIG.generateFileName('process', zone, date);
-                savedAuditData = { 
-                    auditData, 
-                    fileName, 
-                    score, 
-                    zone, 
-                    auditor, 
-                    date, 
-                    instructionsCount: instructionsToAudit.length, 
-                    cycleData: auditData.cycleTime,
-                    measurementsData: measurementsData
-                };
+                // Przygotuj nazwę pliku z kodami instrukcji dla unikalności
+					const instructionCodes = instructionsToAudit.map(i => i.code).join('_');
+					const baseFileName = CEVA_CONFIG.generateFileName('process', zone, date);
+					// Wstaw kody instrukcji przed rozszerzeniem .json
+					const fileName = baseFileName.replace('.json', `_${instructionCodes}.json`);
+					savedAuditData = { 
+						auditData, 
+						fileName, 
+						score, 
+						zone, 
+						auditor, 
+						date, 
+						instructionsCount: instructionsToAudit.length, 
+						cycleData: auditData.cycleTime,
+						measurementsData: measurementsData
+					};
 
                 showResult(fileName, score, instructionsToAudit.length, auditData.cycleTime, measurementsData);
             };
