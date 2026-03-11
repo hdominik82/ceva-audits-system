@@ -41,7 +41,7 @@ const CEVA_CONFIG = {
                 {id: 4, name: 'ODNOWA', responsible: 'Konrad Kasinski', target: 90},
                 {id: 5, name: 'PRZYJĘCIA/ VAS', responsible: 'Jan Surwilo', target: 90},
                 {id: 6, name: 'ZEWNĄTRZ BUDYNKU', responsible: 'Piotr Żebrowski', target: 90},
-                {id: 7, name: 'ŚREDNI WYNIK MAGAZYNU', responsible: 'Jan Surwilo', target: 90}
+                {id: 7, name: 'BIURA', responsible: 'Janusz Mandes', target: 90}
             ],
             
             // Lista audytorów (do audytów Process i problemów)
@@ -64,7 +64,8 @@ const CEVA_CONFIG = {
                 'JOANNA KEMPCZYŃSKA',
                 'ANNA KAPLER',
                 'PIOTR ŻEBROWSKI',
-                'JAN SURWIŁO'
+                'JAN SURWIŁO',
+                'JANUSZ MANDES'
             ],
             
             // INSTRUKCJE - struktura z danych Excel
