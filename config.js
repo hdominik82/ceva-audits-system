@@ -60,8 +60,8 @@ const CEVA_CONFIG = {
             auditors5S: [
                 'PAWEŁ ADAMCZYK',
                 'NATALIA FUDAŁA',
-                'MONIKA SOCHA',
-                'JOANNA KEMPCZYŃSKA',
+                'MARTA NOWACZYŃSKA',
+                'JULITA SZYPROWSKA',
                 'ANNA KAPLER',
                 'PIOTR ŻEBROWSKI',
                 'JAN SURWIŁO',
