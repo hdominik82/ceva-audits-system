@@ -98,26 +98,49 @@
         };
     }
 
+    // ─── Krok 1: Sprawdź czy config jest w URL (przekierowanie z pliku config-KOD.html) ───
+    function getConfigFromUrl() {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const encoded = params.get('ceva_config');
+            if (!encoded) return null;
+            const json = decodeURIComponent(escape(atob(encoded)));
+            const cfg = JSON.parse(json);
+            // Zapisz do localStorage tej domeny i wyczyść URL
+            localStorage.setItem('ceva_branch_config', json);
+            localStorage.setItem('ceva_branch_code', cfg.code);
+            localStorage.setItem('ceva_config_version', cfg.generatedAt);
+            // Wyczyść parametr z URL bez przeładowania
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, '', cleanUrl);
+            console.log('[ConfigBridge] ✅ Config z URL, zapisano do localStorage:', cfg.code);
+            return cfg;
+        } catch(e) {
+            console.warn('[ConfigBridge] Błąd odczytu config z URL:', e);
+            return null;
+        }
+    }
+
     // ─── Główna logika ───────────────────────────────────────────────────────
-    const stored = getStoredConfig();
+    // Najpierw sprawdź URL (wyższy priorytet — świeży config z pliku)
+    const fromUrl = getConfigFromUrl();
+    const stored = fromUrl || getStoredConfig();
 
     // Config jest prawidłowy jeśli ma kod oddziału i co najmniej jedną strefę
     const isValidConfig = stored && stored.code && stored.zones && stored.zones.length > 0;
 
     if (isValidConfig) {
-        // Mamy config z localStorage (wysłany przez Teams) — nadpisuje config.js
+        // Mamy config z localStorage lub URL — nadpisuje config.js
         window.CEVA_CONFIG = buildCEVA_CONFIG(stored);
-        console.log('[ConfigBridge] ✅ Config z localStorage:', stored.code, stored.name);
+        console.log('[ConfigBridge] ✅ Config aktywny:', stored.code, stored.name);
         document.dispatchEvent(new CustomEvent('ceva-config-loaded', {
-            detail: { source:'localStorage', code:stored.code, name:stored.name }
+            detail: { source: fromUrl ? 'url' : 'localStorage', code:stored.code, name:stored.name }
         }));
     } else {
-        // Brak configu w localStorage — użyj config.js (fallback dla Orange i innych)
-        // Sprawdź po DOMContentLoaded bo config.js może się jeszcze ładować
+        // Brak configu — użyj config.js (fallback dla Orange i innych)
         var checkConfig = function() {
             if (typeof window.CEVA_CONFIG !== 'undefined') {
                 console.log('[ConfigBridge] ℹ️ Używam CEVA_CONFIG z config.js');
-                // Config.js załadowany poprawnie — nie pokazuj bannera
             } else {
                 console.warn('[ConfigBridge] ⚠️ Brak konfiguracji!');
                 window.CEVA_CONFIG_MISSING = true;
@@ -127,7 +150,6 @@
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', checkConfig);
         } else {
-            // DOM już gotowy (bridge załadowany po DOMContentLoaded)
             checkConfig();
         }
     }
